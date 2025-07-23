@@ -14,9 +14,8 @@ export const NavBar: FC = () => {
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = document.documentElement.scrollTop;
-      const scrollHeight = document.documentElement.clientHeight;
 
-      if (scrollTop > scrollHeight / 3) {
+      if (scrollTop > 10) {
         setShowColors(false);
       } else {
         setShowColors(true);
@@ -43,12 +42,13 @@ export const NavBar: FC = () => {
         <div className="container mx-auto font-light">
           <div className="flex justify-between items-center">
             <div className="text-white text-lg">BankGuru</div>
-            <div className="space-x-10 hidden sm:block">
+            <div className="space-x-10 hidden sm:flex truncate">
               {navData.map((item) => (
                 <Link
                   key={item.path}
                   href={item.path}
-                  className={cn("hover:text-[#E27A24] transition-colors duration-300",
+                  className={cn(
+                    "hover:text-[#E27A24] transition-colors duration-300",
                     pathname === item.path ? "text-[#E27A24]" : "text-white/40"
                   )}
                 >
