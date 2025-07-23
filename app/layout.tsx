@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Noto_Serif_Sinhala,
+  Nunito,
+  Raleway,
+} from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Providers } from "@/providers";
+import { NavBar } from "@/components/shared/nav-bar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,6 +19,23 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const nunito = Nunito({
+  variable: "--font-nunito",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const raleway = Raleway({
+  variable: "--font-raleway",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const sinhala = Noto_Serif_Sinhala({
+  variable: "--font-sinhala",
+  subsets: ["sinhala"],
 });
 
 export const metadata: Metadata = {
@@ -28,9 +52,12 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} ${nunito.variable} ${raleway.variable} ${sinhala.variable} antialiased font-nunito`}
         >
-          <Providers>{children}</Providers>
+          <Providers>
+            <NavBar />
+            {children}
+          </Providers>
         </body>
       </html>
     </ClerkProvider>
