@@ -22,16 +22,16 @@ export function LanguageChooser() {
       label: "English",
       icon: "/globe.svg", // Use globe for English
     },
-    {
-      code: "si",
-      label: "සිංහල",
-      icon: "/file.svg", // Use a different icon or flag for Sinhala
-    },
-    {
-      code: "ta",
-      label: "தமிழ்",
-      icon: "/window.svg", // Use a different icon or flag for Tamil
-    },
+    // {
+    //   code: "si",
+    //   label: "සිංහල",
+    //   icon: "/file.svg", // Use a different icon or flag for Sinhala
+    // },
+    // {
+    //   code: "ta",
+    //   label: "தமிழ்",
+    //   icon: "/window.svg", // Use a different icon or flag for Tamil
+    // },
   ];
 
   const [selected, setSelected] = useState(languages[0]);

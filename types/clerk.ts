@@ -1,6 +1,5 @@
 export interface CreateOrgInput {
   userId: string; // The admin/creator user ID
-  employeeEmails: string[]; // Array of emails for new users
   orgName?: string;
 }
 
