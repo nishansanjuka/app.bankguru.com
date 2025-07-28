@@ -2,6 +2,7 @@ import { ChooserTabs } from "@/components/shared/chooser-tabs";
 import { HeroSlider } from "@/components/shared/hero-slider-container";
 import { Button } from "@/components/ui/button";
 import { CreditCard, HandCoins, HousePlus } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
 export default function HomePage() {
@@ -18,13 +19,15 @@ export default function HomePage() {
               Your money deserves better. Find the best options for your needs,
               powered by real-time data and unbiased analysis.
             </p>
-            <Button
-              size={"lg"}
-              className=" sm:text-lg rounded-none sm:w-52 sm:h-12 bg-orange-500 border-none text-white"
-              variant={"outline"}
-            >
-              Get Started
-            </Button>
+            <Link href={"/sign-up"}>
+              <Button
+                size={"lg"}
+                className=" sm:text-lg rounded-none sm:w-52 sm:h-12 bg-orange-500 border-none text-white"
+                variant={"outline"}
+              >
+                Get Started
+              </Button>
+            </Link>
           </div>
 
           {/* Background Image */}

@@ -47,7 +47,7 @@ export const NavBar: FC = () => {
               className="text-2xl font-bold text-white hover:text-[#E27A24] transition-colors duration-300"
             >
               <Image
-                src={"/logo/bankguru-transparent.png"}
+                src={"/logo/bankguru-white.png"}
                 alt=""
                 width={986}
                 height={260}

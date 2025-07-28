@@ -200,7 +200,7 @@ export default function SignInPage() {
                               Email Address
                             </Label>
                           </Clerk.Label>
-                          <Clerk.Input type="email" required asChild>
+                          <Clerk.Input type="email" placeholder="you@example.com" required asChild>
                             <Input className="h-14 rounded-2xl bg-gray-50 border-0 focus:bg-white focus:ring-2 focus:ring-orange-500 text-base transition-all duration-300" />
                           </Clerk.Input>
                           <Clerk.FieldError className="block text-sm text-red-500 ml-6" />

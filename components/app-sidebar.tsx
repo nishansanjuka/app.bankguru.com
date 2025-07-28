@@ -24,7 +24,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
                 <Image
-                  src={"/logo/bankguru-transparent.png"}
+                  src={"/logo/bankguru-white.png"}
                   alt=""
                   width={986}
                   height={260}
