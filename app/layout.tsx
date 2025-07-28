@@ -9,7 +9,7 @@ import {
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Providers } from "@/providers";
-import { NavBar } from "@/components/shared/nav-bar";
+import { TopLoader } from "@/components/shared/top-loader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,7 +55,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} ${nunito.variable} ${raleway.variable} ${sinhala.variable} antialiased font-nunito`}
         >
           <Providers>
-            <NavBar />
+            <TopLoader />
             {children}
           </Providers>
         </body>
