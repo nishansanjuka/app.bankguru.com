@@ -49,7 +49,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+      signUpForceRedirectUrl={"/auth/callback"}
+      signInForceRedirectUrl={"/auth/callback"}
+    >
       <html lang="en" suppressHydrationWarning>
         <body
           className={`${geistSans.variable} ${geistMono.variable} ${nunito.variable} ${raleway.variable} ${sinhala.variable} antialiased font-nunito`}

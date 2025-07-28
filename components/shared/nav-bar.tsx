@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { navData } from "@/data/nav-data";
+import Image from "next/image";
 
 export const NavBar: FC = () => {
   const pathname = usePathname();
@@ -41,7 +42,18 @@ export const NavBar: FC = () => {
       >
         <div className="container mx-auto font-light">
           <div className="flex justify-between items-center">
-            <div className="text-white text-lg">BankGuru</div>
+            <Link
+              href="/"
+              className="text-2xl font-bold text-white hover:text-[#E27A24] transition-colors duration-300"
+            >
+              <Image
+                src={"/logo/bankguru-transparent.png"}
+                alt=""
+                width={986}
+                height={260}
+                className="w-40 object-contain group-data-[collapsible=icon]:hidden"
+              />
+            </Link>
             <div className="space-x-10 hidden sm:flex truncate">
               {navData.map((item) => (
                 <Link
