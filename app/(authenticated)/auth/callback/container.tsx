@@ -1,5 +1,5 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
 import { FC } from "react";
 import { handleUserPromote, validateCallbackForInstitutes } from "./actions";
@@ -9,9 +9,24 @@ import {
 } from "@/lib/actions/meta-data";
 import Loading from "@/app/loading";
 import { useRouter } from "next/navigation";
+import { getUserOrganizationWithAuth } from "@/lib/actions/organizations";
+import { toast } from "sonner";
 
 export const Container: FC = () => {
   const { user } = useUser();
+
+  const { setActive } = useClerk();
+
+  const setActiveOrganization = async () => {
+    const res = await getUserOrganizationWithAuth();
+    if (res.success) {
+      setActive({ organization: res.data.id });
+    } else {
+      toast.error(
+        res.error || "Failed to fetch organization. Please try again later."
+      );
+    }
+  };
 
   const router = useRouter();
 
@@ -31,7 +46,12 @@ export const Container: FC = () => {
       if (metaRes.data === "institute" || userType === "institute") {
         const validateRes = await validateCallbackForInstitutes();
         if (!validateRes.success) {
-          await updatePrivateMetadataWithAuth("userType", "institute");
+          const accountCategory = localStorage.getItem("accountType");
+          await updatePrivateMetadataWithAuth({
+            userType: "institute",
+            accountCategory,
+          });
+          localStorage.removeItem("accountType");
           const promoteRes = await handleUserPromote(instituteName);
           if (promoteRes.success) {
           } else {
@@ -42,6 +62,8 @@ export const Container: FC = () => {
       } else {
         await updatePrivateMetadataWithAuth("userType", "user");
       }
+      await setActiveOrganization();
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       router.push("/dashboard");
       return "DONE";
     },

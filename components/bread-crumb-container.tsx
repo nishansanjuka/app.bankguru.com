@@ -28,11 +28,11 @@ export const BreadcrumbContainer: FC = () => {
       <React.Fragment key={key}>
         <BreadcrumbItem>
           {isLast ? (
-            <BreadcrumbPage>
+            <BreadcrumbPage className="capitalize">
               {decodeURIComponent(segment.replace(/-/g, " "))}
             </BreadcrumbPage>
           ) : (
-            <Link href={href}>
+            <Link href={href} className="capitalize">
               {decodeURIComponent(segment.replace(/-/g, " "))}
             </Link>
           )}

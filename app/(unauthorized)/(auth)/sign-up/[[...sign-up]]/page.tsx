@@ -15,8 +15,10 @@ import {
   Shield,
   CheckCircle,
   Building,
+  Component,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { AccountTypeCombobox } from "@/components/institutions/account-type-combobox";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 
@@ -27,6 +29,7 @@ export default function OnboardingPage() {
   const [userType, setUserType] = useState<"user" | "institute" | null>(null);
   const [instituteName, setInstituteName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [accountType, setAccountType] = useState<string>("");
 
   const searchParams = useSearchParams();
 
@@ -43,6 +46,7 @@ export default function OnboardingPage() {
     // Check if user type is already stored
     const storedUserType = localStorage.getItem("userType");
     const storedInstituteName = localStorage.getItem("instituteName");
+    const storedAccountType = localStorage.getItem("accountType");
 
     if (storedUserType === "user") {
       setUserType(storedUserType);
@@ -50,6 +54,7 @@ export default function OnboardingPage() {
     } else if (storedUserType === "institute" && storedInstituteName) {
       setUserType(storedUserType);
       setInstituteName(storedInstituteName);
+      setAccountType(storedAccountType || "");
       setCurrentStep("signup");
     }
   }, []);
@@ -67,13 +72,14 @@ export default function OnboardingPage() {
 
   const handleInstitutionNameSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!instituteName.trim()) return;
+    if (!instituteName.trim() || !accountType) return;
 
     setIsSubmitting(true);
 
     // Simulate a brief loading state for better UX
     setTimeout(() => {
       localStorage.setItem("instituteName", instituteName.trim());
+      localStorage.setItem("accountType", accountType);
       setCurrentStep("signup");
       setIsSubmitting(false);
     }, 800);
@@ -83,8 +89,10 @@ export default function OnboardingPage() {
     setCurrentStep("user-type");
     setUserType(null);
     setInstituteName("");
+    setAccountType("");
     localStorage.removeItem("userType");
     localStorage.removeItem("instituteName");
+    localStorage.removeItem("accountType");
   };
 
   if (currentStep === "user-type") {
@@ -263,8 +271,8 @@ export default function OnboardingPage() {
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
                   Help us personalize your experience by providing your
-                  institution&apos;s name. This will help us tailor our services
-                  to your specific needs.
+                  institution&apos;s name and account type. This will help us
+                  tailor our services to your specific needs.
                 </p>
               </div>
             </div>
@@ -340,7 +348,8 @@ export default function OnboardingPage() {
                       Institution Details
                     </h1>
                     <p className="text-gray-600">
-                      Please provide your institution&apos;s name
+                      Please provide your institution&apos;s name and account
+                      type
                     </p>
                   </div>
                 </div>
@@ -369,9 +378,25 @@ export default function OnboardingPage() {
                   </p>
                 </div>
 
+                <div className="space-y-3">
+                  <Label className="text-gray-800 font-medium text-base flex items-center">
+                    <Component className="size-4 text-orange-500" />
+                    Account Caregory
+                  </Label>
+                  <AccountTypeCombobox
+                    value={accountType}
+                    onChange={setAccountType}
+                  />
+                  <p className="text-sm text-gray-500 ml-6">
+                    Select the type of your institution
+                  </p>
+                </div>
+
                 <Button
                   type="submit"
-                  disabled={!instituteName.trim() || isSubmitting}
+                  disabled={
+                    !instituteName.trim() || !accountType || isSubmitting
+                  }
                   className="w-full h-14 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold text-base rounded-2xl transition-all duration-300 hover:scale-[1.02] focus:ring-4 focus:ring-orange-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   {isSubmitting ? (

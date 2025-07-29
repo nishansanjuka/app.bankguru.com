@@ -17,6 +17,7 @@ const sidebarData: {
       url: "/dashboard/institutions/create",
       role: ["org:super_admin", "org:super_standard"],
       icon: "Landmark",
+      isActive: true,
       items: [
         {
           title: "Define Institutions",

@@ -34,7 +34,7 @@ export default async function UserManagementPage() {
         <div className="mt-5 mb-2">
           <Container />
         </div>
-        <div className=" mx-auto">
+        <div className=" container mx-auto">
           <Tabs defaultValue="active">
             <div className="flex items-center">
               <TabsList>
