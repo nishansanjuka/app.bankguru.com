@@ -47,6 +47,7 @@ export async function inviteOrganizationUsers(
     );
 
     if (!invitationRes.ok) {
+      console.log(await invitationRes.json());
       return ApiResponse.failure(
         `Failed to invite users: ${invitationRes.statusText}`
       );
@@ -183,7 +184,7 @@ export async function resendOrganizationInvitation(
   emailAddress: string
 ): Promise<ApiResponseData<boolean>> {
   try {
-    const { userId, orgId } = await auth();
+    const { userId, orgId , orgRole } = await auth();
     if (!userId || !orgId) {
       return ApiResponse.failure("User not authenticated");
     }
@@ -194,7 +195,7 @@ export async function resendOrganizationInvitation(
       organizationId: orgId,
       emailAddress: emailAddress,
       inviterUserId: userId,
-      role: "org:member",
+      role: orgRole === "org:super_admin" ? "org:super_standard" : "org:member",
     });
 
     return ApiResponse.success(true);
