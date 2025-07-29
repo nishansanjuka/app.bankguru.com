@@ -5,12 +5,30 @@ import { Separator } from "./ui/separator";
 import { BreadcrumbContainer } from "./bread-crumb-container";
 import { UserButton } from "@clerk/nextjs";
 import { ModeToggleButton } from "./theme-toggler";
+import { authenticatedRoutes } from "@/lib/actions/authenticated-routes";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { getQueryClient } from "@/lib/utils";
 
-export const Sidebar: FC<PropsWithChildren> = ({ children }) => {
+export const Sidebar: FC<PropsWithChildren> = async ({ children }) => {
+  const queryClient = getQueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["authenticated-routes"],
+    queryFn: async () => {
+      const res = await authenticatedRoutes();
+      if (!res.success) {
+        throw new Error(res.error);
+      }
+      return res.data;
+    },
+  });
+
   return (
     <>
       <SidebarProvider>
-        <AppSidebar />
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <AppSidebar />
+        </HydrationBoundary>
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center gap-2">
             <div className="flex items-center gap-2 px-4 w-full">

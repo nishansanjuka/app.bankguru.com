@@ -90,11 +90,7 @@ export default function InvitationsContainer({
             header={
               <div className="flex-1">
                 <PageHeader
-                  title={`Pending Invitations (${
-                    invitationsResponse.data.data.filter(
-                      (i) => i.status === "pending"
-                    ).length
-                  }) - All (${invitationsResponse.data.pagination.total})`}
+                  title={`Invitations`}
                   description="Manage your organization's pending invitations"
                 />
               </div>

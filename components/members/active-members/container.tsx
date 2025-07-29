@@ -69,7 +69,7 @@ export default function MembersContainer() {
             header={
               <div className="flex-1">
                 <PageHeader
-                  title={`Members (${membersResponse.data.pagination.total})`}
+                  title={`Members `}
                   description="Manage your organization members, view their roles and status"
                 />
               </div>

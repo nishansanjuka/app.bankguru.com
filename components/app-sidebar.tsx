@@ -14,8 +14,21 @@ import {
 import Image from "next/image";
 import sidebarData from "@/data/sidebar-data";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { authenticatedRoutes } from "@/lib/actions/authenticated-routes";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: routesData } = useQuery({
+    queryKey: ["authenticated-routes"],
+    queryFn: async () => {
+      const res = await authenticatedRoutes();
+      if (!res.success) {
+        throw new Error(res.error);
+      }
+      return res.data;
+    },
+  });
+
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
@@ -50,7 +63,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={sidebarData.navMain} />
+        <NavMain items={routesData || []} />
         <NavSecondary items={sidebarData.navSecondary} className="mt-auto" />
       </SidebarContent>
     </Sidebar>
