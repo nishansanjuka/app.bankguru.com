@@ -10,6 +10,7 @@ const sidebarData: {
     {
       title: "User Management",
       url: "/dashboard/user-management",
+      role: ["org:super_admin"],
       icon: "Users",
     },
     {
@@ -20,8 +21,25 @@ const sidebarData: {
       isActive: true,
       items: [
         {
-          title: "Define Institutions",
+          title: "Define Institution Types",
           url: "/dashboard/institutions/create",
+        },
+      ],
+    },
+    {
+      title: "Product Categories",
+      url: "/dashboard/products/create-category",
+      role: ["org:super_admin", "org:super_standard"],
+      icon: "Tag",
+      isActive: true,
+      items: [
+        {
+          title: "Define Product Categories",
+          url: "/dashboard/products/create-category",
+        },
+        {
+          title: "Define Product Types",
+          url: "/dashboard/products/create-types",
         },
       ],
     },

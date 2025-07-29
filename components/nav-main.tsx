@@ -74,7 +74,7 @@ export function NavMain({ items }: { items: NavMainItem[] }) {
                           <SidebarMenuSubButton asChild>
                             <Link
                               className={cn(
-                                pathName === item.url
+                                pathName === subItem.url
                                   ? "bg-muted text-foreground"
                                   : "text-muted-foreground"
                               )}
