@@ -28,7 +28,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   alt=""
                   width={986}
                   height={260}
-                  className="w-[60%] object-contain group-data-[collapsible=icon]:hidden"
+                  className="w-[60%] object-contain group-data-[collapsible=icon]:hidden dark:hidden"
+                />
+                <Image
+                  src={"/logo/bankguru-white.png"}
+                  alt=""
+                  width={986}
+                  height={260}
+                  className="w-[60%] object-contain group-data-[collapsible=icon]:hidden dark:block hidden"
                 />
                 <Image
                   src={"/logo/logo.png"}

@@ -31,7 +31,7 @@ export async function createOrganization({
 
 export async function getUserOrganization(
   userId: string
-): Promise<ApiResponseData<string>> {
+): Promise<ApiResponseData<{ id: string; userId: string }>> {
   const clerk = await clerkClient();
 
   if (!userId) {
@@ -48,5 +48,34 @@ export async function getUserOrganization(
 
   if (!organization) return ApiResponse.failure("Organization not found");
 
-  return ApiResponse.success(organization.id);
+  return ApiResponse.success({ id: organization.id, userId: userId });
+}
+
+export async function getOrganizationAdminCount(
+  userId: string,
+  orgId: string
+): Promise<ApiResponseData<number>> {
+  try {
+    if (!userId || !orgId) {
+      return ApiResponse.failure("User not authenticated");
+    }
+
+    const clerk = await clerkClient();
+    const organizations =
+      await clerk.organizations.getOrganizationMembershipList({
+        organizationId: orgId,
+      });
+
+    const adminCount = organizations.data.filter(
+      (member) => member.role === "org:admin"
+    ).length;
+
+    return ApiResponse.success(adminCount);
+  } catch (error) {
+    return ApiResponse.failure(
+      error instanceof Error
+        ? error.message
+        : "Failed to fetch organization admin count"
+    );
+  }
 }

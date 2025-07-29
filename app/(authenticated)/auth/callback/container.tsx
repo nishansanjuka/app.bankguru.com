@@ -20,9 +20,10 @@ export const Container: FC = () => {
     queryFn: async () => {
       const metaRes = await getPrivateMetadataWithAuth("userType");
       const userType = localStorage.getItem("userType");
+      localStorage.removeItem("userType");
       const instituteName =
         localStorage.getItem("instituteName") || "Financial Institute";
-
+      localStorage.removeItem("instituteName");
       if (!metaRes.success) {
         throw new Error(metaRes.error);
       }
@@ -48,11 +49,5 @@ export const Container: FC = () => {
     enabled: !!user,
   });
 
-  return (
-    <>
-      {(isLoading || isPending) && (
-        <Loading isActualLoading={false} text="Redirecting....." />
-      )}
-    </>
-  );
+  return <>{(isLoading || isPending) && <Loading />}</>;
 };

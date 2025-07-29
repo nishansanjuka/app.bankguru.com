@@ -5,7 +5,7 @@ export default function Loading({
   isActualLoading = true,
   text,
 }: {
-  isActualLoading: boolean;
+  isActualLoading?: boolean;
   text?: string;
 }) {
   return (

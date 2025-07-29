@@ -1,11 +1,40 @@
 import { ChooserTabs } from "@/components/shared/chooser-tabs";
 import { HeroSlider } from "@/components/shared/hero-slider-container";
 import { Button } from "@/components/ui/button";
+import { auth } from "@clerk/nextjs/server";
 import { CreditCard, HandCoins, HousePlus } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
-export default function HomePage() {
+export const metadata = {
+  title: "BankGuru - Home",
+  description:
+    "A financial services comparison and analytics platform to help you find the best banking solutions.",
+  icons: {
+    icon: "/logo/logo.png",
+  },
+  openGraph: {
+    title: "BankGuru - Home",
+    description:
+      "A financial services comparison and analytics platform to help you find the best banking solutions.",
+    url: "https://bankguru.com",
+    siteName: "BankGuru",
+    images: [
+      {
+        url: "/logo/bankguru-transparent.png",
+        width: 1200,
+        height: 630,
+        alt: "BankGuru Open Graph Image",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+};
+
+export default async function HomePage() {
+  const { userId, orgId } = await auth();
+
   return (
     <>
       <div className="space-y-20 flex flex-col">
@@ -19,13 +48,15 @@ export default function HomePage() {
               Your money deserves better. Find the best options for your needs,
               powered by real-time data and unbiased analysis.
             </p>
-            <Link href={"/sign-up"}>
+            <Link
+              href={userId && orgId ? "/dashboard" : userId ? "/" : "/sign-up"}
+            >
               <Button
                 size={"lg"}
                 className=" sm:text-lg rounded-none sm:w-52 sm:h-12 bg-orange-500 border-none text-white"
                 variant={"outline"}
               >
-                Get Started
+                {userId && orgId ? "Go to Dashboard" : "Get Started"}
               </Button>
             </Link>
           </div>

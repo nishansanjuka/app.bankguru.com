@@ -7,6 +7,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { navData } from "@/data/nav-data";
 import Image from "next/image";
+import { UserButton } from "@clerk/nextjs";
 
 export const NavBar: FC = () => {
   const pathname = usePathname();
@@ -69,7 +70,10 @@ export const NavBar: FC = () => {
               ))}
             </div>
 
-            <LanguageChooser />
+            <div className="flex items-center space-x-2">
+              <LanguageChooser />
+              <UserButton />
+            </div>
           </div>
         </div>
       </nav>

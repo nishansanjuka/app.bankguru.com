@@ -23,3 +23,11 @@ export type MetadataKeys = string | string[];
 export type MetadataValue<T> = {
   [key: string]: T;
 };
+
+export type UserData = {
+  id: string;
+  profile: string;
+  fullName: string;
+  role: string;
+  joinedDate: Date;
+};

@@ -4,6 +4,7 @@ import { AppSidebar } from "./app-sidebar";
 import { Separator } from "./ui/separator";
 import { BreadcrumbContainer } from "./bread-crumb-container";
 import { UserButton } from "@clerk/nextjs";
+import { ModeToggleButton } from "./theme-toggler";
 
 export const Sidebar: FC<PropsWithChildren> = ({ children }) => {
   return (
@@ -21,6 +22,7 @@ export const Sidebar: FC<PropsWithChildren> = ({ children }) => {
               <div className="flex-1">
                 <BreadcrumbContainer />
               </div>
+              <ModeToggleButton variant={"ghost"} className="rounded-full" />
               <UserButton />
             </div>
           </header>
