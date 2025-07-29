@@ -93,19 +93,22 @@ export async function updateOrganizationMemberRole(
 
     const { userId, orgId, orgRole } = await auth();
 
-    if (!userId || !orgId) {
+    if (!userId || !orgId || !orgRole) {
       return ApiResponse.failure(
         "User not authenticated or organization not found"
       );
     }
 
-    const adminCount = await getOrganizationAdminCount(userId, orgId);
+    const adminCount = await getOrganizationAdminCount(userId, orgId, orgRole);
 
     if (!adminCount.success) {
       return ApiResponse.failure(adminCount.error);
     }
 
-    if (newRole === "org:admin" && orgRole !== "org:admin") {
+    if (
+      newRole === "org:admin" &&
+      !["org:super_admin", "org:admin"].includes(orgRole)
+    ) {
       return ApiResponse.failure(
         "Only organization admins can promote members"
       );
@@ -118,7 +121,7 @@ export async function updateOrganizationMemberRole(
     }
 
     if (
-      memberRole.data.role === "org:admin" &&
+      ["org:admin", "org:super_admin"].includes(memberRole.data.role) &&
       adminCount.data === 1 &&
       newRole === "org:standard_user"
     ) {
@@ -126,16 +129,16 @@ export async function updateOrganizationMemberRole(
     }
 
     const clerk = await clerkClient();
-    const orgResponse = await getUserOrganization(userId);
-
-    if (!orgResponse.success) {
-      return ApiResponse.failure("Organization not found");
-    }
 
     await clerk.organizations.updateOrganizationMembership({
-      organizationId: orgResponse.data.id,
+      organizationId: orgId,
       userId: memberId,
-      role: newRole,
+      role:
+        orgRole === "org:super_admin"
+          ? newRole === "org:admin"
+            ? "org:super_admin"
+            : "org:standard_user"
+          : newRole,
     });
 
     return ApiResponse.success(true);

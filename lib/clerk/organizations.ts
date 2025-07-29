@@ -53,7 +53,8 @@ export async function getUserOrganization(
 
 export async function getOrganizationAdminCount(
   userId: string,
-  orgId: string
+  orgId: string,
+  orgRole: string
 ): Promise<ApiResponseData<number>> {
   try {
     if (!userId || !orgId) {
@@ -67,7 +68,7 @@ export async function getOrganizationAdminCount(
       });
 
     const adminCount = organizations.data.filter(
-      (member) => member.role === "org:admin"
+      (member) => member.role === orgRole
     ).length;
 
     return ApiResponse.success(adminCount);

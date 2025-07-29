@@ -9,17 +9,24 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 export async function inviteOrganizationUsers(
   emails: string[]
 ): Promise<ApiResponseData<string>> {
-  const { userId, orgId } = await auth();
+  const { userId, orgId, orgRole } = await auth();
 
   try {
     if (!userId || !orgId) {
       return ApiResponse.failure("User not authenticated");
     }
 
+    if (orgRole !== "org:super_admin" && orgRole !== "org:admin") {
+      return ApiResponse.failure("Only super admins can invite other admins");
+    }
+
     const invitationBody = emails.map((email) => ({
       email_address: email,
       inviter_user_id: userId,
-      role: "org:standard_user",
+      role:
+        orgRole === "org:super_admin"
+          ? "org:super_standard"
+          : "org:standard_user",
       private_metadata: {
         userType: "institute",
       },
@@ -138,10 +145,14 @@ export async function revokeOrganizationInvitation(
   emailAddress: string
 ): Promise<ApiResponseData<boolean>> {
   try {
-    const { userId, orgId } = await auth();
+    const { userId, orgId, orgRole } = await auth();
 
     if (!userId || !orgId) {
       return ApiResponse.failure("User not authenticated");
+    }
+
+    if (orgRole !== "org:super_admin" && orgRole !== "org:admin") {
+      return ApiResponse.failure("Only super admins can revoke invitations");
     }
 
     const clerk = await clerkClient();

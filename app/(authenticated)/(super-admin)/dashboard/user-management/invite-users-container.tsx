@@ -1,11 +1,14 @@
 "use client";
 
 import { MultiInput } from "@/components/shared/multi-input";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { inviteOrganizationUsers } from "@/lib/actions/invitations";
 import { getQueryClient } from "@/lib/utils";
 import { isValidEmail } from "@/lib/utils/email-validator";
+import { Info } from "lucide-react";
 import { FC, useState } from "react";
+import { toast } from "sonner";
 
 export const InviteUsersContainer: FC<{ onClose: () => void }> = ({
   onClose,
@@ -24,14 +27,19 @@ export const InviteUsersContainer: FC<{ onClose: () => void }> = ({
           refetchType: "active",
           exact: false,
         });
+        toast.success(
+          `Invitation${emails.length > 1 ? "s" : ""} sent successfully!`
+        );
       } else {
-        throw new Error(res.error || "Failed to invite users");
+        toast.error(
+          res.error || "Failed to send invitations. Please try again."
+        );
       }
       setEmails([]);
     } catch (error) {
-      console.error("Error inviting users:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "An unexpected error occurred"
+      console.error("Error sending invitations:", error);
+      toast.error(
+        "An error occurred while sending invitations. Please try again."
       );
     } finally {
       onClose();
@@ -52,7 +60,17 @@ export const InviteUsersContainer: FC<{ onClose: () => void }> = ({
             maxItems={10}
           />
         </div>
-        <Button onClick={handleSendInvitations} className="w-fit">
+        {emails.length === 0 && (
+          <Alert className="bg-green-100 text-xs border-green-500 text-green-800">
+            <Info />
+            <AlertTitle>press enter to add email, max 10 emails</AlertTitle>
+          </Alert>
+        )}
+        <Button
+          disabled={isLoading || emails.length === 0}
+          onClick={handleSendInvitations}
+          className="w-fit"
+        >
           {isLoading
             ? "Sending..."
             : `Send Invitation${emails.length > 1 ? "s" : ""}`}

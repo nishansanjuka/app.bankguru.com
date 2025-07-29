@@ -7,9 +7,11 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { navData } from "@/data/nav-data";
 import Image from "next/image";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
+import { Button } from "../ui/button";
 
 export const NavBar: FC = () => {
+  const { isSignedIn } = useUser();
   const pathname = usePathname();
   const [showColors, setShowColors] = useState(true);
 
@@ -72,7 +74,13 @@ export const NavBar: FC = () => {
 
             <div className="flex items-center space-x-2">
               <LanguageChooser />
-              <UserButton />
+              {isSignedIn ? (
+                <UserButton />
+              ) : (
+                <Button variant="outline" size="sm">
+                  <Link href={"/sign-in"}>Sign In</Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>

@@ -40,7 +40,7 @@ export type UserData = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ActionCell = ({ row }: { row: any }) => {
   const queryClient = useQueryClient();
-  const isAdmin = row.getValue("role") === "org:admin";
+  const isAdmin = row.getValue("role") === "org:admin" || row.getValue("role") === "org:super_admin";
   const [isOpen, setIsOpen] = React.useState(false);
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
@@ -197,7 +197,7 @@ export const columns: ColumnDef<UserData>[] = [
       return (
         <span
           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            role === "org:admin"
+            role.includes("admin")
               ? "bg-blue-100 text-blue-800"
               : "bg-gray-100 text-gray-800"
           }`}
