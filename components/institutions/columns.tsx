@@ -12,9 +12,10 @@ import {
 import { Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { getQueryClient } from "@/lib/utils";
-import { deleteInstitute } from "@/lib/actions/institutions/define-intitue";
+import { deleteInstituteType } from "@/lib/actions/institutions/define-intitue";
 import { ResponsiveDialog } from "../shared/responsive-dialog";
 import { DefineInstitutionsContainer } from "@/app/(authenticated)/(super-admin)/dashboard/institutions/create/create-institutions-container";
+import { toast } from "sonner";
 
 const TableActions = ({ row }: { row: { original: Institution } }) => {
   const queryClient = getQueryClient();
@@ -27,12 +28,13 @@ const TableActions = ({ row }: { row: { original: Institution } }) => {
   async function deleteInstitutionData(id: string): Promise<void> {
     try {
       setIsLoading((prev) => ({ ...prev, delete: true }));
-      const res = await deleteInstitute(id);
+      const res = await deleteInstituteType(id);
 
       if (!res.success) {
         throw new Error(res.error || "Failed to delete institution");
       }
       queryClient.invalidateQueries({ queryKey: ["institutions"] });
+      toast.success("Institution deleted successfully!");
     } catch (error) {
       console.error("Error deleting institution:", error);
       throw new Error(error instanceof Error ? error.message : "Delete failed");
@@ -86,6 +88,7 @@ const TableActions = ({ row }: { row: { original: Institution } }) => {
           data={{
             description: row.original.description,
             name: row.original.name,
+            code: row.original.code,
           }}
           id={row.original.id}
           onClose={() => setOnOpenChange(false)}

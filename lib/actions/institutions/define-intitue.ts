@@ -53,10 +53,10 @@ export async function getInstitutesTypes(): Promise<
   }
 
   const data = await res.json();
-  return ApiResponse.success(data);
+  return ApiResponse.success(data.data);
 }
 
-export async function updateInstitute(
+export async function updateInstituteType(
   id: string,
   institute: Omit<Institution, "id">
 ): Promise<ApiResponseData<string>> {
@@ -92,7 +92,7 @@ export async function updateInstitute(
   return ApiResponse.success("Institute updated successfully");
 }
 
-export async function deleteInstitute(id: string) {
+export async function deleteInstituteType(id: string) {
   const session = await auth();
 
   if (!session || !session.userId) {

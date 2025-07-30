@@ -19,7 +19,7 @@ import { FC, useState } from "react";
 import { toast } from "sonner";
 import {
   defineInstitute,
-  updateInstitute,
+  updateInstituteType,
 } from "@/lib/actions/institutions/define-intitue";
 import { getQueryClient } from "@/lib/utils";
 import { institutionFormSchema } from "@/types/institution";
@@ -35,6 +35,7 @@ export const DefineInstitutionsContainer: FC<{
   const form = useForm<z.infer<typeof institutionFormSchema>>({
     resolver: zodResolver(institutionFormSchema),
     defaultValues: {
+      // code: data?.code || "",
       code: data?.code || "",
       name: data?.name || "",
       description: data?.description || "",
@@ -48,7 +49,7 @@ export const DefineInstitutionsContainer: FC<{
       let res: ApiResponseData<string> = { success: false, error: "" };
       setIsLoading(true);
       if (type === "update" && id) {
-        res = await updateInstitute(id, values);
+        res = await updateInstituteType(id, values);
       } else if (type === "create") {
         res = await defineInstitute(values);
       }
@@ -88,6 +89,7 @@ export const DefineInstitutionsContainer: FC<{
       >
         <div className="w-full flex flex-col space-y-4">
           <FormField
+            disabled={type === "update"}
             control={form.control}
             name="code"
             render={({ field }) => (
