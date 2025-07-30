@@ -22,10 +22,12 @@ import { getCategories } from "@/lib/actions/products/categories";
 export interface ProductCategoryComboboxProps {
   value?: string;
   onChange?: (value: string) => void;
+  type?: "create" | "update";
 }
 
 export function ProductCategoryCombobox({
   value,
+  type = "create",
   onChange,
 }: ProductCategoryComboboxProps) {
   const [open, setOpen] = useState(false);
@@ -78,6 +80,7 @@ export function ProductCategoryCombobox({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          disabled={type === "update"}
           ref={buttonRef}
           variant="outline"
           role="combobox"

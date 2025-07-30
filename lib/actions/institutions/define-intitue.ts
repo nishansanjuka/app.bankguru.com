@@ -55,3 +55,65 @@ export async function getInstitutesTypes(): Promise<
   const data = await res.json();
   return ApiResponse.success(data);
 }
+
+export async function updateInstitute(
+  id: string,
+  institute: Omit<Institution, "id">
+): Promise<ApiResponseData<string>> {
+  const { code, description, name } = institute;
+
+  const session = await auth();
+
+  if (!session || !session.userId) {
+    return ApiResponse.failure(
+      "Unauthorized: User must be logged in to update an institute."
+    );
+  }
+
+  const tokenRes = await session.getToken();
+
+  const res = await fetch(`${API_URL}/institution-types/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${tokenRes}`,
+    },
+    body: JSON.stringify({
+      code,
+      description,
+      name,
+    }),
+  });
+
+  if (!res.ok) {
+    return ApiResponse.failure("Failed to update institute");
+  }
+
+  return ApiResponse.success("Institute updated successfully");
+}
+
+export async function deleteInstitute(id: string) {
+  const session = await auth();
+
+  if (!session || !session.userId) {
+    return ApiResponse.failure(
+      "Unauthorized: User must be logged in to delete an institute."
+    );
+  }
+
+  const tokenRes = await session.getToken();
+
+  const res = await fetch(`${API_URL}/institution-types/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${tokenRes}`,
+    },
+  });
+
+  if (!res.ok) {
+    return ApiResponse.failure("Failed to delete institute");
+  }
+
+  return ApiResponse.success("Institute deleted successfully");
+}

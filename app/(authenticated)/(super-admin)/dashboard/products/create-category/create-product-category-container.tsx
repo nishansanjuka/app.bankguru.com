@@ -19,14 +19,25 @@ import { FC, useState } from "react";
 import { toast } from "sonner";
 import { getQueryClient } from "@/lib/utils";
 import { productCategoryFormSchema } from "@/types/product-category";
-import { defineCategory } from "@/lib/actions/products/categories";
+import {
+  defineCategory,
+  updateCategory,
+} from "@/lib/actions/products/categories";
+import { ApiResponseData } from "@/types/api-response";
 
-export const DefineCategoriesContainer: FC<{ onClose: () => void }> = ({
-  onClose,
-}) => {
+export const DefineCategoriesContainer: FC<{
+  type?: "create" | "update";
+  id?: string;
+  data?: Partial<z.infer<typeof productCategoryFormSchema>>;
+  onClose: () => void;
+}> = ({ id, type = "create", data, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof productCategoryFormSchema>>({
     resolver: zodResolver(productCategoryFormSchema),
+    defaultValues: {
+      name: data?.name || "",
+      description: data?.description || "",
+    },
   });
 
   const queryClient = getQueryClient();
@@ -35,8 +46,17 @@ export const DefineCategoriesContainer: FC<{ onClose: () => void }> = ({
     values: z.infer<typeof productCategoryFormSchema>
   ) => {
     try {
+      let res: ApiResponseData<string> = { success: false, error: "" };
+
       setIsLoading(true);
-      const res = await defineCategory(values);
+      if (type === "update" && id) {
+        res = await updateCategory(id, {
+          name: values.name,
+          description: values.description,
+        });
+      } else if (type === "create") {
+        res = await defineCategory(values);
+      }
 
       if (res.success) {
         queryClient.invalidateQueries({
@@ -113,7 +133,13 @@ export const DefineCategoriesContainer: FC<{ onClose: () => void }> = ({
           />
         </div>
         <Button disabled={isLoading} type="submit" className="w-fit mt-4">
-          {isLoading ? "Creating..." : "Create Category"}
+          {isLoading
+            ? type === "update"
+              ? "Updating..."
+              : "Creating..."
+            : type === "update"
+            ? "Update Category"
+            : "Create Category"}
         </Button>
       </form>
     </Form>

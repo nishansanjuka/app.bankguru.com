@@ -21,22 +21,42 @@ import { getQueryClient } from "@/lib/utils";
 import { productTypeFormSchema } from "@/types/product-type";
 
 import { ProductCategoryCombobox } from "@/components/categories/product-category-combobox";
-import { defineProductType } from "@/lib/actions/products/types";
+import {
+  defineProductType,
+  updateProductType,
+} from "@/lib/actions/products/types";
+import { ApiResponseData } from "@/types/api-response";
 
-export const DefineProductTypeContainer: FC<{ onClose: () => void }> = ({
-  onClose,
-}) => {
+export const DefineProductTypeContainer: FC<{
+  id?: string;
+  type?: "create" | "update";
+  data?: Partial<z.infer<typeof productTypeFormSchema>>;
+  onClose: () => void;
+}> = ({ data, id, type = "create", onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof productTypeFormSchema>>({
     resolver: zodResolver(productTypeFormSchema),
+    defaultValues: {
+      categoryId: data?.categoryId || "",
+      code: data?.code || "",
+      name: data?.name || "",
+      description: data?.description || "",
+    },
   });
 
   const queryClient = getQueryClient();
 
   const onSubmit = async (values: z.infer<typeof productTypeFormSchema>) => {
     try {
+      let res: ApiResponseData<string> = { success: false, error: "" };
+
       setIsLoading(true);
-      const res = await defineProductType(values);
+
+      if (type === "update" && id) {
+        res = await updateProductType(id, values);
+      } else {
+        res = await defineProductType(values);
+      }
 
       if (res.success) {
         queryClient.invalidateQueries({
@@ -79,6 +99,7 @@ export const DefineProductTypeContainer: FC<{ onClose: () => void }> = ({
                 </FormDescription>
                 <FormControl>
                   <ProductCategoryCombobox
+                    type={type}
                     value={field.value}
                     onChange={field.onChange}
                   />
@@ -89,6 +110,7 @@ export const DefineProductTypeContainer: FC<{ onClose: () => void }> = ({
           />
           <FormField
             control={form.control}
+            disabled={type === "update"}
             name="code"
             render={({ field }) => (
               <FormItem className="w-full">
@@ -154,7 +176,13 @@ export const DefineProductTypeContainer: FC<{ onClose: () => void }> = ({
           />
         </div>
         <Button disabled={isLoading} type="submit" className="w-fit mt-4">
-          {isLoading ? "Creating..." : "Create Product Type"}
+          {isLoading
+            ? type === "create"
+              ? "Creating..."
+              : "Updating..."
+            : type === "create"
+            ? "Create Product Type"
+            : "Update Product Type"}
         </Button>
       </form>
     </Form>

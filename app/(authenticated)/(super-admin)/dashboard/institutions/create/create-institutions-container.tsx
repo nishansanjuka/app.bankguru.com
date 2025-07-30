@@ -17,20 +17,27 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FC, useState } from "react";
 import { toast } from "sonner";
-import { defineInstitute } from "@/lib/actions/institutions/define-intitue";
+import {
+  defineInstitute,
+  updateInstitute,
+} from "@/lib/actions/institutions/define-intitue";
 import { getQueryClient } from "@/lib/utils";
 import { institutionFormSchema } from "@/types/institution";
+import { ApiResponseData } from "@/types/api-response";
 
-export const DefineInstitutionsContainer: FC<{ onClose: () => void }> = ({
-  onClose,
-}) => {
+export const DefineInstitutionsContainer: FC<{
+  id?: string;
+  type?: "create" | "update";
+  data?: Partial<z.infer<typeof institutionFormSchema>>;
+  onClose: () => void;
+}> = ({ id, type = "create", data, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof institutionFormSchema>>({
     resolver: zodResolver(institutionFormSchema),
     defaultValues: {
-      code: "",
-      name: "",
-      description: "",
+      code: data?.code || "",
+      name: data?.name || "",
+      description: data?.description || "",
     },
   });
 
@@ -38,8 +45,13 @@ export const DefineInstitutionsContainer: FC<{ onClose: () => void }> = ({
 
   const onSubmit = async (values: z.infer<typeof institutionFormSchema>) => {
     try {
+      let res: ApiResponseData<string> = { success: false, error: "" };
       setIsLoading(true);
-      const res = await defineInstitute(values);
+      if (type === "update" && id) {
+        res = await updateInstitute(id, values);
+      } else if (type === "create") {
+        res = await defineInstitute(values);
+      }
 
       if (res.success) {
         queryClient.invalidateQueries({
@@ -47,15 +59,19 @@ export const DefineInstitutionsContainer: FC<{ onClose: () => void }> = ({
           refetchType: "active",
           exact: false,
         });
-        toast.success("Institution created successfully!");
+        toast.success(
+          `Institution ${
+            type === "create" ? "created" : "updated"
+          } successfully!`
+        );
       } else {
-        toast.error(res.error || "Failed to create institution.");
+        toast.error(res.error || "Failed to create/update institution.");
       }
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to create institution. Please try again."
+          : "Failed to create/update institution. Please try again."
       );
     } finally {
       form.reset();
@@ -136,7 +152,13 @@ export const DefineInstitutionsContainer: FC<{ onClose: () => void }> = ({
           />
         </div>
         <Button disabled={isLoading} type="submit" className="w-fit mt-4">
-          {isLoading ? "Creating..." : "Create Institution"}
+          {isLoading
+            ? type === "update"
+              ? "Updating..."
+              : "Creating..."
+            : type === "update"
+            ? "Update Institution"
+            : "Create Institution"}
         </Button>
       </form>
     </Form>

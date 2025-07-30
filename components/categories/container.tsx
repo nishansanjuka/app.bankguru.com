@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import Loading from "@/app/loading";
 import { columns } from "./columns";
 import { ColumnFiltersState } from "@tanstack/react-table";
@@ -18,14 +17,19 @@ export default function CategoriesContainer() {
   );
 
   const {
-    data: CategoriesResponse,
+    data: Categories,
     isLoading,
     isFetching,
-    error,
     refetch,
   } = useQuery({
     queryKey: ["categories"],
-    queryFn: () => getCategories(),
+    queryFn: async () => {
+      const res = await getCategories();
+      if (!res.success) {
+        throw new Error(res.error || "Failed to fetch categories");
+      }
+      return res.data;
+    },
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     retry: 2,
@@ -40,18 +44,6 @@ export default function CategoriesContainer() {
     );
   }
 
-  if (error || !CategoriesResponse?.success) {
-    return (
-      <Alert variant="destructive">
-        <AlertDescription>
-          {!CategoriesResponse?.success || "Failed to load Categories"}
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  const Categories = CategoriesResponse.data;
-
   return (
     <div className="px-4 lg:px-6 w-full">
       <div className="relative flex flex-col gap-4">
@@ -60,7 +52,7 @@ export default function CategoriesContainer() {
             <Loading />
           </div>
         )}
-        {Categories.length > 0 ? (
+        {Categories && Categories.length > 0 ? (
           <DataTable<ProductCategory>
             data={Categories}
             columns={columns}
@@ -69,8 +61,8 @@ export default function CategoriesContainer() {
             header={
               <div className="flex-1">
                 <PageHeader
-                  title={`Institution Types`}
-                  description="Manage Institution Types"
+                  title={`Category Types`}
+                  description="Manage Category Types"
                 />
               </div>
             }
