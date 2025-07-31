@@ -106,12 +106,23 @@ export default function NestedCombobox({
 
   // Get current level product types
   const currentProductTypes = useMemo(() => {
+    // Helper to recursively collect product types
+    const getAllProductTypes = (category: Category): ProductType[] => {
+      const current = category.productTypes || [];
+      const childTypes = category.children
+        ? category.children.flatMap(getAllProductTypes)
+        : [];
+      return [...current, ...childTypes];
+    };
+
+    // At root level (level 0), don't show any product types
     if (currentPath.length === 0) {
-      return data.data.flatMap((category) => category.productTypes || []);
+      return [];
     }
+
     const currentCategory = currentPath[currentPath.length - 1];
-    return currentCategory.productTypes || [];
-  }, [currentPath, data.data]);
+    return getAllProductTypes(currentCategory);
+  }, [currentPath]);
 
   // Track trigger width changes
   useEffect(() => {
@@ -220,7 +231,7 @@ export default function NestedCombobox({
             {selectedProduct ? (
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <Badge variant="secondary" className="text-xs">
-                  {selectedProduct.code}
+                  {selectedProduct.code.replace("_", " ")}
                 </Badge>
                 <span className="truncate">{selectedProduct.name}</span>
               </div>
@@ -327,7 +338,7 @@ export default function NestedCombobox({
                   >
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <Badge variant="outline" className="text-xs shrink-0">
-                        {product.code}
+                        {product.code.replace("_", " ")}
                       </Badge>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium truncate">

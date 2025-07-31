@@ -34,7 +34,7 @@ export async function defineCategory(
     body: JSON.stringify({
       name,
       description,
-      parentId,
+      parentId: parentId ? parentId : undefined,
     }),
   });
 
