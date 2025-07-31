@@ -7,7 +7,10 @@ import {
 import { ApiResponse } from "@/types/api-response";
 import { auth } from "@clerk/nextjs/server";
 
-export const handleUserPromote = async (instituteName: string) => {
+export const handleUserPromote = async (
+  instituteName: string,
+  accountCategory: string
+) => {
   const { userId } = await auth();
 
   if (!userId) {
@@ -17,6 +20,7 @@ export const handleUserPromote = async (instituteName: string) => {
   const res = await createOrganization({
     userId,
     orgName: instituteName,
+    accountCategory,
   });
 
   if (res.success) {

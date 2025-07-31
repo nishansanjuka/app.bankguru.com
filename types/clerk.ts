@@ -1,5 +1,6 @@
 export interface CreateOrgInput {
   userId: string; // The admin/creator user ID
+  accountCategory: string;
   orgName?: string;
 }
 

@@ -3,12 +3,13 @@
 import { MetadataValue } from "@/types/clerk";
 import { getPrivateMetadata, updatePrivateMetadata } from "../clerk/meta-data";
 import { auth } from "@clerk/nextjs/server";
+import { ApiResponse } from "@/types/api-response";
 
 export const getPrivateMetadataWithAuth = async (key: string) => {
   const { userId } = await auth();
 
   if (!userId) {
-    throw new Error("User not authenticated");
+    return ApiResponse.failure("Unauthorized: User must be logged in.");
   }
 
   return await getPrivateMetadata(userId, key);
@@ -21,7 +22,7 @@ export async function updatePrivateMetadataWithAuth<T>(
   const { userId } = await auth();
 
   if (!userId) {
-    throw new Error("User not authenticated");
+    return ApiResponse.failure("Unauthorized: User must be logged in.");
   }
 
   // Assuming you have a function to update metadata

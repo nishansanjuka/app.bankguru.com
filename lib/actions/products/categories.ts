@@ -10,10 +10,10 @@ const API_URL = process.env.MAIN_API_URL;
 export async function defineCategory(
   category: Omit<
     ProductCategory,
-    "id" | "slug" | "level" | "parent" | "children" | "parentId"
+    "id" | "slug" | "level" | "parent" | "children"
   >
 ): Promise<ApiResponseData<string>> {
-  const { name, description } = category;
+  const { name, description, parentId } = category;
 
   const session = await auth();
 
@@ -34,6 +34,7 @@ export async function defineCategory(
     body: JSON.stringify({
       name,
       description,
+      parentId,
     }),
   });
 

@@ -5,6 +5,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 export async function createOrganization({
   userId,
   orgName = "New Organization",
+  accountCategory,
 }: CreateOrgInput): Promise<ApiResponseData<OrganizationResponse>> {
   const clerk = await clerkClient();
 
@@ -15,6 +16,9 @@ export async function createOrganization({
     const organization = await clerk.organizations.createOrganization({
       name: orgName,
       createdBy: userId,
+      privateMetadata: {
+        accountCategory,
+      },
     });
 
     return ApiResponse.success({

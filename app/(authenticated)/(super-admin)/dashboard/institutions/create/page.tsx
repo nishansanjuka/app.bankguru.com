@@ -3,7 +3,7 @@ import { Container } from "./container";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/lib/utils";
 import { getInstitutesTypes } from "@/lib/actions/institutions/define-intitue";
-import InstitutionsContainerContainer from "@/components/institutions/container";
+import InstitutionsContainerContainer from "@/components/institution-types/container";
 
 export default function DefineInstitutionPage() {
   const queryClient = getQueryClient();

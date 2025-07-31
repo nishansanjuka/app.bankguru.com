@@ -8,6 +8,17 @@ const sidebarData: {
 } = {
   navMain: [
     {
+      title: "Product Management",
+      url: "/dashboard",
+      role: [
+        "org:super_admin",
+        "org:super_standard",
+        "org:standard_user",
+        "admin",
+      ],
+      icon: "HandCoins",
+    },
+    {
       title: "User Management",
       url: "/dashboard/user-management",
       role: ["org:super_admin"],

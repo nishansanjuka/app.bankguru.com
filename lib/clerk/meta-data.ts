@@ -124,101 +124,84 @@ export async function getPrivateMetadata<T>(
     );
   }
 }
+export async function updateOrganizationPrivateMetadata<T>(
+  organizationId: string,
+  keyOrData: string | MetadataValue<T>,
+  value?: T
+): Promise<ApiResponseData<T | MetadataValue<T>>> {
+  try {
+    const clerk = await clerkClient();
 
-// export async function updateOrganizationPrivateMetadata<T>(
-//   keyOrData: string | MetadataValue<T>,
-//   value?: T
-// ): Promise<ApiResponseData<T | MetadataValue<T>>> {
-//   try {
-//     const clerk = await clerkClient();
+    const organization = await clerk.organizations.getOrganization({
+      organizationId,
+    });
+    const currentMetadata = organization.privateMetadata;
 
-//     // Get the current organization
-//     const orgResponse = await getUserOrganization();
-//     if (!orgResponse.success) {
-//       return ApiResponse.failure(orgResponse.error ?? "Organization not found");
-//     }
+    // Handle single key-value pair
+    if (typeof keyOrData === "string" && value !== undefined) {
+      const updatedMetadata = {
+        ...currentMetadata,
+        [keyOrData]: value,
+      };
 
-//     const organizationId = orgResponse.data.id;
+      await clerk.organizations.updateOrganization(organizationId, {
+        privateMetadata: updatedMetadata,
+      });
 
-//     // Get current metadata
-//     const organization = await clerk.organizations.getOrganization({
-//       organizationId,
-//     });
-//     const currentMetadata = organization.privateMetadata;
+      return ApiResponse.success(value);
+    }
 
-//     // Handle single key-value pair
-//     if (typeof keyOrData === "string" && value !== undefined) {
-//       const updatedMetadata = {
-//         ...currentMetadata,
-//         [keyOrData]: value,
-//       };
+    // Handle multiple key-value pairs
+    if (typeof keyOrData === "object") {
+      const updatedMetadata = {
+        ...currentMetadata,
+        ...keyOrData,
+      };
 
-//       await clerk.organizations.updateOrganization(organizationId, {
-//         privateMetadata: updatedMetadata,
-//       });
+      await clerk.organizations.updateOrganization(organizationId, {
+        privateMetadata: updatedMetadata,
+      });
 
-//       return ApiResponse.success(value);
-//     }
+      return ApiResponse.success(keyOrData);
+    }
 
-//     // Handle multiple key-value pairs
-//     if (typeof keyOrData === "object") {
-//       const updatedMetadata = {
-//         ...currentMetadata,
-//         ...keyOrData,
-//       };
+    return ApiResponse.failure("Invalid input parameters");
+  } catch (error) {
+    return ApiResponse.failure(
+      error instanceof Error
+        ? error.message
+        : "Failed to update organization private metadata"
+    );
+  }
+}
 
-//       await clerk.organizations.updateOrganization(organizationId, {
-//         privateMetadata: updatedMetadata,
-//       });
+export async function getOrganizationPrivateMetadata<T>(
+  organizationId: string,
+  keys: MetadataKeys
+): Promise<ApiResponseData<T | Record<string, T> | undefined>> {
+  try {
+    const clerk = await clerkClient();
+    const organization = await clerk.organizations.getOrganization({
+      organizationId,
+    });
 
-//       return ApiResponse.success(keyOrData);
-//     }
+    // Handle single key case
+    if (typeof keys === "string") {
+      return ApiResponse.success(organization.privateMetadata[keys] as T);
+    }
 
-//     return ApiResponse.failure("Invalid input parameters");
-//   } catch (error) {
-//     return ApiResponse.failure(
-//       error instanceof Error
-//         ? error.message
-//         : "Failed to update organization private metadata"
-//     );
-//   }
-// }
+    // Handle multiple keys case
+    const result = keys.reduce((acc, key) => {
+      acc[key] = organization.privateMetadata[key] as T;
+      return acc;
+    }, {} as Record<string, T>);
 
-// export async function getOrganizationPrivateMetadata<T>(
-//   keys: MetadataKeys
-// ): Promise<ApiResponseData<T | Record<string, T> | undefined>> {
-//   try {
-//     const clerk = await clerkClient();
-
-//     // Get the current organization
-//     const orgResponse = await getUserOrganization();
-//     if (!orgResponse.success) {
-//       return ApiResponse.failure(orgResponse.error ?? "Organization not found");
-//     }
-
-//     const organizationId = orgResponse.data.id;
-
-//     const organization = await clerk.organizations.getOrganization({
-//       organizationId,
-//     });
-
-//     // Handle single key case
-//     if (typeof keys === "string") {
-//       return ApiResponse.success(organization.privateMetadata[keys] as T);
-//     }
-
-//     // Handle multiple keys case
-//     const result = keys.reduce((acc, key) => {
-//       acc[key] = organization.privateMetadata[key] as T;
-//       return acc;
-//     }, {} as Record<string, T>);
-
-//     return ApiResponse.success(result);
-//   } catch (error) {
-//     return ApiResponse.failure(
-//       error instanceof Error
-//         ? error.message
-//         : "Failed to get organization metadata"
-//     );
-//   }
-// }
+    return ApiResponse.success(result);
+  } catch (error) {
+    return ApiResponse.failure(
+      error instanceof Error
+        ? error.message
+        : "Failed to get organization metadata"
+    );
+  }
+}

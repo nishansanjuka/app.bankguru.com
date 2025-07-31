@@ -18,7 +18,7 @@ import {
   Component,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { AccountTypeCombobox } from "@/components/institutions/account-type-combobox";
+import { AccountTypeCombobox } from "@/components/institution-types/account-type-combobox";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 

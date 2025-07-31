@@ -72,15 +72,16 @@ export function NavMain({ items }: { items: NavMainItem[] }) {
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
-                            <Link
-                              className={cn(
-                                pathName === subItem.url
-                                  ? "bg-muted text-foreground"
-                                  : "text-muted-foreground"
-                              )}
-                              href={subItem.url}
-                            >
-                              <span>{subItem.title}</span>
+                            <Link href={subItem.url}>
+                              <span
+                                className={cn(
+                                  pathName === subItem.url
+                                    ? "bg-muted text-foreground"
+                                    : "text-muted-foreground"
+                                )}
+                              >
+                                {subItem.title}
+                              </span>
                             </Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>

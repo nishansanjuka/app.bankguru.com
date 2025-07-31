@@ -9,7 +9,7 @@ import { ColumnFiltersState } from "@tanstack/react-table";
 import { DataTable } from "@/components/shared/data-table/data-table";
 import PageHeader from "@/components/shared/page-header";
 import { ReFetchButton } from "@/components/shared/re-fetch-button";
-import { Institution } from "@/types/institution";
+import { Institution } from "@/types/institution-types";
 import { getInstitutesTypes } from "@/lib/actions/institutions/define-intitue";
 
 export default function InstitutionsContainerContainer() {

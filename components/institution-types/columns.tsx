@@ -2,7 +2,6 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { Institution } from "@/types/institution";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -16,8 +15,9 @@ import { deleteInstituteType } from "@/lib/actions/institutions/define-intitue";
 import { ResponsiveDialog } from "../shared/responsive-dialog";
 import { DefineInstitutionsContainer } from "@/app/(authenticated)/(super-admin)/dashboard/institutions/create/create-institutions-container";
 import { toast } from "sonner";
+import { InstitutionTypes } from "@/types/institution-types";
 
-const TableActions = ({ row }: { row: { original: Institution } }) => {
+const TableActions = ({ row }: { row: { original: InstitutionTypes } }) => {
   const queryClient = getQueryClient();
   const [onOpenChange, setOnOpenChange] = useState(false);
 
@@ -31,13 +31,14 @@ const TableActions = ({ row }: { row: { original: Institution } }) => {
       const res = await deleteInstituteType(id);
 
       if (!res.success) {
-        throw new Error(res.error || "Failed to delete institution");
+        toast.error(res.error || "Failed to delete institution");
+        return;
       }
       queryClient.invalidateQueries({ queryKey: ["institutions"] });
       toast.success("Institution deleted successfully!");
     } catch (error) {
       console.error("Error deleting institution:", error);
-      throw new Error(error instanceof Error ? error.message : "Delete failed");
+      toast.error("Failed to delete institution");
     } finally {
       setIsLoading((prev) => ({ ...prev, delete: false }));
     }
@@ -98,7 +99,7 @@ const TableActions = ({ row }: { row: { original: Institution } }) => {
   );
 };
 
-export const columns: ColumnDef<Institution>[] = [
+export const columns: ColumnDef<InstitutionTypes>[] = [
   {
     accessorKey: "code",
     header: "Code",

@@ -52,7 +52,10 @@ export const Container: FC = () => {
             accountCategory,
           });
           localStorage.removeItem("accountType");
-          const promoteRes = await handleUserPromote(instituteName);
+          const promoteRes = await handleUserPromote(
+            instituteName,
+            accountCategory!
+          );
           if (promoteRes.success) {
           } else {
             throw new Error(promoteRes.error);

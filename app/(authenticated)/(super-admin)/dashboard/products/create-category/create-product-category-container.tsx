@@ -24,6 +24,7 @@ import {
   updateCategory,
 } from "@/lib/actions/products/categories";
 import { ApiResponseData } from "@/types/api-response";
+import { ProductCategoryCombobox } from "@/components/categories/product-category-combobox";
 
 export const DefineCategoriesContainer: FC<{
   type?: "create" | "update";
@@ -37,6 +38,7 @@ export const DefineCategoriesContainer: FC<{
     defaultValues: {
       name: data?.name || "",
       description: data?.description || "",
+      parentId: data?.parentId || "",
     },
   });
 
@@ -53,6 +55,7 @@ export const DefineCategoriesContainer: FC<{
         res = await updateCategory(id, {
           name: values.name,
           description: values.description,
+          parentId: values.parentId,
         });
       } else if (type === "create") {
         res = await defineCategory(values);
@@ -88,6 +91,28 @@ export const DefineCategoriesContainer: FC<{
         className="w-full flex flex-col gap-4 items-end mt-5"
       >
         <div className="w-full flex flex-col space-y-4">
+          <FormField
+            control={form.control}
+            name="parentId"
+            disabled={type === "update"}
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Product Category</FormLabel>
+                <FormDescription>
+                  Select the category this product type belongs to.
+                </FormDescription>
+                <FormControl>
+                  <ProductCategoryCombobox
+                    type={type}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="name"

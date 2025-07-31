@@ -1,13 +1,13 @@
 "use server";
 
 import { ApiResponse, ApiResponseData } from "@/types/api-response";
-import { Institution } from "@/types/institution";
+import { InstitutionTypes } from "@/types/institution-types";
 import { auth } from "@clerk/nextjs/server";
 
 const API_URL = process.env.MAIN_API_URL;
 
 export async function defineInstitute(
-  institute: Omit<Institution, "id">
+  institute: Omit<InstitutionTypes, "id">
 ): Promise<ApiResponseData<string>> {
   const { code, description, name } = institute;
 
@@ -42,7 +42,7 @@ export async function defineInstitute(
 }
 
 export async function getInstitutesTypes(): Promise<
-  ApiResponseData<Institution[]>
+  ApiResponseData<InstitutionTypes[]>
 > {
   const res = await fetch(`${API_URL}/institution-types`, {
     method: "GET",
@@ -58,7 +58,7 @@ export async function getInstitutesTypes(): Promise<
 
 export async function updateInstituteType(
   id: string,
-  institute: Omit<Institution, "id">
+  institute: Omit<InstitutionTypes, "id">
 ): Promise<ApiResponseData<string>> {
   const { code, description, name } = institute;
 
@@ -112,7 +112,7 @@ export async function deleteInstituteType(id: string) {
   });
 
   if (!res.ok) {
-    return ApiResponse.failure("Failed to delete institute");
+    return ApiResponse.failure("Failed to delete institute type");
   }
 
   return ApiResponse.success("Institute deleted successfully");

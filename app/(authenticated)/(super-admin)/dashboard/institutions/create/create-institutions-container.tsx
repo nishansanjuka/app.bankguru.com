@@ -22,20 +22,19 @@ import {
   updateInstituteType,
 } from "@/lib/actions/institutions/define-intitue";
 import { getQueryClient } from "@/lib/utils";
-import { institutionFormSchema } from "@/types/institution";
 import { ApiResponseData } from "@/types/api-response";
+import { institutionTypesFormSchema } from "@/types/institution-types";
 
 export const DefineInstitutionsContainer: FC<{
   id?: string;
   type?: "create" | "update";
-  data?: Partial<z.infer<typeof institutionFormSchema>>;
+  data?: Partial<z.infer<typeof institutionTypesFormSchema>>;
   onClose: () => void;
 }> = ({ id, type = "create", data, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const form = useForm<z.infer<typeof institutionFormSchema>>({
-    resolver: zodResolver(institutionFormSchema),
+  const form = useForm<z.infer<typeof institutionTypesFormSchema>>({
+    resolver: zodResolver(institutionTypesFormSchema),
     defaultValues: {
-      // code: data?.code || "",
       code: data?.code || "",
       name: data?.name || "",
       description: data?.description || "",
@@ -44,7 +43,9 @@ export const DefineInstitutionsContainer: FC<{
 
   const queryClient = getQueryClient();
 
-  const onSubmit = async (values: z.infer<typeof institutionFormSchema>) => {
+  const onSubmit = async (
+    values: z.infer<typeof institutionTypesFormSchema>
+  ) => {
     try {
       let res: ApiResponseData<string> = { success: false, error: "" };
       setIsLoading(true);
