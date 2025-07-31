@@ -24,9 +24,14 @@ import DynamicFormFields, {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { getProductCategoryHierarchy } from "@/lib/actions/products/hierarchy";
+import ImageUpload from "@/components/shared/image-uploader";
+import { createProduct } from "@/lib/actions/products";
+import { toast } from "sonner";
 
 export default function ProductCreateContainer() {
   const [fields, setFields] = useState<DynamicFormField[]>([]);
+  const [productImage, setProductImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { data } = useQuery({
     queryKey: ["productCategoryHierarchy"],
@@ -43,7 +48,6 @@ export default function ProductCreateContainer() {
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
-      institutionId: "",
       productTypeId: "",
       name: "",
       details: {
@@ -57,8 +61,48 @@ export default function ProductCreateContainer() {
     },
   });
 
-  const onSubmit = (data: ProductFormValues) => {
-    console.log(data);
+  const onSubmit = async (data: ProductFormValues) => {
+    try {
+      setIsLoading(true);
+      const res = await createProduct({
+        productTypeId: data.productTypeId,
+        details: {
+          additionalInfo: [
+            ...fields,
+            ...(productImage
+              ? [
+                  {
+                    id: "product-image",
+                    label: "Product Image",
+                    type: "image" as const,
+                    value: productImage,
+                    description: "",
+                    title: "",
+                  },
+                ]
+              : []),
+          ],
+          eligibility: data.details.eligibility || "",
+          description: data.details.description || "",
+          fees: data.details.fees || "",
+          terms: data.details.terms || "",
+        },
+        name: data.name,
+        isFeatured: data.isFeatured,
+      });
+
+      if (res.success) {
+        toast.success("Product created successfully!");
+      } else {
+        toast.error("Failed to create product: " + res.error);
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Something went wrong!"
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -82,31 +126,12 @@ export default function ProductCreateContainer() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-8"
               >
-                <div className="grid grid-cols-1 lg:grid-cols-6 lg:gap-14">
+                <div className="grid grid-cols-1 lg:grid-cols-8 lg:gap-14">
                   {/* Basic Product Information */}
-                  <div className="space-y-4 col-span-4">
+                  <div className="space-y-4 col-span-3">
                     <h2 className="text-2xl font-semibold text-muted-foreground">
                       General Information
                     </h2>
-                    <FormField
-                      control={form.control}
-                      name="institutionId"
-                      render={({ field }) => (
-                        <FormItem className="sr-only">
-                          <FormLabel>Institution ID</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="e.g., org_30axcfQdIdhoSMV7VGi3WqC89jR"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            The unique identifier for the institution.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
 
                     <FormField
                       control={form.control}
@@ -169,6 +194,15 @@ export default function ProductCreateContainer() {
                           <FormMessage />
                         </FormItem>
                       )}
+                    />
+
+                    <ImageUpload
+                      value={productImage}
+                      onChange={setProductImage}
+                      label="Product Image"
+                      description="Upload a high-quality product image for your listing."
+                      buttonText="Upload Photo"
+                      className="w-full flex flex-col pb-2"
                     />
 
                     <FormField
@@ -253,10 +287,14 @@ export default function ProductCreateContainer() {
                         </FormItem>
                       )}
                     />
+
+                    <Button type="submit" className="w-fit mt-5">
+                      {isLoading ? "Creating..." : "Create Product"}
+                    </Button>
                   </div>
 
                   {/* Dynamic Additional Information */}
-                  <div className="space-y-4 col-span-2">
+                  <div className="space-y-4 col-span-5">
                     <h2 className="text-2xl font-semibold text-muted-foreground">
                       Additional Product Details
                     </h2>
@@ -264,10 +302,8 @@ export default function ProductCreateContainer() {
                       These fields are dynamically generated based on product
                       type or other configurations.
                     </FormDescription>
+
                     <DynamicFormFields fields={fields} setFields={setFields} />
-                    <Button type="submit" className="w-fit float-right">
-                      Create Product
-                    </Button>
                   </div>
                 </div>
               </form>

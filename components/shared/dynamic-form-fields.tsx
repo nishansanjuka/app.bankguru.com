@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,7 @@ import { Plus, X } from "lucide-react";
 
 export interface DynamicFormField {
   id: string;
-  type: "text" | "number" | "percentage" | "textarea";
+  type: "text" | "number" | "percentage" | "textarea" | "image";
   label: string;
   value: string | number;
   title?: string;
@@ -251,7 +251,7 @@ export default function DynamicFormFields({
   ];
 
   return (
-    <div className="w-full mx-auto py-12">
+    <div className="w-full mx-auto pb-12 pt-4">
       <div className="space-y-2 mb-12">
         <h1 className="text-2xl font-semibold text-foreground">Form Builder</h1>
         <p className="text-muted-foreground">
