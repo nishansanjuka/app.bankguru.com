@@ -11,7 +11,7 @@ export function useSetDefaultOrg() {
       if (!organization && isSignedIn && isLoaded) {
         const res = await getUserOrganizationWithAuth();
         if (res.success) {
-          setActive({ organization: res.data });
+          setActive({ organization: res.data.id });
         }
       }
     }

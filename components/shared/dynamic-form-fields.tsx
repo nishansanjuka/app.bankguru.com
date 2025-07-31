@@ -221,12 +221,7 @@ export default function DynamicFormFields({
   const removeField = (id: string) => {
     setFields((prev) => prev.filter((field) => field.id !== id));
   };
-
-  const exportFields = () => {
-    console.log("Form Fields:", fields);
-    alert("Check console for exported fields data");
-  };
-
+  
   const fieldTypes = [
     {
       type: "text" as const,
@@ -252,13 +247,6 @@ export default function DynamicFormFields({
 
   return (
     <div className="w-full mx-auto pb-12 pt-4">
-      <div className="space-y-2 mb-12">
-        <h1 className="text-2xl font-semibold text-foreground">Form Builder</h1>
-        <p className="text-muted-foreground">
-          Create and configure form fields
-        </p>
-      </div>
-
       <div className="space-y-12">
         {fieldTypes.map(({ type, title, description }) => (
           <FieldSection
@@ -273,29 +261,6 @@ export default function DynamicFormFields({
           />
         ))}
       </div>
-
-      {fields.length > 0 && (
-        <div className="mt-12 pt-8 border-t">
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-            <div className="space-y-1">
-              <p className="text-sm font-medium">
-                {fields.length} fields configured
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Ready to export or integrate
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={exportFields} size="sm">
-                Export
-              </Button>
-              <Button variant="outline" onClick={() => setFields([])} size="sm">
-                Clear All
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

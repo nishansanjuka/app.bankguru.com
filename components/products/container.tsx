@@ -9,23 +9,23 @@ import { ColumnFiltersState } from "@tanstack/react-table";
 import { DataTable } from "@/components/shared/data-table/data-table";
 import PageHeader from "@/components/shared/page-header";
 import { ReFetchButton } from "@/components/shared/re-fetch-button";
-import { getInstitutesTypes } from "@/lib/actions/institutions/define-intitue";
-import { InstitutionTypes } from "@/types/institution-types";
+import { getProducts } from "@/lib/actions/products";
+import { Product } from "@/types/product";
 
-export default function InstitutionsContainerContainer() {
+export default function ProductsContainer() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
 
   const {
-    data: institutionsResponse,
+    data: productsResponse,
     isLoading,
     isFetching,
     error,
     refetch,
   } = useQuery({
-    queryKey: ["institutions"],
-    queryFn: () => getInstitutesTypes(),
+    queryKey: ["products"],
+    queryFn: () => getProducts(),
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     retry: 2,
@@ -40,17 +40,17 @@ export default function InstitutionsContainerContainer() {
     );
   }
 
-  if (error || !institutionsResponse?.success) {
+  if (error || !productsResponse?.success) {
     return (
       <Alert variant="destructive">
         <AlertDescription>
-          {!institutionsResponse?.success || "Failed to load institutions"}
+          {!productsResponse?.success || "Failed to load products"}
         </AlertDescription>
       </Alert>
     );
   }
 
-  const institutions = institutionsResponse.data;
+  const ProductTypess = productsResponse.data;
 
   return (
     <div className="px-4 lg:px-6 w-full">
@@ -60,17 +60,17 @@ export default function InstitutionsContainerContainer() {
             <Loading />
           </div>
         )}
-        {institutions.length > 0 ? (
-          <DataTable<InstitutionTypes>
-            data={institutions}
+        {ProductTypess.length > 0 ? (
+          <DataTable<Product>
+            data={ProductTypess}
             columns={columns}
             customColumnFilters={columnFilters}
             onCustomColumnFiltersChange={setColumnFilters}
             header={
               <div className="flex-1">
                 <PageHeader
-                  title={`Institution Types`}
-                  description="Manage Institution Types"
+                  title={`Products`}
+                  description="Manage Products"
                 />
               </div>
             }
@@ -92,7 +92,7 @@ export default function InstitutionsContainerContainer() {
           />
         ) : (
           <div className="flex h-96 items-center justify-center text-muted-foreground">
-            No institution types found
+            No products found
           </div>
         )}
       </div>

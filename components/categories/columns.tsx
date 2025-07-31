@@ -34,7 +34,7 @@ const TableActions = ({ row }: { row: { original: ProductCategory } }) => {
         toast.error(res.error || "Failed to delete category");
         return;
       }
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["categories" , "productCategoryHierarchy"] });
       toast.success("Category deleted successfully");
     } catch (error) {
       console.error("Error deleting category:", error);

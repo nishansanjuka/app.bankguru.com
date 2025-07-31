@@ -21,7 +21,7 @@ const sidebarData: {
     {
       title: "User Management",
       url: "/dashboard/user-management",
-      role: ["org:super_admin"],
+      role: ["org:super_admin", "admin"],
       icon: "Users",
     },
     {
@@ -38,12 +38,16 @@ const sidebarData: {
       ],
     },
     {
-      title: "Product Categories",
+      title: "Products",
       url: "/dashboard/products/create-category",
       role: ["org:super_admin", "org:super_standard"],
       icon: "Tag",
       isActive: true,
       items: [
+        {
+          title: "New Product",
+          url: "/dashboard/products/create",
+        },
         {
           title: "Define Product Categories",
           url: "/dashboard/products/create-category",

@@ -48,7 +48,7 @@ export function ResponsiveDialog({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange} {...props}>
-        <DialogContent className={cn("", className)}>
+        <DialogContent className={cn("sm:max-w-screen", className)}>
           {(title || description) && (
             <DialogHeader>
               {title && <DialogTitle>{title}</DialogTitle>}

@@ -1,10 +1,10 @@
 import { getQueryClient } from "@/lib/utils";
 import { getProductCategoryHierarchy } from "@/lib/actions/products/hierarchy";
-import ProductCreateContainer from "./products/create/product-create-container";
 import { getProducts } from "@/lib/actions/products";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import ProductCreateContainer from "./product-create-container";
 
-export default async function DashboardPage() {
+export default async function CreateProductPage() {
   const queryClient = getQueryClient();
 
   // Pre-fetch the product category hierarchy

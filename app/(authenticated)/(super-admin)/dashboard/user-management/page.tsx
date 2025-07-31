@@ -7,6 +7,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import InvitationsContainer from "@/components/members/pending-invitations/container";
 import MembersContainer from "@/components/members/active-members/container";
+import { connection } from "next/server";
 
 export const metadata = {
   title: "User Management",
@@ -14,6 +15,7 @@ export const metadata = {
 };
 
 export default async function UserManagementPage() {
+  await connection();
   const queryClient = getQueryClient();
 
   await Promise.all([

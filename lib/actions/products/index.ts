@@ -46,7 +46,7 @@ export async function getProducts(): Promise<ApiResponseData<Product[]>> {
     return ApiResponse.failure("Failed to retrieve products");
   }
   const data = await res.json();
-  return ApiResponse.success(data);
+  return ApiResponse.success(data.data);
 }
 
 export async function getProductById(

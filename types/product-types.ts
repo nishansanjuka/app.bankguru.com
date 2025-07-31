@@ -1,11 +1,16 @@
 import * as z from "zod";
 
-// Define a schema for dynamic additional info fields
-// This will be a record where keys are field names and values can be anything.
-// For file uploads, it will temporarily hold a File object.
-// Define a schema for dynamic additional info fields based on DynamicFormField[]
 const additionalInfoSchema = z
-  .record(z.string(), z.union([z.string(), z.number()]))
+  .array(
+    z.object({
+      id: z.string(),
+      type: z.enum(["text", "number", "percentage", "textarea", "image"]),
+      label: z.string(),
+      value: z.union([z.string(), z.number()]),
+      title: z.string().optional(),
+      description: z.string().optional(),
+    })
+  )
   .optional();
 
 export const productFormSchema = z.object({
