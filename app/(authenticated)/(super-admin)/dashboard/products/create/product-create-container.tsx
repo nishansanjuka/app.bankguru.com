@@ -95,7 +95,17 @@ const NewProductForm = ({
     (data?.details?.additionalInfo as any) || []
   );
 
-  const [productImage, setProductImage] = useState<string | null>(null);
+  const [productImage, setProductImage] = useState<string | null>(() => {
+    const value = data?.details?.additionalInfo.find(
+      (field: DynamicFormField) => field.id === "product-image"
+    )?.value;
+    return typeof value === "string"
+      ? value
+      : value != null
+      ? String(value)
+      : null;
+  });
+
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -134,24 +144,34 @@ const NewProductForm = ({
       setIsLoading(true);
 
       if (type === "update" && id) {
+        // Check if "product-image" already exists in fields and update its value, otherwise add it
+        const updatedFields = [...fields];
+        const imageIndex = updatedFields.findIndex(
+          (f) => f.id === "product-image"
+        );
+        if (productImage) {
+          const imageField = {
+            id: "product-image",
+            label: "Product Image",
+            type: "image" as const,
+            value: productImage,
+            description: "",
+            title: "",
+          };
+          if (imageIndex !== -1) {
+            updatedFields[imageIndex] = imageField;
+          } else {
+            updatedFields.push(imageField);
+          }
+        } else if (imageIndex !== -1) {
+          // If no image, remove the field if it exists
+          updatedFields.splice(imageIndex, 1);
+        }
+
         const res = await updateProduct(id, {
           productTypeId: data.productTypeId,
           details: {
-            additionalInfo: [
-              ...fields,
-              ...(productImage
-                ? [
-                    {
-                      id: "product-image",
-                      label: "Product Image",
-                      type: "image" as const,
-                      value: productImage,
-                      description: "",
-                      title: "",
-                    },
-                  ]
-                : []),
-            ],
+            additionalInfo: updatedFields,
             eligibility: data.details.eligibility || "",
             description: data.details.description || "",
             fees: data.details.fees || "",
