@@ -106,6 +106,17 @@ const NewProductForm = ({
       : null;
   });
 
+  const [productUrl, setProductUrl] = useState<string | null>(() => {
+    const value = data?.details?.additionalInfo.find(
+      (field: DynamicFormField) => field.id === "product-url"
+    )?.value;
+    return typeof value === "string"
+      ? value
+      : value != null
+      ? String(value)
+      : null;
+  });
+
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -149,6 +160,10 @@ const NewProductForm = ({
         const imageIndex = updatedFields.findIndex(
           (f) => f.id === "product-image"
         );
+        const urlIndex = updatedFields.findIndex(
+          (f) => f.id === "product-url"
+        );
+        
         if (productImage) {
           const imageField = {
             id: "product-image",
@@ -166,6 +181,25 @@ const NewProductForm = ({
         } else if (imageIndex !== -1) {
           // If no image, remove the field if it exists
           updatedFields.splice(imageIndex, 1);
+        }
+
+        if (productUrl) {
+          const urlField = {
+            id: "product-url",
+            label: "Product Explore URL",
+            type: "text" as const,
+            value: productUrl,
+            description: "",
+            title: "",
+          };
+          if (urlIndex !== -1) {
+            updatedFields[urlIndex] = urlField;
+          } else {
+            updatedFields.push(urlField);
+          }
+        } else if (urlIndex !== -1) {
+          // If no URL, remove the field if it exists
+          updatedFields.splice(urlIndex, 1);
         }
 
         const res = await updateProduct(id, {
@@ -199,6 +233,18 @@ const NewProductForm = ({
                       label: "Product Image",
                       type: "image" as const,
                       value: productImage,
+                      description: "",
+                      title: "",
+                    },
+                  ]
+                : []),
+              ...(productUrl
+                ? [
+                    {
+                      id: "product-url",
+                      label: "Product Explore URL",
+                      type: "text" as const,
+                      value: productUrl,
                       description: "",
                       title: "",
                     },
@@ -349,6 +395,21 @@ const NewProductForm = ({
                     buttonText="Upload Photo"
                     className="w-full flex flex-col pb-2"
                   />
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      Product Explore URL
+                    </label>
+                    <Input
+                      type="url"
+                      placeholder="https://example.com/product-details"
+                      value={productUrl || ""}
+                      onChange={(e) => setProductUrl(e.target.value || null)}
+                    />
+                    <p className="text-[0.8rem] text-muted-foreground">
+                      Add a URL where users can explore more details about this product.
+                    </p>
+                  </div>
 
                   <FormField
                     control={form.control}
