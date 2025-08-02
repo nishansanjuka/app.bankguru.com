@@ -75,6 +75,7 @@ export function NavMain({ items }: { items: NavMainItem[] }) {
                             <Link href={subItem.url}>
                               <span
                                 className={cn(
+                                  "py-1 px-3 rounded-md",
                                   pathName === subItem.url
                                     ? "bg-muted text-foreground"
                                     : "text-muted-foreground"

@@ -1,15 +1,10 @@
 "use client";
 
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -18,15 +13,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import Combobox, { type ComboboxOption } from "../ui/combobox";
 import {
   Plus,
-  X,
-  ChevronDown,
   Type,
   Hash,
   Percent,
   FileText,
+  Edit,
+  Save,
+  Trash2,
 } from "lucide-react";
+
+// Array of field IDs that should be hidden from the table display
+const HIDDEN_FIELD_IDS: string[] = ["product-image", "product-url"];
 
 export interface DynamicFormField {
   id: string;
@@ -37,12 +37,183 @@ export interface DynamicFormField {
   description?: string;
 }
 
+interface FieldFormProps {
+  field?: DynamicFormField | null;
+  onSave: (field: DynamicFormField) => void;
+  onCancel: () => void;
+}
+
+function FieldForm({ field, onSave, onCancel }: FieldFormProps) {
+  const [formData, setFormData] = useState<DynamicFormField>(
+    field || {
+      id: "",
+      type: "text",
+      label: "",
+      value: "",
+      title: "",
+      description: "",
+    }
+  );
+
+  const fieldTypes: ComboboxOption[] = [
+    { value: "text", label: "Text", icon: Type },
+    { value: "number", label: "Number", icon: Hash },
+    { value: "percentage", label: "Percentage", icon: Percent },
+    { value: "textarea", label: "Textarea", icon: FileText },
+  ];
+
+  const handleSave = () => {
+    if (!formData.label.trim()) return;
+
+    const fieldToSave = {
+      ...formData,
+      id: formData.id || Math.random().toString(36).substr(2, 9),
+    };
+    onSave(fieldToSave);
+  };
+
+  const renderValueInput = () => {
+    switch (formData.type) {
+      case "textarea":
+        return (
+          <Textarea
+            placeholder="Default value"
+            value={formData.value}
+            onChange={(e) =>
+              setFormData({ ...formData, value: e.target.value })
+            }
+            className="resize-none h-20"
+          />
+        );
+      case "number":
+        return (
+          <Input
+            type="number"
+            placeholder="0"
+            value={formData.value}
+            onChange={(e) =>
+              setFormData({ ...formData, value: e.target.value })
+            }
+          />
+        );
+      case "percentage":
+        return (
+          <div className="relative">
+            <Input
+              type="number"
+              placeholder="0"
+              value={formData.value}
+              onChange={(e) =>
+                setFormData({ ...formData, value: e.target.value })
+              }
+              className="pr-8"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+              %
+            </span>
+          </div>
+        );
+      default:
+        return (
+          <Input
+            type="text"
+            placeholder="Default value"
+            value={formData.value}
+            onChange={(e) =>
+              setFormData({ ...formData, value: e.target.value })
+            }
+          />
+        );
+    }
+  };
+
+  return (
+    <div className="border rounded-lg p-6 bg-muted/50 space-y-4">
+      <h3 className="text-lg font-semibold">
+        {field ? "Edit Field" : "Add New Field"}
+      </h3>
+
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Field Type</Label>
+            <Combobox
+              value={formData.type}
+              onChange={(value: string) =>
+                setFormData({
+                  ...formData,
+                  type: value as DynamicFormField["type"],
+                })
+              }
+              options={fieldTypes}
+              placeholder="Select field type..."
+              searchPlaceholder="Search field type..."
+              emptyMessage="No field type found."
+              className="w-full"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">
+              Label <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              placeholder="Field label"
+              value={formData.label}
+              onChange={(e) =>
+                setFormData({ ...formData, label: e.target.value })
+              }
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Title</Label>
+          <Input
+            placeholder="Optional field title"
+            value={formData.title || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Description</Label>
+          <Textarea
+            placeholder="Optional field description"
+            value={formData.description || ""}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
+            className="resize-none h-16"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Default Value</Label>
+          {renderValueInput()}
+        </div>
+
+        <div className="flex justify-end gap-2 pt-4">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="button" onClick={handleSave}>
+            <Save className="w-4 h-4 mr-2" />
+            {field ? "Update Field" : "Add Field"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 interface FieldSectionProps {
   title: string;
   description: string;
   fields: DynamicFormField[];
-  onAddField: (type: DynamicFormField["type"]) => void;
-  onUpdateField: (id: string, updates: Partial<DynamicFormField>) => void;
+  onAddField: (field: DynamicFormField) => void;
+  onUpdateField: (field: DynamicFormField) => void;
   onRemoveField: (id: string) => void;
 }
 
@@ -54,6 +225,11 @@ function FieldSection({
   onUpdateField,
   onRemoveField,
 }: FieldSectionProps) {
+  const [showForm, setShowForm] = useState(false);
+  const [editingField, setEditingField] = useState<DynamicFormField | null>(
+    null
+  );
+
   const getFieldTypeIcon = (type: DynamicFormField["type"]) => {
     switch (type) {
       case "text":
@@ -84,120 +260,150 @@ function FieldSection({
     }
   };
 
+  const handleSaveField = (field: DynamicFormField) => {
+    if (editingField) {
+      onUpdateField(field);
+    } else {
+      onAddField(field);
+    }
+    setShowForm(false);
+    setEditingField(null);
+  };
+
+  const handleEditField = (field: DynamicFormField) => {
+    setEditingField(field);
+    setShowForm(true);
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setEditingField(null);
+  };
+
+  const startAddingField = () => {
+    setEditingField(null);
+    setShowForm(true);
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header with Add Field Dropdown */}
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:justify-between">
         <div className="space-y-1">
           <h2 className="text-lg font-semibold text-foreground">{title}</h2>
           <p className="text-sm text-muted-foreground">{description}</p>
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button type="button" className="gap-2">
-              <Plus className="w-4 h-4" />
-              Add Field
-              <ChevronDown className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem onClick={() => onAddField("text")}>
-              <Type className="w-4 h-4 mr-2" />
-              Text Field
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAddField("number")}>
-              <Hash className="w-4 h-4 mr-2" />
-              Number Field
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAddField("percentage")}>
-              <Percent className="w-4 h-4 mr-2" />
-              Percentage Field
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAddField("textarea")}>
-              <FileText className="w-4 h-4 mr-2" />
-              Textarea Field
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {!showForm && (
+          <Button
+            onClick={startAddingField}
+            type="button"
+            className="gap-2 w-fit"
+          >
+            <Plus className="w-4 h-4" />
+            Add Field
+          </Button>
+        )}
       </div>
 
       {/* Fields Table */}
-      {fields.length > 0 ? (
+      {fields.filter((field) => !HIDDEN_FIELD_IDS.includes(field.id)).length >
+      0 ? (
         <div className="border rounded-lg">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-20">Type</TableHead>
                 <TableHead>Label</TableHead>
-                <TableHead>Default Value</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Description</TableHead>
-                <TableHead className="w-20">Actions</TableHead>
+                <TableHead>Default Value</TableHead>
+                <TableHead className="w-24">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {fields.map((field) => (
-                <TableRow key={field.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {getFieldTypeIcon(field.type)}
-                      <span className="text-xs font-medium text-muted-foreground">
-                        {getFieldTypeLabel(field.type)}
-                      </span>
-                    </div>
-                  </TableCell>
-
-                  <TableCell>
-                    <Input
-                      placeholder="Field label"
-                      value={field.label}
-                      onChange={(e) =>
-                        onUpdateField(field.id, { label: e.target.value })
-                      }
-                      className="h-8 text-sm"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <FieldValueInput field={field} onUpdate={onUpdateField} />
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      placeholder="Optional title"
-                      value={field.title || ""}
-                      onChange={(e) =>
-                        onUpdateField(field.id, { title: e.target.value })
-                      }
-                      className="h-8 text-sm"
-                    />
-                  </TableCell>
-                  <TableCell className="max-w-xs">
-                    <Input
-                      placeholder="Optional description"
-                      value={field.description || ""}
-                      onChange={(e) =>
-                        onUpdateField(field.id, { description: e.target.value })
-                      }
-                      className="h-8 text-sm"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onRemoveField(field.id)}
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {fields
+                .filter((field) => !HIDDEN_FIELD_IDS.includes(field.id))
+                .map((field) => (
+                  <TableRow
+                    key={field.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => handleEditField(field)}
+                  >
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {getFieldTypeIcon(field.type)}
+                        <span className="text-xs font-medium text-muted-foreground">
+                          {getFieldTypeLabel(field.type)}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {field.label || (
+                        <span className="text-muted-foreground italic">
+                          No label
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {field.title || (
+                        <span className="text-muted-foreground italic">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="max-w-xs">
+                      {field.description ? (
+                        <span className="text-sm text-muted-foreground line-clamp-2">
+                          {field.description}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground italic">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {field.value ? (
+                        <span className="text-sm">
+                          {field.type === "percentage"
+                            ? `${field.value}%`
+                            : field.value}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground italic">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditField(field);
+                          }}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRemoveField(field.id);
+                          }}
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </div>
-      ) : (
+      ) : !showForm ? (
         <div className="border border-dashed rounded-lg p-12 text-center">
           <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
             <Plus className="w-6 h-6 text-muted-foreground" />
@@ -206,68 +412,22 @@ function FieldSection({
           <p className="text-muted-foreground mb-4">
             Start by adding your first form field using the button above
           </p>
+          <Button onClick={() => startAddingField()} variant="outline">
+            Add Your First Field
+          </Button>
         </div>
+      ) : null}
+
+      {/* Add/Edit Form */}
+      {showForm && (
+        <FieldForm
+          field={editingField}
+          onSave={handleSaveField}
+          onCancel={handleCancel}
+        />
       )}
     </div>
   );
-}
-
-interface FieldValueInputProps {
-  field: DynamicFormField;
-  onUpdate: (id: string, updates: Partial<DynamicFormField>) => void;
-}
-
-function FieldValueInput({ field, onUpdate }: FieldValueInputProps) {
-  const renderValueInput = () => {
-    switch (field.type) {
-      case "textarea":
-        return (
-          <Textarea
-            placeholder="Default value"
-            value={field.value}
-            onChange={(e) => onUpdate(field.id, { value: e.target.value })}
-            className="resize-none h-8 text-sm"
-          />
-        );
-      case "number":
-        return (
-          <Input
-            type="number"
-            placeholder="0"
-            value={field.value}
-            onChange={(e) => onUpdate(field.id, { value: e.target.value })}
-            className="h-8 text-sm"
-          />
-        );
-      case "percentage":
-        return (
-          <div className="relative">
-            <Input
-              type="number"
-              placeholder="0"
-              value={field.value}
-              onChange={(e) => onUpdate(field.id, { value: e.target.value })}
-              className="pr-8 h-8 text-sm"
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-              %
-            </span>
-          </div>
-        );
-      default:
-        return (
-          <Input
-            type="text"
-            placeholder="Default value"
-            value={field.value}
-            onChange={(e) => onUpdate(field.id, { value: e.target.value })}
-            className="h-8 text-sm"
-          />
-        );
-    }
-  };
-
-  return renderValueInput();
 }
 
 export default function DynamicFormFields({
@@ -277,24 +437,12 @@ export default function DynamicFormFields({
   fields: DynamicFormField[];
   setFields: Dispatch<SetStateAction<DynamicFormField[]>>;
 }) {
-  const generateId = () => Math.random().toString(36).substr(2, 9);
-
-  const addField = (type: DynamicFormField["type"]) => {
-    const newField: DynamicFormField = {
-      id: generateId(),
-      type,
-      label: "",
-      value: type === "number" || type === "percentage" ? 0 : "",
-      title: "",
-      description: "",
-    };
-    setFields((prev) => [...prev, newField]);
+  const addField = (field: DynamicFormField) => {
+    setFields((prev) => [...prev, field]);
   };
 
-  const updateField = (id: string, updates: Partial<DynamicFormField>) => {
-    setFields((prev) =>
-      prev.map((field) => (field.id === id ? { ...field, ...updates } : field))
-    );
+  const updateField = (field: DynamicFormField) => {
+    setFields((prev) => prev.map((f) => (f.id === field.id ? field : f)));
   };
 
   const removeField = (id: string) => {

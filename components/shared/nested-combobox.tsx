@@ -104,25 +104,42 @@ export default function NestedCombobox({
     return currentCategory.children || [];
   }, [currentPath, data.data]);
 
-  // Get current level product types
+  // Get current level product types (only for leaf categories with multiple products)
   const currentProductTypes = useMemo(() => {
-    // Helper to recursively collect product types
-    const getAllProductTypes = (category: Category): ProductType[] => {
-      const current = category.productTypes || [];
-      const childTypes = category.children
-        ? category.children.flatMap(getAllProductTypes)
-        : [];
-      return [...current, ...childTypes];
-    };
-
-    // At root level (level 0), don't show any product types
     if (currentPath.length === 0) {
       return [];
     }
 
     const currentCategory = currentPath[currentPath.length - 1];
-    return getAllProductTypes(currentCategory);
+    
+    // Only show products if this is a leaf category (no children) with multiple products
+    if ((!currentCategory.children || currentCategory.children.length === 0) && 
+        currentCategory.productTypes && currentCategory.productTypes.length > 1) {
+      return currentCategory.productTypes;
+    }
+
+    return [];
   }, [currentPath]);
+
+  // Filter items based on search
+  const filteredItems = useMemo(() => {
+    if (!searchQuery) return currentItems;
+    return currentItems.filter(
+      (item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [currentItems, searchQuery]);
+
+  // Filter product types based on search
+  const filteredProductTypes = useMemo(() => {
+    if (!searchQuery) return currentProductTypes;
+    return currentProductTypes.filter(
+      (product) =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [currentProductTypes, searchQuery]);
 
   // Track trigger width changes
   useEffect(() => {
@@ -160,25 +177,6 @@ export default function NestedCombobox({
       setTriggerWidth(triggerRef.current.offsetWidth);
     }
   }, [open]);
-
-  // Filter items based on search
-  const filteredItems = useMemo(() => {
-    if (!searchQuery) return currentItems;
-    return currentItems.filter(
-      (item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [currentItems, searchQuery]);
-
-  const filteredProductTypes = useMemo(() => {
-    if (!searchQuery) return currentProductTypes;
-    return currentProductTypes.filter(
-      (product) =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [currentProductTypes, searchQuery]);
 
   const navigateToCategory = (category: Category) => {
     setNavigationHistory((prev) => [...prev, currentPath]);
@@ -233,7 +231,7 @@ export default function NestedCombobox({
                 <Badge variant="secondary" className="text-xs">
                   {selectedProduct.code.replace("_", " ")}
                 </Badge>
-                <span className="truncate">{selectedProduct.name}</span>
+                {/* <span className="truncate">{selectedProduct.name}</span> */}
               </div>
             ) : (
               <span className="text-muted-foreground">{placeholder}</span>
@@ -254,7 +252,7 @@ export default function NestedCombobox({
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-10"
+              className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-10 !bg-transparent"
             />
           </div>
 
@@ -295,15 +293,24 @@ export default function NestedCombobox({
                   <CommandItem
                     key={item.id}
                     onSelect={() => {
-                      // Only navigate, never select categories
-                      if (item.children && item.children.length > 0) {
+                      // If category has no children and exactly one product, auto-select it
+                      if ((!item.children || item.children.length === 0) && 
+                          item.productTypes && item.productTypes.length === 1) {
+                        selectItem(item.productTypes[0]);
+                        return;
+                      }
+                      
+                      // Otherwise navigate to categories that have children OR products
+                      if ((item.children && item.children.length > 0) || 
+                          (item.productTypes && item.productTypes.length > 0)) {
                         navigateToCategory(item);
                       }
                     }}
                     className={cn(
                       "flex items-center justify-between py-2",
-                      !item.children || item.children.length === 0
-                        ? "cursor-not-allowed"
+                      (!item.children || item.children.length === 0) && 
+                      (!item.productTypes || item.productTypes.length === 0)
+                        ? "cursor-not-allowed opacity-50"
                         : "cursor-pointer"
                     )}
                   >
@@ -318,7 +325,8 @@ export default function NestedCombobox({
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
-                      {item.children && item.children.length > 0 && (
+                      {((item.children && item.children.length > 0) || 
+                        (item.productTypes && item.productTypes.length > 0)) && (
                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       )}
                     </div>
@@ -327,7 +335,7 @@ export default function NestedCombobox({
               </CommandGroup>
             )}
 
-            {/* Product Types */}
+            {/* Product Types - only shown for leaf categories with multiple products */}
             {filteredProductTypes.length > 0 && (
               <CommandGroup heading="Products">
                 {filteredProductTypes.map((product) => (
@@ -359,10 +367,9 @@ export default function NestedCombobox({
               </CommandGroup>
             )}
 
-            {filteredItems.length === 0 &&
-              filteredProductTypes.length === 0 && (
-                <CommandEmpty>No results found.</CommandEmpty>
-              )}
+            {filteredItems.length === 0 && filteredProductTypes.length === 0 && (
+              <CommandEmpty>No results found.</CommandEmpty>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>
