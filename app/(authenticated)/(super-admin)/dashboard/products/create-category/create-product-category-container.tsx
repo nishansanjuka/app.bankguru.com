@@ -68,7 +68,9 @@ export const DefineCategoriesContainer: FC<{
           exact: false,
         });
         toast.success("Category created successfully!");
-        queryClient.invalidateQueries({ queryKey: ["productCategoryHierarchy"] });
+        queryClient.invalidateQueries({
+          queryKey: ["productCategoryHierarchy"],
+        });
       } else {
         toast.error(res.error || "Failed to create category.");
       }

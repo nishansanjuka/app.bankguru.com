@@ -3,9 +3,30 @@
 import { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, X } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Plus,
+  X,
+  ChevronDown,
+  Type,
+  Hash,
+  Percent,
+  FileText,
+} from "lucide-react";
 
 export interface DynamicFormField {
   id: string;
@@ -20,7 +41,6 @@ interface FieldSectionProps {
   title: string;
   description: string;
   fields: DynamicFormField[];
-  fieldType: DynamicFormField["type"];
   onAddField: (type: DynamicFormField["type"]) => void;
   onUpdateField: (id: string, updates: Partial<DynamicFormField>) => void;
   onRemoveField: (id: string) => void;
@@ -30,55 +50,174 @@ function FieldSection({
   title,
   description,
   fields,
-  fieldType,
   onAddField,
   onUpdateField,
   onRemoveField,
 }: FieldSectionProps) {
-  const sectionFields = fields.filter((field) => field.type === fieldType);
+  const getFieldTypeIcon = (type: DynamicFormField["type"]) => {
+    switch (type) {
+      case "text":
+        return <Type className="w-4 h-4" />;
+      case "number":
+        return <Hash className="w-4 h-4" />;
+      case "percentage":
+        return <Percent className="w-4 h-4" />;
+      case "textarea":
+        return <FileText className="w-4 h-4" />;
+      default:
+        return <Type className="w-4 h-4" />;
+    }
+  };
+
+  const getFieldTypeLabel = (type: DynamicFormField["type"]) => {
+    switch (type) {
+      case "text":
+        return "Text";
+      case "number":
+        return "Number";
+      case "percentage":
+        return "Percentage";
+      case "textarea":
+        return "Textarea";
+      default:
+        return "Text";
+    }
+  };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Header with Add Field Dropdown */}
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <h2 className="text-base font-medium text-foreground tracking-wide">
-            {title}
-          </h2>
-          <p className="text-sm text-muted-foreground ">{description}</p>
+          <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+          <p className="text-sm text-muted-foreground">{description}</p>
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => onAddField(fieldType)}
-          className="text-xs rounded-full"
-        >
-          <Plus strokeWidth={1} className="w-3 h-3" />
-        </Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button type="button" className="gap-2">
+              <Plus className="w-4 h-4" />
+              Add Field
+              <ChevronDown className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={() => onAddField("text")}>
+              <Type className="w-4 h-4 mr-2" />
+              Text Field
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddField("number")}>
+              <Hash className="w-4 h-4 mr-2" />
+              Number Field
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddField("percentage")}>
+              <Percent className="w-4 h-4 mr-2" />
+              Percentage Field
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddField("textarea")}>
+              <FileText className="w-4 h-4 mr-2" />
+              Textarea Field
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      {sectionFields.length > 0 && (
-        <div className="space-y-6">
-          {sectionFields.map((field) => (
-            <FieldItem
-              key={field.id}
-              field={field}
-              onUpdate={onUpdateField}
-              onRemove={onRemoveField}
-            />
-          ))}
+      {/* Fields Table */}
+      {fields.length > 0 ? (
+        <div className="border rounded-lg">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-20">Type</TableHead>
+                <TableHead>Label</TableHead>
+                <TableHead>Default Value</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead className="w-20">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {fields.map((field) => (
+                <TableRow key={field.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {getFieldTypeIcon(field.type)}
+                      <span className="text-xs font-medium text-muted-foreground">
+                        {getFieldTypeLabel(field.type)}
+                      </span>
+                    </div>
+                  </TableCell>
+
+                  <TableCell>
+                    <Input
+                      placeholder="Field label"
+                      value={field.label}
+                      onChange={(e) =>
+                        onUpdateField(field.id, { label: e.target.value })
+                      }
+                      className="h-8 text-sm"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <FieldValueInput field={field} onUpdate={onUpdateField} />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      placeholder="Optional title"
+                      value={field.title || ""}
+                      onChange={(e) =>
+                        onUpdateField(field.id, { title: e.target.value })
+                      }
+                      className="h-8 text-sm"
+                    />
+                  </TableCell>
+                  <TableCell className="max-w-xs">
+                    <Input
+                      placeholder="Optional description"
+                      value={field.description || ""}
+                      onChange={(e) =>
+                        onUpdateField(field.id, { description: e.target.value })
+                      }
+                      className="h-8 text-sm"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onRemoveField(field.id)}
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      ) : (
+        <div className="border border-dashed rounded-lg p-12 text-center">
+          <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
+            <Plus className="w-6 h-6 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-medium mb-2">No fields added yet</h3>
+          <p className="text-muted-foreground mb-4">
+            Start by adding your first form field using the button above
+          </p>
         </div>
       )}
     </div>
   );
 }
 
-interface FieldItemProps {
+interface FieldValueInputProps {
   field: DynamicFormField;
   onUpdate: (id: string, updates: Partial<DynamicFormField>) => void;
-  onRemove: (id: string) => void;
 }
 
-function FieldItem({ field, onUpdate, onRemove }: FieldItemProps) {
+function FieldValueInput({ field, onUpdate }: FieldValueInputProps) {
   const renderValueInput = () => {
     switch (field.type) {
       case "textarea":
@@ -87,7 +226,7 @@ function FieldItem({ field, onUpdate, onRemove }: FieldItemProps) {
             placeholder="Default value"
             value={field.value}
             onChange={(e) => onUpdate(field.id, { value: e.target.value })}
-            className="resize-none h-20"
+            className="resize-none h-8 text-sm"
           />
         );
       case "number":
@@ -97,6 +236,7 @@ function FieldItem({ field, onUpdate, onRemove }: FieldItemProps) {
             placeholder="0"
             value={field.value}
             onChange={(e) => onUpdate(field.id, { value: e.target.value })}
+            className="h-8 text-sm"
           />
         );
       case "percentage":
@@ -107,9 +247,9 @@ function FieldItem({ field, onUpdate, onRemove }: FieldItemProps) {
               placeholder="0"
               value={field.value}
               onChange={(e) => onUpdate(field.id, { value: e.target.value })}
-              className="pr-8"
+              className="pr-8 h-8 text-sm"
             />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
               %
             </span>
           </div>
@@ -121,74 +261,13 @@ function FieldItem({ field, onUpdate, onRemove }: FieldItemProps) {
             placeholder="Default value"
             value={field.value}
             onChange={(e) => onUpdate(field.id, { value: e.target.value })}
+            className="h-8 text-sm"
           />
         );
     }
   };
 
-  return (
-    <div className="space-y-6 py-6 border-b border-border last:border-b-0">
-      <div className="flex items-start justify-between">
-        <div className="flex-1 space-y-6 pr-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label className="text-sm font-normal text-muted-foreground">
-                Title
-              </Label>
-              <Input
-                placeholder="Optional field title"
-                value={field.title || ""}
-                onChange={(e) => onUpdate(field.id, { title: e.target.value })}
-                className="h-9"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-normal text-muted-foreground">
-                Label <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                placeholder="Field label"
-                value={field.label}
-                onChange={(e) => onUpdate(field.id, { label: e.target.value })}
-                className="h-9"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm font-normal text-muted-foreground">
-              Description
-            </Label>
-            <Textarea
-              placeholder="Optional field description"
-              value={field.description || ""}
-              onChange={(e) =>
-                onUpdate(field.id, { description: e.target.value })
-              }
-              className="resize-none h-16"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm font-normal text-muted-foreground">
-              Default Value
-            </Label>
-            {renderValueInput()}
-          </div>
-        </div>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onRemove(field.id)}
-          className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
-        >
-          <X className="w-4 h-4" />
-        </Button>
-      </div>
-    </div>
-  );
+  return renderValueInput();
 }
 
 export default function DynamicFormFields({
@@ -221,46 +300,17 @@ export default function DynamicFormFields({
   const removeField = (id: string) => {
     setFields((prev) => prev.filter((field) => field.id !== id));
   };
-  
-  const fieldTypes = [
-    {
-      type: "text" as const,
-      title: "Text Fields",
-      description: "Single line text input",
-    },
-    {
-      type: "number" as const,
-      title: "Number Fields",
-      description: "Numeric input with optional percentage formatting",
-    },
-    {
-      type: "percentage" as const,
-      title: "Percentage Fields",
-      description: "Percentage input with optional numeric formatting",
-    },
-    {
-      type: "textarea" as const,
-      title: "Textarea Fields",
-      description: "Multi-line text input",
-    },
-  ];
 
   return (
     <div className="w-full mx-auto pb-12 pt-4">
-      <div className="space-y-12">
-        {fieldTypes.map(({ type, title, description }) => (
-          <FieldSection
-            key={type}
-            description={description}
-            title={title}
-            fields={fields}
-            fieldType={type}
-            onAddField={addField}
-            onUpdateField={updateField}
-            onRemoveField={removeField}
-          />
-        ))}
-      </div>
+      <FieldSection
+        title="Dynamic Form Fields"
+        description="Manage your form fields with different types and configurations"
+        fields={fields}
+        onAddField={addField}
+        onUpdateField={updateField}
+        onRemoveField={removeField}
+      />
     </div>
   );
 }
