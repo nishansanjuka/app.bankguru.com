@@ -173,3 +173,137 @@ export async function removeOrganizationMember(
     );
   }
 }
+
+export async function createNewOrganization(
+  name: string
+): Promise<ApiResponseData<string>> {
+  try {
+    const { userId, orgRole } = await auth();
+
+    if (!userId || !orgRole) {
+      return ApiResponse.failure("User not authenticated");
+    }
+
+    if (!["org:super_standard", "org:super_admin"].includes(orgRole)) {
+      return ApiResponse.failure(
+        "do not have permission to create an organization"
+      );
+    }
+
+    const clerk = await clerkClient();
+    const organization = await clerk.organizations.createOrganization({
+      name: name,
+      publicMetadata: {},
+      privateMetadata: {},
+    });
+
+    if (!organization) {
+      return ApiResponse.failure("Failed to create organization");
+    }
+
+    return ApiResponse.success("Organization created successfully");
+  } catch (error) {
+    console.error("Error creating organization:", error);
+    return ApiResponse.failure(
+      error instanceof Error ? error.message : "Failed to create organization"
+    );
+  }
+}
+
+export type OrganizationRes = {
+  id: string;
+  name: string;
+  imageUrl?: string | null;
+};
+export async function getOrganizationDetails(): Promise<
+  ApiResponseData<OrganizationRes[]>
+> {
+  try {
+    const { userId, orgId } = await auth();
+
+    if (!orgId || !userId) {
+      return ApiResponse.failure(
+        "User not authenticated or organization not found"
+      );
+    }
+
+    const clerk = await clerkClient();
+    const organizations = await clerk.organizations.getOrganizationList({
+      includeMembersCount: true,
+      limit: 100,
+    });
+
+    if (!organizations) {
+      return ApiResponse.failure("Organization not found");
+    }
+
+    const filteredOrganizations = organizations.data.map((org) => ({
+      id: org.id,
+      name: org.name,
+      imageUrl: org.imageUrl,
+    }));
+    return ApiResponse.success(filteredOrganizations);
+  } catch (error) {
+    console.error("Error fetching organization details:", error);
+    return ApiResponse.failure(
+      error instanceof Error
+        ? error.message
+        : "Failed to fetch organization details"
+    );
+  }
+}
+
+export async function updateOrganizationName(
+  id: string,
+  name: string
+): Promise<ApiResponseData<string>> {
+  try {
+    const { userId, orgId } = await auth();
+
+    if (!userId || !orgId) {
+      return ApiResponse.failure(
+        "User not authenticated or organization not found"
+      );
+    }
+
+    const clerk = await clerkClient();
+    const organization = await clerk.organizations.updateOrganization(id, {
+      name: name,
+    });
+
+    if (!organization) {
+      return ApiResponse.failure("Failed to update organization");
+    }
+
+    return ApiResponse.success("Organization updated successfully");
+  } catch (error) {
+    console.error("Error updating organization:", error);
+    return ApiResponse.failure(
+      error instanceof Error ? error.message : "Failed to update organization"
+    );
+  }
+}
+
+export async function deleteOrganization(
+  id: string
+): Promise<ApiResponseData<boolean>> {
+  try {
+    const { userId, orgId } = await auth();
+
+    if (!userId || !orgId) {
+      return ApiResponse.failure(
+        "User not authenticated or organization not found"
+      );
+    }
+
+    const clerk = await clerkClient();
+    await clerk.organizations.deleteOrganization(id);
+
+    return ApiResponse.success(true);
+  } catch (error) {
+    console.error("Error deleting organization:", error);
+    return ApiResponse.failure(
+      error instanceof Error ? error.message : "Failed to delete organization"
+    );
+  }
+}

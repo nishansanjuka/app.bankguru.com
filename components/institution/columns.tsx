@@ -11,13 +11,15 @@ import {
 import { Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { getQueryClient } from "@/lib/utils";
-import { deleteInstituteType } from "@/lib/actions/institutions/define-intitue";
 import { ResponsiveDialog } from "../shared/responsive-dialog";
 import { toast } from "sonner";
-import { InstitutionTypes } from "@/types/institution-types";
-import { DefineInstitutionsContainer } from "@/app/(authenticated)/(super-admin)/dashboard/institutions/define/create-institutions-container";
+import {
+  deleteOrganization,
+  OrganizationRes,
+} from "@/lib/actions/organizations";
+import { NewInstitutionContainer } from "@/app/(authenticated)/(super-admin)/dashboard/institutions/create/create-institutions-container";
 
-const TableActions = ({ row }: { row: { original: InstitutionTypes } }) => {
+const TableActions = ({ row }: { row: { original: OrganizationRes } }) => {
   const queryClient = getQueryClient();
   const [onOpenChange, setOnOpenChange] = useState(false);
 
@@ -25,16 +27,16 @@ const TableActions = ({ row }: { row: { original: InstitutionTypes } }) => {
     delete: false,
   });
 
-  async function deleteInstitutionData(id: string): Promise<void> {
+  async function deleteOrganizationData(id: string): Promise<void> {
     try {
       setIsLoading((prev) => ({ ...prev, delete: true }));
-      const res = await deleteInstituteType(id);
+      const res = await deleteOrganization(id);
 
       if (!res.success) {
         toast.error(res.error || "Failed to delete institution");
         return;
       }
-      queryClient.invalidateQueries({ queryKey: ["institutions"] });
+      queryClient.invalidateQueries({ queryKey: ["organizations"] });
       toast.success("Institution deleted successfully!");
     } catch (error) {
       console.error("Error deleting institution:", error);
@@ -64,7 +66,7 @@ const TableActions = ({ row }: { row: { original: InstitutionTypes } }) => {
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              deleteInstitutionData(row.original.id);
+              deleteOrganizationData(row.original.id);
             }}
             className="flex items-center gap-2 text-red-600"
           >
@@ -84,12 +86,10 @@ const TableActions = ({ row }: { row: { original: InstitutionTypes } }) => {
         onOpenChange={setOnOpenChange}
         className="w-full sm:w-[40vw] md:w-[90vw] lg:w-[60vw]"
       >
-        <DefineInstitutionsContainer
+        <NewInstitutionContainer
           type="update"
           data={{
-            description: row.original.description,
             name: row.original.name,
-            code: row.original.code,
           }}
           id={row.original.id}
           onClose={() => setOnOpenChange(false)}
@@ -99,23 +99,34 @@ const TableActions = ({ row }: { row: { original: InstitutionTypes } }) => {
   );
 };
 
-export const columns: ColumnDef<InstitutionTypes>[] = [
+export const columns: ColumnDef<OrganizationRes>[] = [
   {
-    accessorKey: "code",
-    header: "Code",
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("code")}</div>
-    ),
+    accessorKey: "imageUrl",
+    header: "Logo",
+    cell: ({ row }) => {
+      const imageUrl = row.original.imageUrl;
+      return (
+        <div className="flex items-center">
+          {imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imageUrl}
+              alt="Organization Logo"
+              className="h-8 w-8 rounded-full"
+            />
+          ) : (
+            <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+              <span className="text-gray-500">No Logo</span>
+            </div>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => <div>{row.getValue("name")}</div>,
-  },
-  {
-    accessorKey: "description",
-    header: "Description",
-    cell: ({ row }) => <div>{row.getValue("description")}</div>,
   },
   {
     id: "actions",

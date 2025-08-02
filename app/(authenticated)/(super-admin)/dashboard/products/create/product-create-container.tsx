@@ -36,6 +36,9 @@ import { Product } from "@/types/product";
 import { cn } from "@/lib/utils/cn";
 import { getQueryClient } from "@/lib/utils";
 import { Loader2, Trash2 } from "lucide-react";
+import { getOrganizationDetails } from "@/lib/actions/organizations";
+import Combobox from "@/components/ui/combobox";
+import { useAuth } from "@clerk/nextjs";
 
 export default function ProductCreateContainer({
   data,
@@ -101,6 +104,8 @@ const NewProductForm = ({
   data?: Partial<Product>;
   onClose?: () => void;
 }) => {
+  const { orgRole, orgId } = useAuth();
+
   const [fields, setFields] = useState<DynamicFormField[]>(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (data?.details?.additionalInfo as any) || []
@@ -145,6 +150,17 @@ const NewProductForm = ({
     },
   });
 
+  const { data: organizations } = useQuery({
+    queryKey: ["organizations"],
+    queryFn: async () => {
+      const res = await getOrganizationDetails();
+      if (!res.success) {
+        throw new Error("Failed to fetch organizations");
+      }
+      return res.data;
+    },
+  });
+
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
@@ -158,6 +174,7 @@ const NewProductForm = ({
       isFeatured: data?.isFeatured || false,
       name: data?.name || "",
       productTypeId: data?.productTypeId || "",
+      institutionId: data?.institutionId || "",
     },
   });
 
@@ -212,6 +229,7 @@ const NewProductForm = ({
         }
 
         const res = await updateProduct(id, {
+          institutionId: data.institutionId,
           productTypeId: data.productTypeId,
           details: {
             additionalInfo: updatedFields,
@@ -230,6 +248,12 @@ const NewProductForm = ({
           toast.success("Product updated successfully!");
         }
       } else if (type === "create") {
+        if (
+          orgRole &&
+          !["org:super_admin", "org:super_standard"].includes(orgRole)
+        ) {
+          form.setValue("institutionId", orgId || "");
+        }
         const res = await createProduct({
           productTypeId: data.productTypeId,
           details: {
@@ -354,6 +378,40 @@ const NewProductForm = ({
                       </FormItem>
                     )}
                   />
+
+                  {orgRole &&
+                    ["org:super_admin", "org:super_standard"].includes(
+                      orgRole
+                    ) && (
+                      <FormField
+                        control={form.control}
+                        name="institutionId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Institution</FormLabel>
+                            <FormControl>
+                              <Combobox
+                                value={field.value}
+                                onChange={field.onChange}
+                                options={
+                                  organizations?.map((org) => ({
+                                    value: org.id,
+                                    label: org.name,
+                                  })) || []
+                                }
+                                placeholder="Select an institution..."
+                                searchPlaceholder="Search institutions..."
+                                emptyMessage="No institutions found."
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              Select the institution that offers this product.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
 
                   <FormField
                     control={form.control}

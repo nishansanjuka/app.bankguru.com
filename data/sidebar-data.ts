@@ -32,6 +32,10 @@ const sidebarData: {
       isActive: true,
       items: [
         {
+          title: "Create Institution",
+          url: "/dashboard/institutions/create",
+        },
+        {
           title: "Define Institution Types",
           url: "/dashboard/institutions/create",
         },

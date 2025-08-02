@@ -2,18 +2,18 @@ import React from "react";
 import { Container } from "./container";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "@/lib/utils";
-import InstitutionsContainer from "@/components/institution/container";
-import { getOrganizationDetails } from "@/lib/actions/organizations";
+import { getInstitutesTypes } from "@/lib/actions/institutions/define-intitue";
+import InstitutionsContainerContainer from "@/components/institution-types/container";
 
 export default function DefineInstitutionPage() {
   const queryClient = getQueryClient();
 
   queryClient.prefetchQuery({
-    queryKey: ["organizations"],
+    queryKey: ["institutions"],
     queryFn: async () => {
-      const res = await getOrganizationDetails();
+      const res = await getInstitutesTypes();
       if (!res.success) {
-        throw new Error(res.error || "Failed to fetch organizations");
+        throw new Error(res.error || "Failed to fetch institutions");
       }
       return res.data;
     },
@@ -27,7 +27,7 @@ export default function DefineInstitutionPage() {
         </div>
         
         <div className="w-full mt-10 container mx-auto">
-          <InstitutionsContainer />
+          <InstitutionsContainerContainer />
         </div>
       </main>
     </HydrationBoundary>

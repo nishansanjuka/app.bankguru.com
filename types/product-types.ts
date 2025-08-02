@@ -14,6 +14,7 @@ const additionalInfoSchema = z
   .optional();
 
 export const productFormSchema = z.object({
+  institutionId: z.string().min(1, { message: "Institution is required." }),
   productTypeId: z.string().min(1, { message: "Product Type is required." }),
   name: z.string().min(1, { message: "Product name is required." }),
   details: z.object({

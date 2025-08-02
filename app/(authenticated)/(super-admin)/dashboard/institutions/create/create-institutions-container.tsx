@@ -4,6 +4,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { FC, useState } from "react";
+import { toast } from "sonner";
+import { getQueryClient } from "@/lib/utils";
+import { ApiResponseData } from "@/types/api-response";
+import { organizationSchema } from "@/types/organization";
+import {
+  createNewOrganization,
+  updateOrganizationName,
+} from "@/lib/actions/organizations";
 import {
   Form,
   FormControl,
@@ -14,50 +23,36 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { FC, useState } from "react";
-import { toast } from "sonner";
-import {
-  defineInstitute,
-  updateInstituteType,
-} from "@/lib/actions/institutions/define-intitue";
-import { getQueryClient } from "@/lib/utils";
-import { ApiResponseData } from "@/types/api-response";
-import { institutionTypesFormSchema } from "@/types/institution-types";
 
-export const DefineInstitutionsContainer: FC<{
+export const NewInstitutionContainer: FC<{
   id?: string;
   type?: "create" | "update";
-  data?: Partial<z.infer<typeof institutionTypesFormSchema>>;
+  data?: Partial<z.infer<typeof organizationSchema>>;
   onClose: () => void;
 }> = ({ id, type = "create", data, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const form = useForm<z.infer<typeof institutionTypesFormSchema>>({
-    resolver: zodResolver(institutionTypesFormSchema),
+  const form = useForm<z.infer<typeof organizationSchema>>({
+    resolver: zodResolver(organizationSchema),
     defaultValues: {
-      code: data?.code || "",
       name: data?.name || "",
-      description: data?.description || "",
     },
   });
 
   const queryClient = getQueryClient();
 
-  const onSubmit = async (
-    values: z.infer<typeof institutionTypesFormSchema>
-  ) => {
+  const onSubmit = async (values: z.infer<typeof organizationSchema>) => {
     try {
       let res: ApiResponseData<string> = { success: false, error: "" };
       setIsLoading(true);
       if (type === "update" && id) {
-        res = await updateInstituteType(id, values);
+        res = await updateOrganizationName(id, values.name);
       } else if (type === "create") {
-        res = await defineInstitute(values);
+        res = await createNewOrganization(values.name);
       }
 
       if (res.success) {
         queryClient.invalidateQueries({
-          queryKey: ["institutions"],
+          queryKey: ["organizations"],
           refetchType: "active",
           exact: false,
         });
@@ -88,72 +83,28 @@ export const DefineInstitutionsContainer: FC<{
         onSubmit={form.handleSubmit(onSubmit)}
         className="w-full flex flex-col gap-4 items-end mt-5"
       >
-        <div className="w-full flex flex-col space-y-4">
-          <FormField
-            disabled={type === "update"}
-            control={form.control}
-            name="code"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel>Institution Code</FormLabel>
-                <FormDescription>
-                  Enter a unique code for the institution. This will be used for
-                  identification.
-                </FormDescription>
-                <FormControl>
-                  <Input
-                    className="w-full mt-2"
-                    placeholder="BANK"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel>Name</FormLabel>
-                <FormDescription>
-                  Enter a unique name for the institution. This will be used for
-                  identification.
-                </FormDescription>
-                <FormControl>
-                  <Input
-                    className="w-full mt-2"
-                    placeholder="Bank"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel>Description</FormLabel>
-                <FormDescription>
-                  Enter a description for the institution.
-                </FormDescription>
-                <FormControl>
-                  <Textarea
-                    className="w-full mt-2 h-full"
-                    placeholder="Description"
-                    rows={6}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel>Name</FormLabel>
+              <FormDescription>
+                Enter a unique name for the institution. This will be used for
+                identification.
+              </FormDescription>
+              <FormControl>
+                <Input
+                  className="w-full mt-2"
+                  placeholder="Institution Name"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <Button disabled={isLoading} type="submit" className="w-fit mt-4">
           {isLoading
             ? type === "update"
