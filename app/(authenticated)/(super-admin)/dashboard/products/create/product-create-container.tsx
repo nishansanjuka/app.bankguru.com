@@ -397,6 +397,7 @@ const NewProductForm = ({
                                   organizations?.map((org) => ({
                                     value: org.id,
                                     label: org.name,
+                                    iconUrl: org.imageUrl || undefined,
                                   })) || []
                                 }
                                 placeholder="Select an institution..."

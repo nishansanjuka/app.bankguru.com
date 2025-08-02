@@ -22,6 +22,7 @@ export interface ComboboxOption {
   value: string;
   label: string;
   icon?: React.ComponentType<{ className?: string }>;
+  iconUrl?: string;
 }
 
 interface ComboboxProps {
@@ -115,9 +116,18 @@ export default function Combobox({
           <div className="flex items-center gap-2 flex-1 min-w-0">
             {selectedOption ? (
               <div className="flex items-center gap-2 flex-1 min-w-0">
-                {selectedOption.icon && (
+                {selectedOption.iconUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={selectedOption.iconUrl}
+                    alt={selectedOption.label}
+                    width={16}
+                    height={16}
+                    className="w-4 h-4 shrink-0 rounded-sm"
+                  />
+                ) : selectedOption.icon ? (
                   <selectedOption.icon className="w-4 h-4 shrink-0" />
-                )}
+                ) : null}
                 <span className="truncate">{selectedOption.label}</span>
               </div>
             ) : (
@@ -154,9 +164,18 @@ export default function Combobox({
                     className="flex items-center justify-between py-2 cursor-pointer"
                   >
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                      {option.icon && (
+                      {option.iconUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={option.iconUrl}
+                          alt={option.label}
+                          width={16}
+                          height={16}
+                          className="w-4 h-4 shrink-0 rounded-sm"
+                        />
+                      ) : option.icon ? (
                         <option.icon className="w-4 h-4 shrink-0" />
-                      )}
+                      ) : null}
                       <span className="truncate">{option.label}</span>
                     </div>
                     <Check
