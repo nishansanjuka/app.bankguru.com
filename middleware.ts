@@ -1,6 +1,32 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export default clerkMiddleware();
+const isProtectedRoute = createRouteMatcher(["/auth(.*)"]);
+const isCommonAdminRoute = createRouteMatcher(["/dashboard(.*)"]);
+const isAdminRoute = createRouteMatcher([]);
+const isSuperAdminRoute = createRouteMatcher(["/dashboard/institutions(.*)"]);
+
+export default clerkMiddleware(async (auth, req) => {
+  if (isProtectedRoute(req)) await auth.protect();
+  if (isCommonAdminRoute(req)) {
+    await auth.protect(
+      (has) =>
+        has({ role: "super_admin" }) ||
+        has({ role: "super_standard" }) ||
+        has({ role: "admin" }) ||
+        has({ role: "standard_user" })
+    );
+  }
+  if (isSuperAdminRoute(req)) {
+    await auth.protect(
+      (has) => has({ role: "super_admin" }) || has({ role: "super_standard" })
+    );
+  }
+  if (isAdminRoute(req)) {
+    await auth.protect(
+      (has) => has({ role: "admin" }) || has({ role: "standard_user" })
+    );
+  }
+});
 
 export const config = {
   matcher: [
