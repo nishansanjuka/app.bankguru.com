@@ -50,6 +50,7 @@ export default function ProductCreateContainer({
   onlyProduct?: boolean;
   onClose?: () => void;
 }) {
+  const queryClient = getQueryClient();
   return (
     <>
       {onlyProduct ? (
@@ -59,7 +60,17 @@ export default function ProductCreateContainer({
           <Tabs defaultValue="new-product" className="mb-6 container mx-auto">
             <TabsList className="mb-4">
               <TabsTrigger value="new-product">New Product</TabsTrigger>
-              <TabsTrigger value="product-list">Product list</TabsTrigger>
+              <TabsTrigger
+                onClick={() =>
+                  queryClient.invalidateQueries({
+                    queryKey: ["products"],
+                    fetchStatus: "paused",
+                  })
+                }
+                value="product-list"
+              >
+                Product list
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="new-product">
               <NewProductForm
@@ -160,10 +171,8 @@ const NewProductForm = ({
         const imageIndex = updatedFields.findIndex(
           (f) => f.id === "product-image"
         );
-        const urlIndex = updatedFields.findIndex(
-          (f) => f.id === "product-url"
-        );
-        
+        const urlIndex = updatedFields.findIndex((f) => f.id === "product-url");
+
         if (productImage) {
           const imageField = {
             id: "product-image",
@@ -407,7 +416,8 @@ const NewProductForm = ({
                       onChange={(e) => setProductUrl(e.target.value || null)}
                     />
                     <p className="text-[0.8rem] text-muted-foreground">
-                      Add a URL where users can explore more details about this product.
+                      Add a URL where users can explore more details about this
+                      product.
                     </p>
                   </div>
 
@@ -494,7 +504,7 @@ const NewProductForm = ({
                     )}
                   />
 
-                  <div className="items-center mt-5 hidden lg:flex gap-2">
+                  {/* <div className="items-center mt-5 hidden lg:flex gap-2">
                     <Button type="submit" className="flex-1">
                       {isLoading
                         ? type === "update"
@@ -516,7 +526,7 @@ const NewProductForm = ({
                         <Trash2 className="size-4" />
                       )}
                     </Button>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
@@ -531,30 +541,31 @@ const NewProductForm = ({
                 </FormDescription>
 
                 <DynamicFormFields fields={fields} setFields={setFields} />
-              </div>
 
-              <div className="flex items-center gap-2 mt-5 lg:hidden">
-                <Button
-                  disabled={isDeleting}
-                  onClick={handleDelete}
-                  type="submit"
-                  className="flex-1"
-                >
-                  {isLoading
-                    ? type === "update"
-                      ? "Updating..."
-                      : "Creating..."
-                    : type === "update"
-                    ? "Update Product"
-                    : "Create Product"}
-                </Button>
-                <Button variant={"destructive"} size={"icon"}>
-                  {isDeleting ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="size-4" />
+                <div className="flex items-center justify-end gap-2">
+                  <Button disabled={isDeleting} type="submit" className="w-fit">
+                    {isLoading
+                      ? type === "update"
+                        ? "Updating..."
+                        : "Creating..."
+                      : type === "update"
+                      ? "Update Product"
+                      : "Create Product"}
+                  </Button>
+                  {data?.id && (
+                    <Button
+                      onClick={handleDelete}
+                      variant={"destructive"}
+                      size={"icon"}
+                    >
+                      {isDeleting ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="size-4" />
+                      )}
+                    </Button>
                   )}
-                </Button>
+                </div>
               </div>
             </div>
           </form>
