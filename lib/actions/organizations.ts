@@ -176,7 +176,8 @@ export async function removeOrganizationMember(
 
 export async function createNewOrganization(
   name: string,
-  typeId: string = process.env.DEFAULT_ORGANIZATION_TYPE_ID || "default"
+  typeId: string = process.env.DEFAULT_ORGANIZATION_TYPE_ID || "default",
+  logo: File | null
 ): Promise<ApiResponseData<string>> {
   try {
     const { userId, orgRole } = await auth();
@@ -202,6 +203,16 @@ export async function createNewOrganization(
 
     if (!organization) {
       return ApiResponse.failure("Failed to create organization");
+    }
+
+    if (logo) {
+      const res = await changeOrganizationLogo(organization.id, logo);
+
+      if (!res.success) {
+        return ApiResponse.failure(
+          res.error || "Failed to upload organization logo"
+        );
+      }
     }
 
     return ApiResponse.success("Organization created successfully");

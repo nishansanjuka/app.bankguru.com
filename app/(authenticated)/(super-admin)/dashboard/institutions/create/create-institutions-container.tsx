@@ -61,7 +61,11 @@ export const NewInstitutionContainer: FC<{
       if (type === "update" && id) {
         res = await updateOrganizationName(id, values.name, accountType);
       } else if (type === "create") {
-        res = await createNewOrganization(values.name, accountType);
+        res = await createNewOrganization(
+          values.name,
+          accountType,
+          productImage
+        );
       }
 
       if (res.success) {
@@ -92,9 +96,9 @@ export const NewInstitutionContainer: FC<{
   };
 
   const handleUploadInstitutionLogo = async (file: File | null) => {
-    if (file && id) {
+    setProductImage(file);
+    if (file && id && type === "update") {
       setIsUploadingLogo(true);
-      setProductImage(file);
       const res = await changeOrganizationLogo(id, file);
       if (res.success) {
         queryClient.invalidateQueries({
@@ -112,8 +116,6 @@ export const NewInstitutionContainer: FC<{
       } finally {
         setIsUploadingLogo(false);
       }
-    } else {
-      setProductImage(null);
     }
   };
 
