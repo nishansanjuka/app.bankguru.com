@@ -10,6 +10,7 @@ import { getQueryClient } from "@/lib/utils";
 import { ApiResponseData } from "@/types/api-response";
 import { organizationSchema } from "@/types/organization";
 import {
+  changeOrganizationLogo,
   createNewOrganization,
   updateOrganizationName,
 } from "@/lib/actions/organizations";
@@ -24,15 +25,21 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { AccountTypeCombobox } from "@/components/institution-types/account-type-combobox";
+import ImageUpload from "@/components/shared/image-uploader";
 
 export const NewInstitutionContainer: FC<{
   id?: string;
   type?: "create" | "update";
-  data?: Partial<z.infer<typeof organizationSchema>> & { typeId?: string };
+  data?: Partial<z.infer<typeof organizationSchema>> & {
+    typeId: string;
+    logoUrl: string;
+  };
   onClose: () => void;
 }> = ({ id, type = "create", data, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [accountType, setAccountType] = useState<string>(data?.typeId || "");
+  const [productImage, setProductImage] = useState<File | null>(null);
 
   const form = useForm<z.infer<typeof organizationSchema>>({
     resolver: zodResolver(organizationSchema),
@@ -84,12 +91,57 @@ export const NewInstitutionContainer: FC<{
     }
   };
 
+  const handleUploadInstitutionLogo = async (file: File | null) => {
+    if (file && id) {
+      setIsUploadingLogo(true);
+      setProductImage(file);
+      const res = await changeOrganizationLogo(id, file);
+      if (res.success) {
+        queryClient.invalidateQueries({
+          queryKey: ["organizations"],
+        });
+        toast.success("Logo uploaded successfully!");
+      } else {
+        toast.error(res.error || "Failed to upload logo.");
+      }
+      try {
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to upload logo."
+        );
+      } finally {
+        setIsUploadingLogo(false);
+      }
+    } else {
+      setProductImage(null);
+    }
+  };
+
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full flex flex-col gap-4 items-end mt-5"
+        className="w-full flex flex-col gap-4 mt-5"
       >
+        <ImageUpload<File>
+          value={productImage}
+          onChange={handleUploadInstitutionLogo}
+          initialValue={data?.logoUrl}
+          isUploading={isUploadingLogo}
+          label="Update Institution Logo"
+          type="file"
+          description="Upload a high-quality logo for your institution."
+          buttonText="Upload Logo"
+          className="w-full flex flex-col pb-2"
+        />
+
+        <div className=" space-y-2">
+          <FormLabel>Institution Category</FormLabel>
+          <FormDescription>
+            Select the type of institution you want to create or update. This
+            will determine the features and capabilities available.
+          </FormDescription>
+        </div>
         <AccountTypeCombobox
           value={accountType}
           onChange={setAccountType}
@@ -117,15 +169,17 @@ export const NewInstitutionContainer: FC<{
           )}
         />
 
-        <Button disabled={isLoading} type="submit" className="w-fit mt-4">
-          {isLoading
-            ? type === "update"
-              ? "Updating..."
-              : "Creating..."
-            : type === "update"
-            ? "Update Institution"
-            : "Create Institution"}
-        </Button>
+        <div className=" flex justify-end">
+          <Button disabled={isLoading} type="submit" className="w-fit mt-4">
+            {isLoading
+              ? type === "update"
+                ? "Updating..."
+                : "Creating..."
+              : type === "update"
+              ? "Update Institution"
+              : "Create Institution"}
+          </Button>
+        </div>
       </form>
     </Form>
   );

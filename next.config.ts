@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
         hostname: "s3.ap-south-1.amazonaws.com",
         pathname: "/**",
       },
+      {
+        hostname: "img.clerk.com",
+        pathname: "/**",
+      },
     ],
   },
 };

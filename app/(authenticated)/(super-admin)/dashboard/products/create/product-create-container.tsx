@@ -455,10 +455,11 @@ const NewProductForm = ({
                     )}
                   />
 
-                  <ImageUpload
+                  <ImageUpload<string>
                     value={productImage}
                     onChange={setProductImage}
                     label="Product Image"
+                    type="data-url"
                     description="Upload a high-quality product image for your listing."
                     buttonText="Upload Photo"
                     className="w-full flex flex-col pb-2"

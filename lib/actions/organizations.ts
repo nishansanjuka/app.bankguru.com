@@ -316,3 +316,44 @@ export async function deleteOrganization(
     );
   }
 }
+
+export async function changeOrganizationLogo(
+  instituteId: string,
+  file: File
+): Promise<ApiResponseData<string>> {
+  try {
+    const { userId, orgId, has } = await auth();
+
+    if (!userId || !orgId) {
+      return ApiResponse.failure(
+        "User not authenticated or organization not found"
+      );
+    }
+
+    if (
+      has({
+        role: "org:super_admin",
+      }) ||
+      has({ role: "org:super_standard" }) ||
+      has({ role: "org:admin" })
+    ) {
+      const clerk = await clerkClient();
+
+      clerk.organizations.updateOrganizationLogo(instituteId, {
+        file,
+      });
+      return ApiResponse.success("Organization logo changed successfully");
+    } else {
+      return ApiResponse.failure(
+        "User does not have permission to change organization logo"
+      );
+    }
+  } catch (error) {
+    console.error("Error changing organization logo:", error);
+    return ApiResponse.failure(
+      error instanceof Error
+        ? error.message
+        : "Failed to change organization logo"
+    );
+  }
+}

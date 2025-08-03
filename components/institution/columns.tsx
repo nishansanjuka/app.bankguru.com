@@ -80,8 +80,8 @@ const TableActions = ({ row }: { row: { original: OrganizationRes } }) => {
         </DropdownMenuContent>
       </DropdownMenu>
       <ResponsiveDialog
-        title="Update Category"
-        description="Update the details of this category."
+        title="Update Institution"
+        description="Update the details of this institution."
         open={onOpenChange}
         onOpenChange={setOnOpenChange}
         className="w-full sm:w-[40vw] md:w-[90vw] lg:w-[60vw]"
@@ -91,6 +91,7 @@ const TableActions = ({ row }: { row: { original: OrganizationRes } }) => {
           data={{
             name: row.original.name,
             typeId: row.original.typeId,
+            logoUrl: row.original.imageUrl || "",
           }}
           id={row.original.id}
           onClose={() => setOnOpenChange(false)}
@@ -114,6 +115,8 @@ export const columns: ColumnDef<OrganizationRes>[] = [
               src={imageUrl}
               alt="Organization Logo"
               className="h-8 w-8 rounded-full"
+              width={32}
+              height={32}
             />
           ) : (
             <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
