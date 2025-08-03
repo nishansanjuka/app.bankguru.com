@@ -22,11 +22,13 @@ import { getInstitutesTypes } from "@/lib/actions/institutions/define-intitue";
 export interface AccountTypeComboboxProps {
   value?: string;
   onChange?: (value: string) => void;
+  className?: string;
 }
 
 export function AccountTypeCombobox({
   value,
   onChange,
+  className,
 }: AccountTypeComboboxProps) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string>(value || "");
@@ -34,7 +36,7 @@ export function AccountTypeCombobox({
   const [buttonWidth, setButtonWidth] = useState<number | undefined>(undefined);
 
   const { data: accountTypes } = useQuery({
-    queryKey: ["accountTypes"],
+    queryKey: ["institutions"],
     queryFn: async () => {
       const res = await getInstitutesTypes();
       if (res.success) {
@@ -84,8 +86,8 @@ export function AccountTypeCombobox({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "w-full justify-between h-14 rounded-2xl bg-gray-50 border-0 focus:bg-white focus:ring-2 focus:ring-orange-500 text-base transition-all duration-300",
-            !selected && "text-gray-500 font-normal text-sm"
+            !selected && "text-gray-500 font-normal text-sm",
+            className
           )}
           style={
             {

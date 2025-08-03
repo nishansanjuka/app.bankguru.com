@@ -4,6 +4,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { FC, useState } from "react";
+import { toast } from "sonner";
+import { getQueryClient } from "@/lib/utils";
+import { ApiResponseData } from "@/types/api-response";
+import { organizationSchema } from "@/types/organization";
+import {
+  changeOrganizationLogo,
+  createNewOrganization,
+  updateOrganizationName,
+} from "@/lib/actions/organizations";
 import {
   Form,
   FormControl,
@@ -14,50 +24,49 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { FC, useState } from "react";
-import { toast } from "sonner";
-import {
-  defineInstitute,
-  updateInstituteType,
-} from "@/lib/actions/institutions/define-intitue";
-import { getQueryClient } from "@/lib/utils";
-import { ApiResponseData } from "@/types/api-response";
-import { institutionTypesFormSchema } from "@/types/institution-types";
+import { AccountTypeCombobox } from "@/components/institution-types/account-type-combobox";
+import ImageUpload from "@/components/shared/image-uploader";
 
-export const DefineInstitutionsContainer: FC<{
+export const NewInstitutionContainer: FC<{
   id?: string;
   type?: "create" | "update";
-  data?: Partial<z.infer<typeof institutionTypesFormSchema>>;
+  data?: Partial<z.infer<typeof organizationSchema>> & {
+    typeId: string;
+    logoUrl: string;
+  };
   onClose: () => void;
 }> = ({ id, type = "create", data, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const form = useForm<z.infer<typeof institutionTypesFormSchema>>({
-    resolver: zodResolver(institutionTypesFormSchema),
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [accountType, setAccountType] = useState<string>(data?.typeId || "");
+  const [productImage, setProductImage] = useState<File | null>(null);
+
+  const form = useForm<z.infer<typeof organizationSchema>>({
+    resolver: zodResolver(organizationSchema),
     defaultValues: {
-      code: data?.code || "",
       name: data?.name || "",
-      description: data?.description || "",
     },
   });
 
   const queryClient = getQueryClient();
 
-  const onSubmit = async (
-    values: z.infer<typeof institutionTypesFormSchema>
-  ) => {
+  const onSubmit = async (values: z.infer<typeof organizationSchema>) => {
+    if (!accountType) {
+      toast.error("Please select an account type.");
+      return;
+    }
     try {
       let res: ApiResponseData<string> = { success: false, error: "" };
       setIsLoading(true);
       if (type === "update" && id) {
-        res = await updateInstituteType(id, values);
+        res = await updateOrganizationName(id, values.name, accountType);
       } else if (type === "create") {
-        res = await defineInstitute(values);
+        res = await createNewOrganization(values.name, accountType);
       }
 
       if (res.success) {
         queryClient.invalidateQueries({
-          queryKey: ["institutions"],
+          queryKey: ["organizations"],
           refetchType: "active",
           exact: false,
         });
@@ -82,87 +91,95 @@ export const DefineInstitutionsContainer: FC<{
     }
   };
 
+  const handleUploadInstitutionLogo = async (file: File | null) => {
+    if (file && id) {
+      setIsUploadingLogo(true);
+      setProductImage(file);
+      const res = await changeOrganizationLogo(id, file);
+      if (res.success) {
+        queryClient.invalidateQueries({
+          queryKey: ["organizations"],
+        });
+        toast.success("Logo uploaded successfully!");
+      } else {
+        toast.error(res.error || "Failed to upload logo.");
+      }
+      try {
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to upload logo."
+        );
+      } finally {
+        setIsUploadingLogo(false);
+      }
+    } else {
+      setProductImage(null);
+    }
+  };
+
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full flex flex-col gap-4 items-end mt-5"
+        className="w-full flex flex-col gap-4 mt-5"
       >
-        <div className="w-full flex flex-col space-y-4">
-          <FormField
-            disabled={type === "update"}
-            control={form.control}
-            name="code"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel>Institution Code</FormLabel>
-                <FormDescription>
-                  Enter a unique code for the institution. This will be used for
-                  identification.
-                </FormDescription>
-                <FormControl>
-                  <Input
-                    className="w-full mt-2"
-                    placeholder="BANK"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel>Name</FormLabel>
-                <FormDescription>
-                  Enter a unique name for the institution. This will be used for
-                  identification.
-                </FormDescription>
-                <FormControl>
-                  <Input
-                    className="w-full mt-2"
-                    placeholder="Bank"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem className="w-full">
-                <FormLabel>Description</FormLabel>
-                <FormDescription>
-                  Enter a description for the institution.
-                </FormDescription>
-                <FormControl>
-                  <Textarea
-                    className="w-full mt-2 h-full"
-                    placeholder="Description"
-                    rows={6}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <ImageUpload<File>
+          value={productImage}
+          onChange={handleUploadInstitutionLogo}
+          initialValue={data?.logoUrl}
+          isUploading={isUploadingLogo}
+          label="Update Institution Logo"
+          type="file"
+          description="Upload a high-quality logo for your institution."
+          buttonText="Upload Logo"
+          className="w-full flex flex-col pb-2"
+        />
+
+        <div className=" space-y-2">
+          <FormLabel>Institution Category</FormLabel>
+          <FormDescription>
+            Select the type of institution you want to create or update. This
+            will determine the features and capabilities available.
+          </FormDescription>
         </div>
-        <Button disabled={isLoading} type="submit" className="w-fit mt-4">
-          {isLoading
-            ? type === "update"
-              ? "Updating..."
-              : "Creating..."
-            : type === "update"
-            ? "Update Institution"
-            : "Create Institution"}
-        </Button>
+        <AccountTypeCombobox
+          value={accountType}
+          onChange={setAccountType}
+          className="w-full justify-between"
+        />
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel>Name</FormLabel>
+              <FormDescription>
+                Enter a unique name for the institution. This will be used for
+                identification.
+              </FormDescription>
+              <FormControl>
+                <Input
+                  className="w-full mt-2"
+                  placeholder="Institution Name"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className=" flex justify-end">
+          <Button disabled={isLoading} type="submit" className="w-fit mt-4">
+            {isLoading
+              ? type === "update"
+                ? "Updating..."
+                : "Creating..."
+              : type === "update"
+              ? "Update Institution"
+              : "Create Institution"}
+          </Button>
+        </div>
       </form>
     </Form>
   );

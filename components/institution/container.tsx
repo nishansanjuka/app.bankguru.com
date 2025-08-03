@@ -9,26 +9,28 @@ import { ColumnFiltersState } from "@tanstack/react-table";
 import { DataTable } from "@/components/shared/data-table/data-table";
 import PageHeader from "@/components/shared/page-header";
 import { ReFetchButton } from "@/components/shared/re-fetch-button";
-import { getInstitutesTypes } from "@/lib/actions/institutions/define-intitue";
-import { InstitutionTypes } from "@/types/institution-types";
+import {
+  getOrganizationDetails,
+  OrganizationRes,
+} from "@/lib/actions/organizations";
 
-export default function InstitutionsContainerContainer() {
+export default function InstitutionsContainer() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
 
   const {
-    data: institutionsData,
+    data: organizations,
     isLoading,
     isFetching,
     error,
     refetch,
   } = useQuery({
-    queryKey: ["institutions"],
+    queryKey: ["organizations"],
     queryFn: async () => {
-      const res = await getInstitutesTypes();
+      const res = await getOrganizationDetails();
       if (!res.success) {
-        throw new Error(res.error || "Failed to fetch institutions");
+        throw new Error(res.error || "Failed to fetch organizations");
       }
       return res.data;
     },
@@ -46,10 +48,10 @@ export default function InstitutionsContainerContainer() {
     );
   }
 
-  if (error || !institutionsData) {
+  if (error || !organizations) {
     return (
       <Alert variant="destructive">
-        <AlertDescription>{"Failed to load institutions"}</AlertDescription>
+        <AlertDescription>{"Failed to load organizations"}</AlertDescription>
       </Alert>
     );
   }
@@ -62,9 +64,9 @@ export default function InstitutionsContainerContainer() {
             <Loading />
           </div>
         )}
-        {institutionsData.length > 0 ? (
-          <DataTable<InstitutionTypes>
-            data={institutionsData}
+        {organizations.length > 0 ? (
+          <DataTable<OrganizationRes>
+            data={organizations}
             columns={columns}
             customColumnFilters={columnFilters}
             onCustomColumnFiltersChange={setColumnFilters}
