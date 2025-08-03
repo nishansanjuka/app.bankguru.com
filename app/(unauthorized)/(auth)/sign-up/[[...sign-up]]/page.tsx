@@ -386,6 +386,7 @@ export default function OnboardingPage() {
                   <AccountTypeCombobox
                     value={accountType}
                     onChange={setAccountType}
+                    className="w-full justify-between h-14 rounded-2xl bg-gray-50 border-0 focus:bg-white focus:ring-2 focus:ring-orange-500 text-base transition-all duration-300"
                   />
                   <p className="text-sm text-gray-500 ml-6">
                     Select the type of your institution

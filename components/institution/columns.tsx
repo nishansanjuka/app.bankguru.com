@@ -90,6 +90,7 @@ const TableActions = ({ row }: { row: { original: OrganizationRes } }) => {
           type="update"
           data={{
             name: row.original.name,
+            typeId: row.original.typeId,
           }}
           id={row.original.id}
           onClose={() => setOnOpenChange(false)}

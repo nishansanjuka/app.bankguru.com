@@ -175,7 +175,8 @@ export async function removeOrganizationMember(
 }
 
 export async function createNewOrganization(
-  name: string
+  name: string,
+  typeId: string = process.env.DEFAULT_ORGANIZATION_TYPE_ID || "default"
 ): Promise<ApiResponseData<string>> {
   try {
     const { userId, orgRole } = await auth();
@@ -194,7 +195,9 @@ export async function createNewOrganization(
     const organization = await clerk.organizations.createOrganization({
       name: name,
       publicMetadata: {},
-      privateMetadata: {},
+      privateMetadata: {
+        accountCategory: typeId,
+      },
     });
 
     if (!organization) {
@@ -214,6 +217,7 @@ export type OrganizationRes = {
   id: string;
   name: string;
   imageUrl?: string | null;
+  typeId: string;
 };
 export async function getOrganizationDetails(): Promise<
   ApiResponseData<OrganizationRes[]>
@@ -241,6 +245,7 @@ export async function getOrganizationDetails(): Promise<
       id: org.id,
       name: org.name,
       imageUrl: org.imageUrl,
+      typeId: (org.privateMetadata.accountCategory as string) || "default",
     }));
     return ApiResponse.success(filteredOrganizations);
   } catch (error) {
@@ -255,7 +260,8 @@ export async function getOrganizationDetails(): Promise<
 
 export async function updateOrganizationName(
   id: string,
-  name: string
+  name: string,
+  typeId: string = process.env.DEFAULT_ORGANIZATION_TYPE_ID || "default"
 ): Promise<ApiResponseData<string>> {
   try {
     const { userId, orgId } = await auth();
@@ -269,6 +275,9 @@ export async function updateOrganizationName(
     const clerk = await clerkClient();
     const organization = await clerk.organizations.updateOrganization(id, {
       name: name,
+      privateMetadata: {
+        accountCategory: typeId,
+      },
     });
 
     if (!organization) {

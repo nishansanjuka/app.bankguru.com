@@ -1,6 +1,7 @@
 import {
   createInstitution,
   deleteInstitution,
+  updateInstitution,
 } from "@/lib/actions/institutions/institutions";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
@@ -63,6 +64,23 @@ export async function POST(req: Request) {
       if (!res.success) {
         console.log("Failed to create institution:", res.error);
         return NextResponse.json({ error: res.error }, { status: 400 });
+      }
+      break;
+
+    case "organization.updated":
+      const updateRes = await updateInstitution(evt.data.id, {
+        typeId: String(
+          evt.data.private_metadata?.accountCategory ??
+            process.env.DEFAULT_INSTITUTION_TYPE_ID
+        ),
+        name: evt.data.name,
+        licenseNumber: evt.data.id,
+        countryCode: "LK",
+      });
+
+      if (!updateRes.success) {
+        console.log("Failed to update institution:", updateRes.error);
+        return NextResponse.json({ error: updateRes.error }, { status: 400 });
       }
       break;
     case "organization.deleted":

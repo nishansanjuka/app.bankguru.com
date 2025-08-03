@@ -23,14 +23,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { AccountTypeCombobox } from "@/components/institution-types/account-type-combobox";
 
 export const NewInstitutionContainer: FC<{
   id?: string;
   type?: "create" | "update";
-  data?: Partial<z.infer<typeof organizationSchema>>;
+  data?: Partial<z.infer<typeof organizationSchema>> & { typeId?: string };
   onClose: () => void;
 }> = ({ id, type = "create", data, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [accountType, setAccountType] = useState<string>(data?.typeId || "");
+
   const form = useForm<z.infer<typeof organizationSchema>>({
     resolver: zodResolver(organizationSchema),
     defaultValues: {
@@ -41,13 +44,17 @@ export const NewInstitutionContainer: FC<{
   const queryClient = getQueryClient();
 
   const onSubmit = async (values: z.infer<typeof organizationSchema>) => {
+    if (!accountType) {
+      toast.error("Please select an account type.");
+      return;
+    }
     try {
       let res: ApiResponseData<string> = { success: false, error: "" };
       setIsLoading(true);
       if (type === "update" && id) {
-        res = await updateOrganizationName(id, values.name);
+        res = await updateOrganizationName(id, values.name, accountType);
       } else if (type === "create") {
-        res = await createNewOrganization(values.name);
+        res = await createNewOrganization(values.name, accountType);
       }
 
       if (res.success) {
@@ -83,6 +90,11 @@ export const NewInstitutionContainer: FC<{
         onSubmit={form.handleSubmit(onSubmit)}
         className="w-full flex flex-col gap-4 items-end mt-5"
       >
+        <AccountTypeCombobox
+          value={accountType}
+          onChange={setAccountType}
+          className="w-full justify-between"
+        />
         <FormField
           control={form.control}
           name="name"

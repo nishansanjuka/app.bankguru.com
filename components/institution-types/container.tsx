@@ -18,14 +18,20 @@ export default function InstitutionsContainerContainer() {
   );
 
   const {
-    data: institutionsResponse,
+    data: institutionsData,
     isLoading,
     isFetching,
     error,
     refetch,
   } = useQuery({
     queryKey: ["institutions"],
-    queryFn: () => getInstitutesTypes(),
+    queryFn: async () => {
+      const res = await getInstitutesTypes();
+      if (!res.success) {
+        throw new Error(res.error || "Failed to fetch institutions");
+      }
+      return res.data;
+    },
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     retry: 2,
@@ -40,17 +46,13 @@ export default function InstitutionsContainerContainer() {
     );
   }
 
-  if (error || !institutionsResponse?.success) {
+  if (error || !institutionsData) {
     return (
       <Alert variant="destructive">
-        <AlertDescription>
-          {!institutionsResponse?.success || "Failed to load institutions"}
-        </AlertDescription>
+        <AlertDescription>{"Failed to load institutions"}</AlertDescription>
       </Alert>
     );
   }
-
-  const institutions = institutionsResponse.data;
 
   return (
     <div className="px-4 lg:px-6 w-full">
@@ -60,9 +62,9 @@ export default function InstitutionsContainerContainer() {
             <Loading />
           </div>
         )}
-        {institutions.length > 0 ? (
+        {institutionsData.length > 0 ? (
           <DataTable<InstitutionTypes>
-            data={institutions}
+            data={institutionsData}
             columns={columns}
             customColumnFilters={columnFilters}
             onCustomColumnFiltersChange={setColumnFilters}

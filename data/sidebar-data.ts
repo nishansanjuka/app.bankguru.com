@@ -37,7 +37,7 @@ const sidebarData: {
         },
         {
           title: "Define Institution Types",
-          url: "/dashboard/institutions/create",
+          url: "/dashboard/institutions/define",
         },
       ],
     },
