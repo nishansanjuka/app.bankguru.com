@@ -10,7 +10,7 @@ import Image from "next/image";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { Button } from "../ui/button";
 
-export const NavBar: FC = () => {
+export const NavBar: FC<{ className?: string }> = ({ className }) => {
   const { isSignedIn } = useUser();
   const pathname = usePathname();
   const [showColors, setShowColors] = useState(true);
@@ -39,32 +39,37 @@ export const NavBar: FC = () => {
     <>
       <nav
         className={cn(
-          "p-4 fixed w-full top-0 z-50",
-          showColors ? " bg-opacity-80" : "backdrop-blur-2xl bg-stone-700/70 "
+          "p-4 fixed w-full top-0 z-50 transition-all duration-300",
+          showColors
+            ? "bg-white/95 backdrop-blur-sm border-b border-gray-200/50 "
+            : "backdrop-blur-xl bg-white/90 border-b border-gray-200/60 ",
+          className
         )}
       >
         <div className="container mx-auto font-light">
           <div className="flex justify-between items-center">
             <Link
               href="/"
-              className="text-2xl font-bold text-white hover:text-[#E27A24] transition-colors duration-300"
+              className="text-2xl font-bold text-gray-900 hover:text-[#E27A24] transition-colors duration-300"
             >
               <Image
-                src={"/logo/bankguru-white.png"}
-                alt=""
+                src={"/logo/bankguru-transparent.png"}
+                alt="BankGuru Logo"
                 width={986}
                 height={260}
                 className="w-40 object-contain group-data-[collapsible=icon]:hidden"
               />
             </Link>
-            <div className="space-x-10 hidden sm:flex truncate">
+            <div className="space-x-8 hidden sm:flex truncate">
               {navData.map((item) => (
                 <Link
                   key={item.path}
                   href={item.path}
                   className={cn(
-                    "hover:text-[#E27A24] transition-colors duration-300",
-                    pathname === item.path ? "text-[#E27A24]" : "text-white/40"
+                    "font-medium transition-all duration-300 relative py-2 hover:scale-105",
+                    pathname === item.path
+                      ? "text-[#E27A24] after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#E27A24] after:rounded-full"
+                      : "text-gray-600 hover:text-[#E27A24] hover:after:absolute hover:after:bottom-0 hover:after:left-0 hover:after:w-full hover:after:h-0.5 hover:after:bg-[#E27A24]/50 hover:after:rounded-full"
                   )}
                 >
                   {item.label}
@@ -72,12 +77,26 @@ export const NavBar: FC = () => {
               ))}
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-4">
               <LanguageChooser />
               {isSignedIn ? (
-                <UserButton />
+                <div className="flex items-center space-x-3">
+                  <UserButton
+                    appearance={{
+                      elements: {
+                        avatarBox: "w-8 h-8",
+                        userButtonPopoverCard: "border border-gray-200",
+                        userButtonPopoverActions: "text-gray-600",
+                      },
+                    }}
+                  />
+                </div>
               ) : (
-                <Button variant="outline" size="sm">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-gray-300 text-gray-700 hover:bg-[#E27A24] hover:text-white hover:border-[#E27A24] transition-all duration-300"
+                >
                   <Link href={"/sign-in"}>Sign In</Link>
                 </Button>
               )}

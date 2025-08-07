@@ -60,7 +60,7 @@ export function CreditCardProduct({
   return (
     <Card
       className={cn(
-        "group hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] border-0 overflow-hidden",
+        "group hover:shadow-2xl transition-all duration-500 border-0 overflow-hidden",
         variant === "premium" &&
           "bg-gradient-to-br from-gray-900 to-gray-800 text-white",
         variant === "compact" && "max-w-sm",

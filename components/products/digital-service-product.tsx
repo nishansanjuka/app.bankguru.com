@@ -48,7 +48,7 @@ export function DigitalServiceProduct({
   return (
     <Card
       className={cn(
-        "group hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-0 bg-white",
+        "group  transition-all duration-300 border-0 bg-white",
         variant === "modern" &&
           "bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100",
         variant === "compact" && "max-w-sm",

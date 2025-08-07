@@ -39,6 +39,7 @@ export function ProductGrid({
           variant={variant as "compact" | "default" | "premium"}
           onApply={(id) => onProductAction?.("apply", id)}
           onCompare={(id) => onProductAction?.("compare", id)}
+          className="max-w-full"
         />
       );
     }
@@ -58,6 +59,7 @@ export function ProductGrid({
           variant={variant}
           onApply={(id) => onProductAction?.("apply", id)}
           onCalculate={(id) => onProductAction?.("calculate", id)}
+          className="max-w-full"
         />
       );
     }
@@ -76,6 +78,7 @@ export function ProductGrid({
           variant={variant as "default" | "compact" | "premium"}
           onOpenAccount={(id) => onProductAction?.("open", id)}
           onLearnMore={(id) => onProductAction?.("learn_more", id)}
+          className="max-w-full"
         />
       );
     }
@@ -96,6 +99,7 @@ export function ProductGrid({
           variant={variant as "default" | "compact" | "premium"}
           onInvest={(id) => onProductAction?.("invest", id)}
           onViewPortfolio={(id) => onProductAction?.("view_portfolio", id)}
+          className="max-w-full"
         />
       );
     }
@@ -116,6 +120,7 @@ export function ProductGrid({
           variant={variant as "default" | "compact" | "family"}
           onGetQuote={(id) => onProductAction?.("quote", id)}
           onCompare={(id) => onProductAction?.("compare", id)}
+          className="max-w-full"
         />
       );
     }
@@ -136,6 +141,7 @@ export function ProductGrid({
           variant={variant as "default" | "compact" | "modern"}
           onGetStarted={(id) => onProductAction?.("get_started", id)}
           onDownload={(id) => onProductAction?.("download", id)}
+          className="max-w-full"
         />
       );
     }
@@ -148,6 +154,7 @@ export function ProductGrid({
         variant={variant}
         onViewDetails={(id) => onProductAction?.("view_details", id)}
         onCompare={(id) => onProductAction?.("compare", id)}
+        className="max-w-full"
       />
     );
   };

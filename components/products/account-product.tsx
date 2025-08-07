@@ -50,7 +50,7 @@ export function AccountProduct({
   return (
     <Card
       className={cn(
-        "group hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-0 bg-white",
+        "group transition-all duration-300 border-0 bg-white",
         variant === "premium" &&
           "bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100",
         variant === "compact" && "max-w-sm",

@@ -45,7 +45,7 @@ export function LoanProduct({
   return (
     <Card
       className={cn(
-        "group hover:shadow-xl transition-all duration-300 hover:scale-[1.02] border-0 bg-white",
+        "group transition-all duration-300 border-0 bg-white",
         variant === "compact" && "max-w-sm",
         className
       )}
