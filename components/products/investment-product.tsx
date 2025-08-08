@@ -22,6 +22,7 @@ interface InvestmentProductProps {
   className?: string;
   onInvest?: (productId: string) => void;
   onViewPortfolio?: (productId: string) => void;
+  onCompare?: (productId: string) => void;
 }
 
 export function InvestmentProduct({
@@ -30,6 +31,7 @@ export function InvestmentProduct({
   className,
   onInvest,
   onViewPortfolio,
+  onCompare,
 }: InvestmentProductProps) {
   // Extract investment-specific information
   const expectedReturn = product.details.additionalInfo.find(
@@ -237,15 +239,26 @@ export function InvestmentProduct({
             Start Investing
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
-          {onViewPortfolio && (
-            <Button
-              onClick={() => onViewPortfolio(product.id)}
-              variant="outline"
-              className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
-            >
-              View Details
-            </Button>
-          )}
+          <div className="flex space-x-3">
+            {onViewPortfolio && (
+              <Button
+                onClick={() => onViewPortfolio(product.id)}
+                variant="outline"
+                className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
+              >
+                View Details
+              </Button>
+            )}
+            {onCompare && (
+              <Button
+                onClick={() => onCompare(product.id)}
+                variant="outline"
+                className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
+              >
+                Compare
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

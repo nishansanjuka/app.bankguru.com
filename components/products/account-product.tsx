@@ -22,6 +22,7 @@ interface AccountProductProps {
   className?: string;
   onOpenAccount?: (productId: string) => void;
   onLearnMore?: (productId: string) => void;
+  onCompare?: (productId: string) => void;
 }
 
 export function AccountProduct({
@@ -30,6 +31,7 @@ export function AccountProduct({
   className,
   onOpenAccount,
   onLearnMore,
+  onCompare,
 }: AccountProductProps) {
   // Extract account-specific information
   const interestRate = product.details.additionalInfo.find(
@@ -209,15 +211,26 @@ export function AccountProduct({
             Open Account
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
-          {onLearnMore && (
-            <Button
-              onClick={() => onLearnMore(product.id)}
-              variant="outline"
-              className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
-            >
-              Learn More
-            </Button>
-          )}
+          <div className="flex space-x-3">
+            {onLearnMore && (
+              <Button
+                onClick={() => onLearnMore(product.id)}
+                variant="outline"
+                className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
+              >
+                Learn More
+              </Button>
+            )}
+            {onCompare && (
+              <Button
+                onClick={() => onCompare(product.id)}
+                variant="outline"
+                className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
+              >
+                Compare
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

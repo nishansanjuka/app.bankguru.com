@@ -1,28 +1,36 @@
+import { NavBar } from "@/components/shared/nav-bar";
 import { getProducts } from "@/lib/actions/products";
 import { getQueryClient } from "@/lib/utils";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import React from "react";
 import { Container } from "./container";
-import { NavBar } from "@/components/shared/nav-bar";
 
-export default async function LoansPage() {
+export default async function ProductPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ catId?: string }>;
+}) {
+  const params = await searchParams;
+  const catId = params.catId;
+
   const queryClient = getQueryClient();
   await queryClient.prefetchQuery({
-    queryKey: ["loans"],
+    queryKey: ["loans", catId],
     queryFn: async () => {
-      const res = await getProducts({});
+      const res = await getProducts({
+        categoryId: catId,
+      });
       if (!res.success) {
         throw new Error(res.error || "Failed to fetch loans");
       }
       return res.data;
     },
   });
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <NavBar />
-      <div className="mt-20">
-        <Container />
-      </div>
+      <div className="mt-20">{catId && <Container catId={catId} />}</div>
     </HydrationBoundary>
   );
 }

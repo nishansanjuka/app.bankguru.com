@@ -24,6 +24,7 @@ interface DigitalServiceProductProps {
   className?: string;
   onGetStarted?: (productId: string) => void;
   onDownload?: (productId: string) => void;
+  onCompare?: (productId: string) => void;
 }
 
 export function DigitalServiceProduct({
@@ -32,6 +33,7 @@ export function DigitalServiceProduct({
   className,
   onGetStarted,
   onDownload,
+  onCompare,
 }: DigitalServiceProductProps) {
   // Extract digital service specific information
   const transactionFee = product.details.additionalInfo.find(
@@ -234,16 +236,27 @@ export function DigitalServiceProduct({
             Get Started
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
-          {onDownload && (
-            <Button
-              onClick={() => onDownload(product.id)}
-              variant="outline"
-              className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
-            >
-              <Smartphone className="w-4 h-4 mr-2" />
-              Download
-            </Button>
-          )}
+          <div className="flex space-x-3">
+            {onDownload && (
+              <Button
+                onClick={() => onDownload(product.id)}
+                variant="outline"
+                className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
+              >
+                <Smartphone className="w-4 h-4 mr-2" />
+                Download
+              </Button>
+            )}
+            {onCompare && (
+              <Button
+                onClick={() => onCompare(product.id)}
+                variant="outline"
+                className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
+              >
+                Compare
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

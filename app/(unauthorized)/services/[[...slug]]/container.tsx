@@ -11,9 +11,9 @@ import { SlidersHorizontal, Grid3X3, List, Filter } from "lucide-react";
 import { SheetContainer } from "@/components/shared/sheet-container";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-export const Container: FC = () => {
+export const Container: FC<{ catId: string }> = ({ catId }) => {
   const [filteredData, setFilteredData] = useState<Product[]>([]);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [showFiltersSheet, setShowFiltersSheet] = useState(false);
   const isMobile = useIsMobile();
 
@@ -21,7 +21,7 @@ export const Container: FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
       {/* Page Header */}
       <div className="border-b border-gray-200 sticky top-16 z-40 backdrop-blur-sm bg-white/95">
-        <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-[85vw] mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
@@ -73,7 +73,7 @@ export const Container: FC = () => {
                     side="left"
                     size={"icon"}
                   >
-                    <Filters setFilteredData={setFilteredData} />
+                    <Filters setFilteredData={setFilteredData} catId={catId} />
                   </SheetContainer>
                 </div>
               ) : null}
@@ -83,8 +83,8 @@ export const Container: FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="max-w-[85vw] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-6 sm:gap-8">
           {/* Filters Sidebar - Desktop Only */}
           {!isMobile && (
             <div className="lg:col-span-3">
@@ -94,7 +94,7 @@ export const Container: FC = () => {
                     <SlidersHorizontal className="h-5 w-5 text-gray-600" />
                     <h2 className="font-semibold text-gray-900">Filters</h2>
                   </div>
-                  <Filters setFilteredData={setFilteredData} />
+                  <Filters setFilteredData={setFilteredData} catId={catId} />
                 </Card>
               </div>
             </div>

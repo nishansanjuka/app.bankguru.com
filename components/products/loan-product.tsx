@@ -21,6 +21,7 @@ interface LoanProductProps {
   className?: string;
   onApply?: (productId: string) => void;
   onCalculate?: (productId: string) => void;
+  onCompare?: (productId: string) => void;
 }
 
 export function LoanProduct({
@@ -29,6 +30,7 @@ export function LoanProduct({
   className,
   onApply,
   onCalculate,
+  onCompare,
 }: LoanProductProps) {
   // Extract loan-specific information
   const interestRate = product.details.additionalInfo.find(
@@ -184,16 +186,27 @@ export function LoanProduct({
             Apply Now
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
-          {onCalculate && (
-            <Button
-              onClick={() => onCalculate(product.id)}
-              variant="outline"
-              className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
-            >
-              <Calculator className="w-4 h-4 mr-2" />
-              Calculate
-            </Button>
-          )}
+          <div className="flex space-x-3">
+            {onCalculate && (
+              <Button
+                onClick={() => onCalculate(product.id)}
+                variant="outline"
+                className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
+              >
+                <Calculator className="w-4 h-4 mr-2" />
+                Calculate
+              </Button>
+            )}
+            {onCompare && (
+              <Button
+                onClick={() => onCompare(product.id)}
+                variant="outline"
+                className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
+              >
+                Compare
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

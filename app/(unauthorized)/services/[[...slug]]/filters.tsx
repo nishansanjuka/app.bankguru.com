@@ -7,8 +7,9 @@ import { useQuery } from "@tanstack/react-query";
 import { FC, useCallback } from "react";
 
 const Filters: FC<{
+  catId: string;
   setFilteredData: (data: Product[]) => void;
-}> = ({ setFilteredData }) => {
+}> = ({ catId, setFilteredData }) => {
   const handleFilter = useCallback(
     (filtered: Product[]) => {
       setFilteredData(filtered);
@@ -17,14 +18,17 @@ const Filters: FC<{
   );
 
   const { data: loans } = useQuery({
-    queryKey: ["loans"],
+    queryKey: ["loans", catId],
     queryFn: async () => {
-      const res = await getProducts({});
+      const res = await getProducts({
+        categoryId: catId,
+      });
       if (!res.success) {
         throw new Error(res.error || "Failed to fetch loans");
       }
       return res.data;
     },
+    enabled: !!catId,
   });
 
   return <DynamicFilterSheet data={loans ?? []} onFilter={handleFilter} />;
