@@ -1,3 +1,4 @@
+import { GuruBotHelpText } from "@/components/gurubot";
 import { ChooserTabs } from "@/components/shared/chooser-tabs";
 import { HeroSlider } from "@/components/shared/hero-slider-container";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,7 @@ export default async function HomePage() {
                 {userId && orgId ? "Go to Dashboard" : "Get Started"}
               </Button>
             </Link>
+            <div className="mt-4"></div>
           </div>
 
           {/* Background Image */}
@@ -80,7 +82,7 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[85vw] sm:max-w-[50vw] mx-auto px-4">
-            <div className="aspect-square  rounded-lg flex flex-col items-center justify-center">
+            <div className="aspect-square  rounded-lg flex flex-col items-center justify-center relative">
               <div className="size-28 mb-4 rounded-full bg-muted flex items-center justify-center">
                 <HousePlus
                   className="size-20 text-orange-500"
@@ -94,8 +96,14 @@ export default async function HomePage() {
               >
                 COMPARE NOW
               </Button>
+              <div className="mt-2">
+                <GuruBotHelpText
+                  text="What types of mortgages are available in Sri Lanka?"
+                  className="text-xs"
+                />
+              </div>
             </div>
-            <div className="aspect-square  rounded-lg flex flex-col items-center justify-center">
+            <div className="aspect-square  rounded-lg flex flex-col items-center justify-center relative">
               <div className="size-28 mb-4 rounded-full bg-muted flex items-center justify-center">
                 <CreditCard
                   className="size-20 text-orange-500"
@@ -109,8 +117,14 @@ export default async function HomePage() {
               >
                 COMPARE NOW
               </Button>
+              <div className="mt-2">
+                <GuruBotHelpText
+                  text="Which credit card offers the best rewards in Sri Lanka?"
+                  className="text-xs"
+                />
+              </div>
             </div>
-            <div className="aspect-square  rounded-lg flex flex-col items-center justify-center">
+            <div className="aspect-square  rounded-lg flex flex-col items-center justify-center relative">
               <div className="size-28 mb-4 rounded-full bg-muted flex items-center justify-center">
                 <HandCoins
                   className="size-20 text-orange-500"
@@ -124,6 +138,12 @@ export default async function HomePage() {
               >
                 COMPARE NOW
               </Button>
+              <div className="mt-2">
+                <GuruBotHelpText
+                  text="What are the requirements for a personal loan?"
+                  className="text-xs"
+                />
+              </div>
             </div>
           </div>
         </div>
