@@ -12,7 +12,9 @@ import {
   ArrowRight,
   Star,
   Shield,
+  ExternalLink,
 } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils/index";
 import { Product } from "@/types/product";
 
@@ -50,6 +52,14 @@ export function InvestmentProduct({
     (info) =>
       info.label.toLowerCase().includes("management") ||
       info.label.toLowerCase().includes("expense")
+  );
+
+  const productImage = product.details.additionalInfo.find(
+    (info) => info.id === "product-image"
+  );
+
+  const productUrl = product.details.additionalInfo.find(
+    (info) => info.id === "product-url"
   );
 
   return (
@@ -106,6 +116,18 @@ export function InvestmentProduct({
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {/* Product Image */}
+        {productImage && (
+          <div className="relative w-full h-48 rounded-2xl overflow-hidden bg-gray-50">
+            <Image
+              src={productImage.value.toString()}
+              alt={product.name}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
+
         {/* Investment Metrics */}
         <div className="grid grid-cols-3 gap-3">
           {expectedReturn && (
@@ -240,6 +262,16 @@ export function InvestmentProduct({
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
           <div className="flex space-x-3">
+            {productUrl && (
+              <Button
+                onClick={() => window.open(productUrl.value.toString(), '_blank')}
+                variant="outline"
+                className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Explore
+              </Button>
+            )}
             {onViewPortfolio && (
               <Button
                 onClick={() => onViewPortfolio(product.id)}

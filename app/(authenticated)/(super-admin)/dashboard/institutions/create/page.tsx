@@ -5,8 +5,10 @@ import { getQueryClient } from "@/lib/utils";
 import InstitutionsContainer from "@/components/institution/container";
 import { getOrganizationDetails } from "@/lib/actions/organizations";
 import { getInstitutesTypes } from "@/lib/actions/institutions/define-intitue";
+import { connection } from "next/server";
 
 export default async function DefineInstitutionPage() {
+  await connection();
   const queryClient = getQueryClient();
 
   await Promise.all([

@@ -22,7 +22,7 @@ export default async function CreateProductPage() {
     }),
     queryClient.prefetchQuery({
       queryKey: ["products"],
-      queryFn: () => getProducts(),
+      queryFn: () => getProducts({}),
     }),
   ]);
   return (

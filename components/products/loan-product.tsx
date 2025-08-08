@@ -11,7 +11,9 @@ import {
   Clock,
   ArrowRight,
   Star,
+  ExternalLink,
 } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils/index";
 import { Product } from "@/types/product";
 
@@ -20,7 +22,6 @@ interface LoanProductProps {
   variant?: "default" | "compact" | "detailed";
   className?: string;
   onApply?: (productId: string) => void;
-  onCalculate?: (productId: string) => void;
   onCompare?: (productId: string) => void;
 }
 
@@ -28,8 +29,6 @@ export function LoanProduct({
   product,
   variant = "default",
   className,
-  onApply,
-  onCalculate,
   onCompare,
 }: LoanProductProps) {
   // Extract loan-specific information
@@ -42,6 +41,28 @@ export function LoanProduct({
       info.type === "number" &&
       (info.label.toLowerCase().includes("amount") ||
         info.label.toLowerCase().includes("limit"))
+  );
+
+  const formatFees = (fees: string | number) => {
+    if (typeof fees === "number") {
+      return `${fees}%`;
+    }
+    return fees || "N/A";
+  };
+
+  const formatEligibility = (eligibility: string | number) => {
+    if (typeof eligibility === "number") {
+      return `${eligibility}+ years`;
+    }
+    return eligibility || "N/A";
+  };
+
+  const productImage = product.details.additionalInfo.find(
+    (info) => info.id === "product-image"
+  );
+
+  const productUrl = product.details.additionalInfo.find(
+    (info) => info.id === "product-url"
   );
 
   return (
@@ -83,6 +104,18 @@ export function LoanProduct({
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {/* Product Image */}
+        {productImage && (
+          <div className="relative w-full h-48 rounded-2xl overflow-hidden bg-gray-50">
+            <Image
+              src={productImage.value.toString()}
+              alt={product.name}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
+
         {/* Key Loan Metrics */}
         <div className="grid grid-cols-2 gap-4">
           {interestRate && (
@@ -155,7 +188,7 @@ export function LoanProduct({
               Processing Fee
             </span>
             <p className="text-lg font-semibold text-gray-900">
-              {product.details.fees}
+              {formatFees(product.details.fees)}
             </p>
           </div>
           <div>
@@ -163,7 +196,7 @@ export function LoanProduct({
               Eligibility
             </span>
             <p className="text-lg font-semibold text-gray-900">
-              {product.details.eligibility}
+              {formatEligibility(product.details.eligibility)}
             </p>
           </div>
         </div>
@@ -180,21 +213,23 @@ export function LoanProduct({
         {/* Actions */}
         <div className="flex space-x-3">
           <Button
-            onClick={() => onApply?.(product.id)}
+            onClick={() => window.open(productUrl?.value.toString(), "_blank")}
             className="flex-1 h-12 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-2xl transition-all duration-300"
           >
             Apply Now
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
           <div className="flex space-x-3">
-            {onCalculate && (
+            {productUrl && (
               <Button
-                onClick={() => onCalculate(product.id)}
+                onClick={() =>
+                  window.open(productUrl.value.toString(), "_blank")
+                }
                 variant="outline"
                 className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
               >
-                <Calculator className="w-4 h-4 mr-2" />
-                Calculate
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Explore
               </Button>
             )}
             {onCompare && (

@@ -14,9 +14,11 @@ import {
   Star,
   CheckCircle,
   Clock,
+  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils/index";
 import { Product } from "@/types/product";
+import Image from "next/image";
 
 interface DigitalServiceProductProps {
   product: Product;
@@ -35,6 +37,15 @@ export function DigitalServiceProduct({
   onDownload,
   onCompare,
 }: DigitalServiceProductProps) {
+  // Extract product image and URL
+  const productImage = product.details.additionalInfo.find(
+    (info) => info.label.toLowerCase().includes("image") || info.label.toLowerCase().includes("photo")
+  );
+  
+  const productUrl = product.details.additionalInfo.find(
+    (info) => info.label.toLowerCase().includes("url") || info.label.toLowerCase().includes("link")
+  );
+
   // Extract digital service specific information
   const transactionFee = product.details.additionalInfo.find(
     (info) =>
@@ -227,6 +238,18 @@ export function DigitalServiceProduct({
           </div>
         )}
 
+        {/* Product Image */}
+        {productImage && (
+          <div className="relative h-48 w-full rounded-2xl overflow-hidden">
+            <Image
+              src={productImage.value.toString()}
+              alt={`${product.name} preview`}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex space-x-3">
           <Button
@@ -237,6 +260,16 @@ export function DigitalServiceProduct({
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
           <div className="flex space-x-3">
+            {productUrl && (
+              <Button
+                onClick={() => window.open(productUrl.value.toString(), '_blank')}
+                variant="outline"
+                className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Explore
+              </Button>
+            )}
             {onDownload && (
               <Button
                 onClick={() => onDownload(product.id)}

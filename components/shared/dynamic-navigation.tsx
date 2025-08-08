@@ -60,7 +60,7 @@ export default function DynamicNavigation({ data }: DynamicNavigationProps) {
                         <div className="text-base font-semibold text-foreground group-hover:text-orange-600">
                           View All {category.name}
                         </div>
-                        <div className="text-xs text-muted-foreground mt-1">
+                        <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
                           {category.description}
                         </div>
                       </Link>

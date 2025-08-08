@@ -25,7 +25,7 @@ export default function ProductsContainer() {
     refetch,
   } = useQuery({
     queryKey: ["products"],
-    queryFn: () => getProducts(),
+    queryFn: () => getProducts({}),
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     retry: 2,
@@ -68,10 +68,7 @@ export default function ProductsContainer() {
             onCustomColumnFiltersChange={setColumnFilters}
             header={
               <div className="flex-1">
-                <PageHeader
-                  title={`Products`}
-                  description="Manage Products"
-                />
+                <PageHeader title={`Products`} description="Manage Products" />
               </div>
             }
             actionButtons={

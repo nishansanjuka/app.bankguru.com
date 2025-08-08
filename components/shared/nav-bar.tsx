@@ -61,8 +61,8 @@ export const NavBar: FC<{ className?: string }> = ({ className }) => {
         className={cn(
           "fixed w-full top-0 z-50 transition-all duration-300 border-b",
           showColors
-            ? "bg-white/95 backdrop-blur-sm border-gray-200/50 shadow-sm"
-            : "backdrop-blur-xl bg-white/90 border-gray-200/60 shadow-md",
+            ? "bg-white/95 backdrop-blur-sm border-gray-200/50"
+            : "backdrop-blur-xl bg-white/90 border-gray-200/60",
           className
         )}
       >
@@ -125,7 +125,7 @@ export const NavBar: FC<{ className?: string }> = ({ className }) => {
                         avatarBox:
                           "w-9 h-9 ring-2 ring-orange-100 hover:ring-orange-200 transition-all duration-200",
                         userButtonPopoverCard:
-                          "border border-gray-200 shadow-lg",
+                          "border border-gray-200",
                         userButtonPopoverActions: "text-gray-600",
                       },
                     }}
@@ -162,7 +162,7 @@ export const NavBar: FC<{ className?: string }> = ({ className }) => {
         {/* Mobile Menu */}
         <div
           className={cn(
-            "lg:hidden absolute top-full left-0 w-full bg-white border-b border-gray-200 shadow-lg transition-all duration-300 z-40",
+            "lg:hidden absolute top-full left-0 w-full bg-white border-b border-gray-200 transition-all duration-300 z-40",
             isMobileMenuOpen
               ? "opacity-100 translate-y-0 visible"
               : "opacity-0 -translate-y-2 invisible"

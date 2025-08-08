@@ -26,7 +26,6 @@ export async function createProduct(
     | "createdAt"
     | "updatedAt"
     | "institution"
-    | "institutionId"
     | "productType"
   >
 ): Promise<ApiResponseData<string>> {
@@ -36,6 +35,7 @@ export async function createProduct(
       "Unauthorized: User must be logged in to create a product."
     );
   }
+
   const tokenRes = await getToken();
   const res = await fetch(`${API_URL}/products`, {
     method: "POST",
@@ -43,7 +43,7 @@ export async function createProduct(
       "Content-Type": "application/json",
       Authorization: `Bearer ${tokenRes}`,
     },
-    body: JSON.stringify({ ...product, institutionId: orgId } as Product),
+    body: JSON.stringify({ ...product } as Product),
   });
   if (!res.ok) {
     return ApiResponse.failure("Failed to create product");
@@ -82,7 +82,6 @@ export async function getProducts(
   }
   const data = await res.json();
 
-  console.log(data);
   return ApiResponse.success(data.data);
 }
 

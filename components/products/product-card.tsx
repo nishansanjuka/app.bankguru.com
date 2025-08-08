@@ -11,6 +11,7 @@ import {
   DollarSign,
   Calendar,
   Users,
+  ExternalLink,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils/index";
@@ -63,8 +64,26 @@ export function ProductCard({
     }
   };
 
+  const formatFees = (fees: string | number) => {
+    if (typeof fees === 'number') {
+      return `${fees}%`;
+    }
+    return fees || 'N/A';
+  };
+
+  const formatEligibility = (eligibility: string | number) => {
+    if (typeof eligibility === 'number') {
+      return `${eligibility}+ years`;
+    }
+    return eligibility || 'N/A';
+  };
+
   const productImage = product.details.additionalInfo.find(
-    (info) => info.type === "image"
+    (info) => info.id === "product-image"
+  );
+
+  const productUrl = product.details.additionalInfo.find(
+    (info) => info.id === "product-url"
   );
 
   return (
@@ -148,7 +167,7 @@ export function ProductCard({
                   </span>
                 </div>
                 <p className="text-sm text-gray-900 font-semibold">
-                  {product.details.fees}
+                  {formatFees(product.details.fees)}
                 </p>
               </div>
               <div className="space-y-1">
@@ -159,7 +178,7 @@ export function ProductCard({
                   </span>
                 </div>
                 <p className="text-sm text-gray-900 font-semibold">
-                  {product.details.eligibility}
+                  {formatEligibility(product.details.eligibility)}
                 </p>
               </div>
 
@@ -209,15 +228,27 @@ export function ProductCard({
                 View Details
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
-              {onCompare && (
-                <Button
-                  onClick={() => onCompare(product.id)}
-                  variant="outline"
-                  className="h-10 px-4 rounded-xl border-gray-200 hover:bg-gray-50 transition-all duration-300"
-                >
-                  Compare
-                </Button>
-              )}
+              <div className="flex space-x-2">
+                {productUrl && (
+                  <Button
+                    onClick={() => window.open(productUrl.value.toString(), '_blank')}
+                    variant="outline"
+                    size="sm"
+                    className="h-10 px-3 rounded-xl border-gray-200 hover:bg-gray-50 transition-all duration-300"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </Button>
+                )}
+                {onCompare && (
+                  <Button
+                    onClick={() => onCompare(product.id)}
+                    variant="outline"
+                    className="h-10 px-4 rounded-xl border-gray-200 hover:bg-gray-50 transition-all duration-300"
+                  >
+                    Compare
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>

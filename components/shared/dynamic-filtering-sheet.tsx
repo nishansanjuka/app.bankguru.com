@@ -63,6 +63,42 @@ export default function DynamicFilterSheet({
     > = {};
 
     data.forEach((product) => {
+      // Handle eligibility and fees from main product details
+      const eligibilityValue = typeof product.details.eligibility === 'string' 
+        ? parseFloat(product.details.eligibility) 
+        : product.details.eligibility;
+      
+      if (!isNaN(eligibilityValue)) {
+        if (!fields['eligibility']) {
+          fields['eligibility'] = {
+            type: "number",
+            label: "Eligibility",
+            values: [],
+          };
+        }
+        if (!fields['eligibility'].values.includes(eligibilityValue)) {
+          fields['eligibility'].values.push(eligibilityValue);
+        }
+      }
+
+      const feesValue = typeof product.details.fees === 'string' 
+        ? parseFloat(product.details.fees) 
+        : product.details.fees;
+      
+      if (!isNaN(feesValue)) {
+        if (!fields['fees']) {
+          fields['fees'] = {
+            type: "percentage",
+            label: "Fees",
+            values: [],
+          };
+        }
+        if (!fields['fees'].values.includes(feesValue)) {
+          fields['fees'].values.push(feesValue);
+        }
+      }
+
+      // Handle additional info fields
       product.details.additionalInfo.forEach((field) => {
         if (["number", "percentage"].includes(field.type)) {
           if (!fields[field.id]) {
@@ -155,29 +191,43 @@ export default function DynamicFilterSheet({
         return false;
       }
 
-      // Additional field filters (only number/percentage ranges)
+      // Additional field filters (including eligibility and fees from main details)
       for (const [fieldId, filter] of Object.entries(
         filters.additionalFilters
       )) {
-        const field = product.details.additionalInfo.find(
-          (f) => f.id === fieldId
-        );
-        if (!field) continue;
+        let fieldValue: number | undefined;
+        
+        // Handle main product details fields
+        if (fieldId === 'eligibility') {
+          fieldValue = typeof product.details.eligibility === 'string' 
+            ? parseFloat(product.details.eligibility) 
+            : product.details.eligibility;
+        } else if (fieldId === 'fees') {
+          fieldValue = typeof product.details.fees === 'string' 
+            ? parseFloat(product.details.fees) 
+            : product.details.fees;
+        } else {
+          // Handle additional info fields
+          const field = product.details.additionalInfo.find(
+            (f) => f.id === fieldId
+          );
+          if (field) {
+            fieldValue = typeof field.value === "string"
+              ? parseFloat(field.value)
+              : field.value;
+          }
+        }
+
+        if (fieldValue === undefined || isNaN(fieldValue)) continue;
 
         if (
           filter.type === "range" &&
           (filter.min !== undefined || filter.max !== undefined)
         ) {
-          const numericValue =
-            typeof field.value === "string"
-              ? parseFloat(field.value)
-              : field.value;
-          if (isNaN(numericValue)) continue;
-
-          if (filter.min !== undefined && numericValue < filter.min) {
+          if (filter.min !== undefined && fieldValue < filter.min) {
             return false;
           }
-          if (filter.max !== undefined && numericValue > filter.max) {
+          if (filter.max !== undefined && fieldValue > filter.max) {
             return false;
           }
         }
@@ -201,9 +251,20 @@ export default function DynamicFilterSheet({
       productName: "", // Reset productName
       additionalFilters: Object.fromEntries(
         Object.entries(filterableFields).map(([key, field]) => {
-          const numericValues = field.values
-            .map((v) => (typeof v === "string" ? parseFloat(v) || 0 : v))
-            .filter((v) => !isNaN(v));
+          let numericValues: number[] = [];
+          
+          if (key === 'eligibility' || key === 'fees') {
+            // For main product details fields, use the collected values
+            numericValues = field.values
+              .map((v) => (typeof v === "string" ? parseFloat(v) || 0 : v))
+              .filter((v) => !isNaN(v));
+          } else {
+            // For additional info fields, use the collected values
+            numericValues = field.values
+              .map((v) => (typeof v === "string" ? parseFloat(v) || 0 : v))
+              .filter((v) => !isNaN(v));
+          }
+          
           const min = Math.min(...numericValues);
           const max = Math.max(...numericValues);
           return [

@@ -20,8 +20,8 @@ export const productFormSchema = z.object({
   details: z.object({
     description: z.string().min(1, { message: "Description is required." }),
     terms: z.string().optional(),
-    fees: z.string().optional(),
-    eligibility: z.string().optional(),
+    fees: z.union([z.string(), z.number()]).optional(),
+    eligibility: z.union([z.string(), z.number()]).optional(),
     additionalInfo: additionalInfoSchema, // Dynamic fields
   }),
   isFeatured: z.boolean(),

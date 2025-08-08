@@ -14,9 +14,11 @@ import {
   ArrowRight,
   Star,
   Users,
+  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils/index";
 import { Product } from "@/types/product";
+import Image from "next/image";
 
 interface InsuranceProductProps {
   product: Product;
@@ -45,6 +47,15 @@ export function InsuranceProduct({
   onCompare,
 }: InsuranceProductProps) {
   const IconComponent = getInsuranceIcon(product.productType?.name || "");
+
+  // Extract product image and URL
+  const productImage = product.details.additionalInfo.find(
+    (info) => info.label.toLowerCase().includes("image") || info.label.toLowerCase().includes("photo")
+  );
+  
+  const productUrl = product.details.additionalInfo.find(
+    (info) => info.label.toLowerCase().includes("url") || info.label.toLowerCase().includes("link")
+  );
 
   // Extract insurance-specific information
   const premium = product.details.additionalInfo.find(
@@ -225,6 +236,18 @@ export function InsuranceProduct({
           </div>
         )}
 
+        {/* Product Image */}
+        {productImage && (
+          <div className="relative h-48 w-full rounded-2xl overflow-hidden">
+            <Image
+              src={productImage.value.toString()}
+              alt={`${product.name} preview`}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex space-x-3">
           <Button
@@ -234,15 +257,27 @@ export function InsuranceProduct({
             Get Quote
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
-          {onCompare && (
-            <Button
-              onClick={() => onCompare(product.id)}
-              variant="outline"
-              className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
-            >
-              Compare
-            </Button>
-          )}
+          <div className="flex space-x-3">
+            {productUrl && (
+              <Button
+                onClick={() => window.open(productUrl.value.toString(), '_blank')}
+                variant="outline"
+                className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Explore
+              </Button>
+            )}
+            {onCompare && (
+              <Button
+                onClick={() => onCompare(product.id)}
+                variant="outline"
+                className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
+              >
+                Compare
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

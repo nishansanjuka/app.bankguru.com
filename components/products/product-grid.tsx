@@ -86,7 +86,6 @@ export function ProductGrid({
           product={product}
           variant={variant}
           onApply={(id) => handleProductActionInternal("apply", id)}
-          onCalculate={(id) => handleProductActionInternal("calculate", id)}
           onCompare={(id) => handleProductActionInternal("compare", id)}
           className="max-w-full"
         />

@@ -12,7 +12,9 @@ import {
   ArrowRight,
   Star,
   TrendingUp,
+  ExternalLink,
 } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils/index";
 import { Product } from "@/types/product";
 
@@ -47,6 +49,28 @@ export function AccountProduct({
     (info) =>
       info.label.toLowerCase().includes("monthly") &&
       info.label.toLowerCase().includes("fee")
+  );
+
+  const formatFees = (fees: string | number) => {
+    if (typeof fees === 'number') {
+      return `$${fees}`;
+    }
+    return fees || 'N/A';
+  };
+
+  const formatEligibility = (eligibility: string | number) => {
+    if (typeof eligibility === 'number') {
+      return `${eligibility}+ years`;
+    }
+    return eligibility || 'N/A';
+  };
+
+  const productImage = product.details.additionalInfo.find(
+    (info) => info.id === "product-image"
+  );
+
+  const productUrl = product.details.additionalInfo.find(
+    (info) => info.id === "product-url"
   );
 
   return (
@@ -97,6 +121,18 @@ export function AccountProduct({
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {/* Product Image */}
+        {productImage && (
+          <div className="relative w-full h-48 rounded-2xl overflow-hidden bg-gray-50">
+            <Image
+              src={productImage.value.toString()}
+              alt={product.name}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
+
         {/* Account Highlights */}
         <div className="grid grid-cols-3 gap-3">
           {interestRate && (
@@ -179,7 +215,7 @@ export function AccountProduct({
                 Monthly Fee
               </span>
               <p className="text-lg font-semibold text-gray-900">
-                {monthlyFee ? monthlyFee.value : product.details.fees}
+                {monthlyFee ? monthlyFee.value : formatFees(product.details.fees)}
               </p>
             </div>
             <div>
@@ -187,7 +223,7 @@ export function AccountProduct({
                 Requirements
               </span>
               <p className="text-lg font-semibold text-gray-900">
-                {product.details.eligibility}
+                {formatEligibility(product.details.eligibility)}
               </p>
             </div>
           </div>
@@ -212,6 +248,16 @@ export function AccountProduct({
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
           <div className="flex space-x-3">
+            {productUrl && (
+              <Button
+                onClick={() => window.open(productUrl.value.toString(), '_blank')}
+                variant="outline"
+                className="h-12 px-6 rounded-2xl border-gray-200 hover:bg-gray-50"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Explore
+              </Button>
+            )}
             {onLearnMore && (
               <Button
                 onClick={() => onLearnMore(product.id)}

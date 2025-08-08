@@ -180,6 +180,17 @@ const NewProductForm = ({
 
   const onSubmit = async (data: ProductFormValues) => {
     try {
+      // Validate required fields
+      if (!productImage) {
+        toast.error("Product image is required");
+        return;
+      }
+
+      if (!productUrl || productUrl.trim() === "") {
+        toast.error("Product explore URL is required");
+        return;
+      }
+
       setIsLoading(true);
 
       if (type === "update" && id) {
@@ -256,6 +267,7 @@ const NewProductForm = ({
         }
         const res = await createProduct({
           productTypeId: data.productTypeId,
+          institutionId: form.getValues("institutionId"),
           details: {
             additionalInfo: [
               ...fields,
@@ -458,26 +470,27 @@ const NewProductForm = ({
                   <ImageUpload<string>
                     value={productImage}
                     onChange={setProductImage}
-                    label="Product Image"
+                    label="Product Image *"
                     type="data-url"
-                    description="Upload a high-quality product image for your listing."
+                    description="Upload a high-quality product image for your listing. (Required)"
                     buttonText="Upload Photo"
                     className="w-full flex flex-col pb-2"
                   />
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                      Product Explore URL
+                      Product Explore URL <span className="text-red-500">*</span>
                     </label>
                     <Input
                       type="url"
                       placeholder="https://example.com/product-details"
                       value={productUrl || ""}
                       onChange={(e) => setProductUrl(e.target.value || null)}
+                      className={!productUrl ? "border-red-200" : ""}
                     />
                     <p className="text-[0.8rem] text-muted-foreground">
                       Add a URL where users can explore more details about this
-                      product.
+                      product. (Required)
                     </p>
                   </div>
 
@@ -507,15 +520,20 @@ const NewProductForm = ({
                     name="details.fees"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Fees</FormLabel>
+                        <FormLabel>Fees (%)</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="e.g., 5% p.a. processing fee"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            max="100"
+                            placeholder="e.g., 5.5"
                             {...field}
+                            onChange={(e) => field.onChange(e.target.value)}
                           />
                         </FormControl>
                         <FormDescription>
-                          Any applicable fees for the product.
+                          Processing fee percentage (e.g., 5.5 for 5.5% p.a.)
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -527,15 +545,19 @@ const NewProductForm = ({
                     name="details.eligibility"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Eligibility</FormLabel>
+                        <FormLabel>Minimum Age (years)</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="e.g., 18+ years old, minimum income of $X"
+                            type="number"
+                            min="16"
+                            max="100"
+                            placeholder="e.g., 18"
                             {...field}
+                            onChange={(e) => field.onChange(e.target.value)}
                           />
                         </FormControl>
                         <FormDescription>
-                          Criteria for eligibility to apply for this product.
+                          Minimum age requirement to apply for this product.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -617,6 +639,7 @@ const NewProductForm = ({
                       onClick={handleDelete}
                       variant={"destructive"}
                       size={"icon"}
+                      type="button"
                     >
                       {isDeleting ? (
                         <Loader2 className="size-4 animate-spin" />
