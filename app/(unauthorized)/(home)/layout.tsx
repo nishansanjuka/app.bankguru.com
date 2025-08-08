@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { NavBar } from "@/components/shared/nav-bar";
+import { Footer } from "@/components/shared/footer";
 import { Fragment } from "react";
 import { getQueryClient } from "@/lib/utils";
 import { getProductCategoryHierarchy } from "@/lib/actions/products/hierarchy";
@@ -55,6 +56,7 @@ export default async function RootLayout({
         <NavBar />
       </HydrationBoundary>
       {children}
+      <Footer />
     </Fragment>
   );
 }
