@@ -12,7 +12,7 @@ import { Button } from "../ui/button";
 import DynamicNavigation from "./dynamic-navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getProductCategoryHierarchy } from "@/lib/actions/products/hierarchy";
-import { Menu, X } from "lucide-react";
+import { Bot, Menu, X } from "lucide-react";
 
 export const NavBar: FC<{ className?: string }> = ({ className }) => {
   const { isSignedIn } = useUser();
@@ -111,6 +111,9 @@ export const NavBar: FC<{ className?: string }> = ({ className }) => {
 
             {/* Right Section */}
             <div className="flex items-center space-x-2 lg:space-x-4">
+              <Link href={"/gurubot"}>
+                <Bot className="size-7 text-white bg-orange-500 p-1 rounded-full" />
+              </Link>
               {/* Language Chooser - Hidden on mobile */}
               <div className="hidden sm:block">
                 <LanguageChooser />
@@ -124,8 +127,7 @@ export const NavBar: FC<{ className?: string }> = ({ className }) => {
                       elements: {
                         avatarBox:
                           "w-9 h-9 ring-2 ring-orange-100 hover:ring-orange-200 transition-all duration-200",
-                        userButtonPopoverCard:
-                          "border border-gray-200",
+                        userButtonPopoverCard: "border border-gray-200",
                         userButtonPopoverActions: "text-gray-600",
                       },
                     }}

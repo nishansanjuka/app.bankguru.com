@@ -194,8 +194,10 @@ export function ProductGrid({
     <>
       <div
         className={cn(
-          "grid gap-4",
-          variant === "compact" ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1",
+          "grid gap-3",
+          variant === "compact" 
+            ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+            : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
           className
         )}
       >

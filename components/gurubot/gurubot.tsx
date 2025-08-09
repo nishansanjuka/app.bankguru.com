@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { ComparisonMessage } from "./comparison-message";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
@@ -136,7 +137,7 @@ export function GuruBot({
 
   const getChatPositionClasses = () => {
     if (isMaximized) {
-      return "fixed inset-4 z-50";
+      return "fixed inset-4 z-[100]";
     }
     return getPositionClasses();
   };
@@ -167,7 +168,13 @@ export function GuruBot({
   };
 
   // Markdown Message Component
-  const MarkdownMessage = ({ content, messageId }: { content: string; messageId: string }) => {
+  const MarkdownMessage = ({
+    content,
+    messageId,
+  }: {
+    content: string;
+    messageId: string;
+  }) => {
     return (
       <div className="relative group">
         <div className="prose prose-sm max-w-none">
@@ -177,26 +184,34 @@ export function GuruBot({
             components={{
               // Custom styling for markdown elements
               h1: ({ children }) => (
-                <h1 className="text-lg font-bold mb-2 text-foreground">{children}</h1>
+                <h1 className="text-lg font-bold mb-2 text-foreground">
+                  {children}
+                </h1>
               ),
               h2: ({ children }) => (
-                <h2 className="text-base font-semibold mb-2 text-foreground">{children}</h2>
+                <h2 className="text-base font-semibold mb-2 text-foreground">
+                  {children}
+                </h2>
               ),
               h3: ({ children }) => (
-                <h3 className="text-sm font-semibold mb-1 text-foreground">{children}</h3>
+                <h3 className="text-sm font-semibold mb-1 text-foreground">
+                  {children}
+                </h3>
               ),
               p: ({ children }) => (
                 <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>
               ),
               ul: ({ children }) => (
-                <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>
+                <ul className="list-disc list-inside mb-2 space-y-1">
+                  {children}
+                </ul>
               ),
               ol: ({ children }) => (
-                <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>
+                <ol className="list-decimal list-inside mb-2 space-y-1">
+                  {children}
+                </ol>
               ),
-              li: ({ children }) => (
-                <li className="text-sm">{children}</li>
-              ),
+              li: ({ children }) => <li className="text-sm">{children}</li>,
               code: ({ children, className }) => {
                 const isInline = !className;
                 if (isInline) {
@@ -207,7 +222,12 @@ export function GuruBot({
                   );
                 }
                 return (
-                  <code className={cn("block bg-muted/30 p-2 rounded text-xs font-mono overflow-x-auto", className)}>
+                  <code
+                    className={cn(
+                      "block bg-muted/30 p-2 rounded text-xs font-mono overflow-x-auto",
+                      className
+                    )}
+                  >
                     {children}
                   </code>
                 );
@@ -223,11 +243,11 @@ export function GuruBot({
                 </blockquote>
               ),
               strong: ({ children }) => (
-                <strong className="font-semibold text-foreground">{children}</strong>
+                <strong className="font-semibold text-foreground">
+                  {children}
+                </strong>
               ),
-              em: ({ children }) => (
-                <em className="italic">{children}</em>
-              ),
+              em: ({ children }) => <em className="italic">{children}</em>,
               a: ({ href, children }) => (
                 <a
                   href={href}
@@ -240,7 +260,9 @@ export function GuruBot({
               ),
               table: ({ children }) => (
                 <div className="overflow-x-auto mb-2">
-                  <table className="min-w-full border border-muted">{children}</table>
+                  <table className="min-w-full border border-muted">
+                    {children}
+                  </table>
                 </div>
               ),
               th: ({ children }) => (
@@ -249,7 +271,9 @@ export function GuruBot({
                 </th>
               ),
               td: ({ children }) => (
-                <td className="border border-muted px-2 py-1 text-xs">{children}</td>
+                <td className="border border-muted px-2 py-1 text-xs">
+                  {children}
+                </td>
               ),
             }}
           >
@@ -407,16 +431,21 @@ export function GuruBot({
                       )}
                     >
                       {message.role === "assistant" ? (
-                        <MarkdownMessage 
-                          content={message.text} 
-                          messageId={`${index}-${message.timestamp}`} 
-                        />
+                        message.type === "comparison" &&
+                        message.metadata?.comparisonData ? (
+                          <ComparisonMessage summary={message.text} />
+                        ) : (
+                          <MarkdownMessage
+                            content={message.text}
+                            messageId={`${index}-${message.timestamp}`}
+                          />
+                        )
                       ) : (
                         <p className="whitespace-pre-wrap leading-relaxed">
                           {message.text}
                         </p>
                       )}
-                      {message.timestamp && (
+                      {message.timestamp && message.type !== "comparison" && (
                         <p
                           className={cn(
                             "text-xs mt-1.5 opacity-70",

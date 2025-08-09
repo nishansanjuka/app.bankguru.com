@@ -1,7 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useReducer, useCallback } from "react";
-import { GuruBotContextValue, GuruBotState, GuruBotResponse, GuruBotRequest } from "@/types/gurubot";
+import { GuruBotContextValue, GuruBotState, GuruBotResponse, GuruBotRequest, ProductChatRequest, ProductChatResponse } from "@/types/gurubot";
+import { ProductComparisonRequest, ProductComparisonResponse } from "@/types/product-comparison";
 
 // Initial state
 const initialState: GuruBotState = {
@@ -19,7 +20,7 @@ type GuruBotAction =
   | { type: "CLOSE_CHAT" }
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_ERROR"; payload: string | null }
-  | { type: "ADD_MESSAGE"; payload: { text: string; role: "user" | "assistant" } }
+  | { type: "ADD_MESSAGE"; payload: { text: string; role: "user" | "assistant"; type?: "text" | "comparison" | "markdown"; metadata?: { productIds?: string[]; comparisonData?: Record<string, unknown> } } }
   | { type: "SET_CONVERSATION_ID"; payload: string }
   | { type: "SET_MESSAGES"; payload: GuruBotState["messages"] }
   | { type: "CLEAR_CONVERSATION" };
@@ -43,8 +44,11 @@ function guruBotReducer(state: GuruBotState, action: GuruBotAction): GuruBotStat
         messages: [
           ...state.messages,
           {
-            ...action.payload,
+            text: action.payload.text,
+            role: action.payload.role,
             timestamp: new Date().toISOString(),
+            type: action.payload.type || "text",
+            metadata: action.payload.metadata,
           },
         ],
       };
@@ -71,7 +75,7 @@ const GuruBotContext = createContext<GuruBotContextValue | undefined>(undefined)
 export function GuruBotProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(guruBotReducer, initialState);
 
-  // API call function
+  // API call function for regular chat
   const callGuruBotAPI = useCallback(async (request: GuruBotRequest): Promise<GuruBotResponse> => {
     const response = await fetch("/api/gurubot", {
       method: "POST",
@@ -87,6 +91,170 @@ export function GuruBotProvider({ children }: { children: React.ReactNode }) {
 
     return response.json();
   }, []);
+
+  // API call function for product chat
+  const callProductChatAPI = useCallback(async (request: ProductChatRequest): Promise<ProductChatResponse> => {
+    const response = await fetch("/api/product-chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }, []);
+  const callCompareProductsAPI = useCallback(async (request: ProductComparisonRequest): Promise<ProductComparisonResponse> => {
+    const response = await fetch("/api/compare-products", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }, []);
+
+  // Compare products function
+  const compareProducts = useCallback(
+    async (productIds: string[]) => {
+      if (!productIds || productIds.length === 0) return;
+
+      dispatch({ type: "SET_LOADING", payload: true });
+      dispatch({ type: "SET_ERROR", payload: null });
+      dispatch({ type: "OPEN_CHAT" });
+
+      // Create new conversation for comparison
+      dispatch({ type: "CLEAR_CONVERSATION" });
+
+      // Add user message about comparison request
+      dispatch({ 
+        type: "ADD_MESSAGE", 
+        payload: { 
+          text: `Please compare these ${productIds.length} products and provide detailed analysis with product images and features.`,
+          role: "user" 
+        } 
+      });
+
+      try {
+        const request: ProductComparisonRequest = {
+          product_ids: productIds,
+          conversation_id: undefined, // Always start new conversation for comparison
+        };
+
+        const response = await callCompareProductsAPI(request);
+
+        // Set the new conversation ID from response
+        if (response.conversation_id) {
+          dispatch({ type: "SET_CONVERSATION_ID", payload: response.conversation_id });
+        }
+
+        // Add assistant response with comparison data
+        dispatch({
+          type: "ADD_MESSAGE",
+          payload: { 
+            text: response.summary,
+            role: "assistant",
+            type: "comparison",
+            metadata: {
+              productIds,
+              comparisonData: {
+                comparison: response.comparison,
+                products: response.products
+              }
+            }
+          },
+        });
+
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to compare products";
+        dispatch({ type: "SET_ERROR", payload: errorMessage });
+        
+        // Add error message to chat
+        dispatch({
+          type: "ADD_MESSAGE",
+          payload: {
+            text: `Sorry, I encountered an error while comparing products: ${errorMessage}. Please try again.`,
+            role: "assistant",
+          },
+        });
+      } finally {
+        dispatch({ type: "SET_LOADING", payload: false });
+      }
+    },
+    [callCompareProductsAPI]
+  );
+
+  // Ask about product function
+  const askAboutProduct = useCallback(
+    async (query: string, productId: string) => {
+      if (!query.trim() || !productId) return;
+
+      dispatch({ type: "SET_LOADING", payload: true });
+      dispatch({ type: "SET_ERROR", payload: null });
+      dispatch({ type: "OPEN_CHAT" });
+
+      // Add user message immediately
+      dispatch({ type: "ADD_MESSAGE", payload: { text: query, role: "user" } });
+
+      try {
+        const request: ProductChatRequest = {
+          query,
+          product_id: productId,
+          conversation_id: state.conversationId || undefined,
+          include_history: true,
+        };
+
+        const response = await callProductChatAPI(request);
+
+        // Update conversation ID if it's new
+        if (response.conversation_id && response.conversation_id !== state.conversationId) {
+          dispatch({ type: "SET_CONVERSATION_ID", payload: response.conversation_id });
+        }
+
+        // Add assistant response
+        dispatch({
+          type: "ADD_MESSAGE",
+          payload: { text: response.answer, role: "assistant" },
+        });
+
+        // Update messages with full history if provided
+        if (response.history && response.history.length > 0) {
+          const formattedHistory = response.history.map(item => ({
+            text: item.text,
+            role: item.role as "user" | "assistant",
+            timestamp: item.timestamp,
+            type: "text" as const
+          }));
+          dispatch({ type: "SET_MESSAGES", payload: formattedHistory });
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to get product information";
+        dispatch({ type: "SET_ERROR", payload: errorMessage });
+        
+        // Add error message to chat
+        dispatch({
+          type: "ADD_MESSAGE",
+          payload: {
+            text: `Sorry, I encountered an error while getting product information: ${errorMessage}. Please try again.`,
+            role: "assistant",
+          },
+        });
+      } finally {
+        dispatch({ type: "SET_LOADING", payload: false });
+      }
+    },
+    [state.conversationId, callProductChatAPI]
+  );
 
   // Send message function
   const sendMessage = useCallback(
@@ -168,6 +336,14 @@ export function GuruBotProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: "CLEAR_CONVERSATION" });
   }, []);
 
+  const setConversationId = useCallback((conversationId: string | null) => {
+    if (conversationId) {
+      dispatch({ type: "SET_CONVERSATION_ID", payload: conversationId });
+    } else {
+      dispatch({ type: "CLEAR_CONVERSATION" });
+    }
+  }, []);
+
   const contextValue: GuruBotContextValue = {
     state,
     sendMessage,
@@ -176,6 +352,9 @@ export function GuruBotProvider({ children }: { children: React.ReactNode }) {
     closeChat,
     clearConversation,
     triggerQuery,
+    compareProducts,
+    askAboutProduct,
+    setConversationId,
   };
 
   return <GuruBotContext.Provider value={contextValue}>{children}</GuruBotContext.Provider>;

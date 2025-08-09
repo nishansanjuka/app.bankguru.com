@@ -8,7 +8,7 @@ import { useCallback } from "react";
  * This allows components to send queries to GuruBot without needing to render the chat interface
  */
 export function useGuruBotTrigger() {
-  const { triggerQuery, openChat, state } = useGuruBot();
+  const { triggerQuery, openChat, compareProducts, state } = useGuruBot();
 
   /**
    * Send a query to GuruBot and open the chat window
@@ -60,12 +60,24 @@ export function useGuruBotTrigger() {
     [askGuruBot]
   );
 
+  /**
+   * Compare products using GuruBot AI
+   * @param productIds - Array of product IDs to compare
+   */
+  const askForProductComparison = useCallback(
+    async (productIds: string[]) => {
+      await compareProducts(productIds);
+    },
+    [compareProducts]
+  );
+
   return {
     askGuruBot,
     showGuruBot,
     askAboutProduct,
     askAboutComparison,
     askForRecommendation,
+    askForProductComparison,
     isLoading: state.isLoading,
     isOpen: state.isOpen,
   };
