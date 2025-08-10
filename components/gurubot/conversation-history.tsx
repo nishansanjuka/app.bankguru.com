@@ -70,6 +70,7 @@ export function ConversationHistory({
   // Start new conversation
   const startNewConversation = () => {
     onSelectConversation(null);
+    window.location.reload(); // Reload to reset the state
   };
 
   // Format date
