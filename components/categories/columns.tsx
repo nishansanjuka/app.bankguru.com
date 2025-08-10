@@ -109,7 +109,7 @@ export const columns: ColumnDef<ProductCategory>[] = [
   {
     accessorKey: "description",
     header: "Description",
-    cell: ({ row }) => <div>{row.getValue("description")}</div>,
+    cell: ({ row }) => <div className="truncate max-w-[40ch]">{row.getValue("description")}</div>,
   },
   {
     id: "actions",

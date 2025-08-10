@@ -111,7 +111,7 @@ export const columns: ColumnDef<ProductType>[] = [
   {
     accessorKey: "description",
     header: "Description",
-    cell: ({ row }) => <div>{row.getValue("description")}</div>,
+    cell: ({ row }) => <div className="truncate max-w-[20ch]">{row.getValue("description")}</div>,
   },
   {
     id: "actions",

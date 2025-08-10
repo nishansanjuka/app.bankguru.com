@@ -54,7 +54,7 @@ export default function ProductsContainer() {
 
   return (
     <div className="px-4 lg:px-6 w-full">
-      <div className="relative flex flex-col gap-4">
+      <div className="relative flex flex-col gap-4 max-w-full">
         {isFetching && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/50">
             <Loading />

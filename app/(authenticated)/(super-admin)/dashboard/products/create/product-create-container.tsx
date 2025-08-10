@@ -60,8 +60,8 @@ export default function ProductCreateContainer({
       {onlyProduct ? (
         <NewProductForm data={data} id={id} onClose={onClose} type={type} />
       ) : (
-        <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8">
-          <Tabs defaultValue="new-product" className="mb-6 container mx-auto">
+        <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 lg:p-8 flex-1">
+          <Tabs defaultValue="product-list" className="mb-6 container mx-auto">
             <TabsList className="mb-4">
               <TabsTrigger value="new-product">New Product</TabsTrigger>
               <TabsTrigger
@@ -84,7 +84,7 @@ export default function ProductCreateContainer({
                 type={type}
               />
             </TabsContent>
-            <TabsContent value="product-list">
+            <TabsContent value="product-list" className="w-full">
               <ProductsContainer />
             </TabsContent>
           </Tabs>
