@@ -96,7 +96,7 @@ jobs:
             await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              deployment_id: ${{ steps.deployment.outputs.result }},
+              deployment_id: parseInt('${{ steps.deployment.outputs.result }}'),
               state: 'success',
               environment_url: '${{ steps.deploy.outputs.preview-url }}',
               description: 'Deployment to Vercel succeeded'
@@ -111,7 +111,7 @@ jobs:
             await github.rest.repos.createDeploymentStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              deployment_id: ${{ steps.deployment.outputs.result }},
+              deployment_id: parseInt('${{ steps.deployment.outputs.result }}'),
               state: 'failure',
               description: 'Deployment to Vercel failed'
             });
