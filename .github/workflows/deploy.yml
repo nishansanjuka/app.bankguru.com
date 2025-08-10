@@ -16,7 +16,7 @@ jobs:
     environment:
       name: production
       url: ${{ steps.vercel_deploy.outputs.deploy_url }}
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,25 +25,25 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 9
-
+          
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "pnpm"
-
+          node-version: '20'
+          cache: 'pnpm'
+          
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
+        
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
-
+        
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
+          
       - name: Deploy to Vercel (with build)
         id: vercel_deploy
         run: |
@@ -55,13 +55,6 @@ jobs:
           echo "🌐 Production URL: $url"
           echo "📝 Commit: ${{ github.sha }}"
           echo "⏱️ Deployed at: $(date)"
-          echo ""
-          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: ✅ Successful" >> $GITHUB_STEP_SUMMARY
-          echo "- **Production URL**: $url" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Deployed at**: $(date)" >> $GITHUB_STEP_SUMMARY
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -79,21 +72,26 @@ jobs:
           DEFAULT_INSTITUTION_TYPE_ID: ${{ secrets.DEFAULT_INSTITUTION_TYPE_ID }}
           GURUBOT_API_URL: ${{ secrets.GURUBOT_API_URL }}
 
-      - name: Update Deployment Status
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const deploymentUrl = '${{ steps.vercel_deploy.outputs.deploy_url }}';
-            
-            // Update the deployment status to success with the URL
-            await github.rest.repos.createDeploymentStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              deployment_id: context.payload.deployment?.id || '${{ github.run_id }}',
-              state: 'success',
-              environment_url: deploymentUrl,
-              description: `Deployed to ${deploymentUrl}`,
-              log_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
-            });
-            
-            console.log(`✅ Deployment status updated with URL: ${deploymentUrl}`);
+      - name: Get Deployment ID
+        id: get_deployment_id
+        run: |
+          DEPLOYMENT_ID=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/deployments?environment=production&ref=${{ github.sha }}" \
+            | jq -r '.[0].id')
+          echo "deployment_id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Update GitHub Deployment Status with Production URL
+        run: |
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/deployments/${{ steps.get_deployment_id.outputs.deployment_id }}/statuses \
+            -d "{
+              \"state\": \"success\",
+              \"environment\": \"production\",
+              \"environment_url\": \"${{ steps.vercel_deploy.outputs.deploy_url }}\",
+              \"log_url\": \"${{ steps.vercel_deploy.outputs.deploy_url }}/logs\"
+            }"
