@@ -10,7 +10,6 @@ import {
 import Loading from "@/app/loading";
 import { useRouter } from "next/navigation";
 import { getUserOrganizationWithAuth } from "@/lib/actions/organizations";
-import { toast } from "sonner";
 
 export const Container: FC = () => {
   const { user } = useUser();
@@ -22,9 +21,9 @@ export const Container: FC = () => {
     if (res.success) {
       setActive({ organization: res.data.id });
     } else {
-      toast.error(
-        res.error || "Failed to fetch organization. Please try again later."
-      );
+      // toast.error(
+      //   res.error || "Failed to fetch organization. Please try again later."
+      // );
     }
   };
 
