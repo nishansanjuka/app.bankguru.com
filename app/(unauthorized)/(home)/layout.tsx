@@ -5,6 +5,7 @@ import { Fragment } from "react";
 import { getQueryClient } from "@/lib/utils";
 import { getProductCategoryHierarchy } from "@/lib/actions/products/hierarchy";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { GuruBot } from "@/components/gurubot";
 
 export const metadata: Metadata = {
   title: "BankGuru",
@@ -56,6 +57,7 @@ export default async function RootLayout({
         <NavBar />
       </HydrationBoundary>
       {children}
+      <GuruBot />
       <Footer />
     </Fragment>
   );

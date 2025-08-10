@@ -10,7 +10,6 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Providers } from "@/providers";
 import { TopLoader } from "@/components/shared/top-loader";
-import { GuruBot } from "@/components/gurubot";
 import { Toaster } from "sonner";
 
 const geistSans = Geist({
@@ -89,7 +88,6 @@ export default function RootLayout({
           <Providers>
             <TopLoader />
             <Toaster position="bottom-right" />
-            <GuruBot />
             {children}
           </Providers>
         </body>

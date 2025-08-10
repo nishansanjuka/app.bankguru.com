@@ -67,7 +67,7 @@ export const Container: FC = () => {
       }
       await setActiveOrganization();
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      router.push("/dashboard");
+      router.push("/");
       return "DONE";
     },
     staleTime: 0,

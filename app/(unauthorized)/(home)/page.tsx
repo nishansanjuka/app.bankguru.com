@@ -322,9 +322,11 @@ export default async function HomePage() {
                     Calculate monthly payments for any loan amount, interest
                     rate, and tenure.
                   </CardDescription>
-                  <Button className="w-full bg-orange-500 hover:bg-orange-600">
-                    Calculate Now
-                  </Button>
+                  <Link href={"/calculators?type=loan-payment"}>
+                    <Button className="w-full bg-orange-500 hover:bg-orange-600">
+                      Calculate Now
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
 
@@ -332,37 +334,40 @@ export default async function HomePage() {
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <TrendingUp className="w-8 h-8 text-orange-500" />
-                    <CardTitle>Credit Score Checker</CardTitle>
+                    <CardTitle>Simple Interest Calculator</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="mb-4">
-                    Check your credit score for free and get personalized
-                    improvement tips.
+                    Calculate simple interest for your investments and savings
+                    quickly and easily.
                   </CardDescription>
-                  <Button className="w-full bg-orange-500 hover:bg-orange-600">
-                    Check Score
-                  </Button>
+                  <Link href={"/calculators?type=simple-interest"}>
+                    <Button className="w-full bg-orange-500 hover:bg-orange-600">
+                      Calculate Interest
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
 
-              <Card className="group hover:shadow-xl transition-all duration-300">
+                <Card className="group hover:shadow-xl transition-all duration-300">
                 <CardHeader>
                   <div className="flex items-center gap-3">
-                    <Award className="w-8 h-8 text-orange-500" />
-                    <CardTitle>Eligibility Checker</CardTitle>
+                  <Award className="w-8 h-8 text-orange-500" />
+                  <CardTitle>Compound Interest Calculator</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="mb-4">
-                    Check your eligibility for loans and credit cards before
-                    applying.
+                  Calculate compound interest for investments and see how your money grows over time.
                   </CardDescription>
+                  <Link href={"/calculators?type=compound-interest"}>
                   <Button className="w-full bg-orange-500 hover:bg-orange-600">
-                    Check Eligibility
+                    Calculate Growth
                   </Button>
+                  </Link>
                 </CardContent>
-              </Card>
+                </Card>
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -20,6 +20,7 @@ import {
   BarChart3,
   ArrowLeftRight,
 } from "lucide-react";
+import { ScrollArea } from "../ui/scroll-area";
 
 // Helper function for formatting currency in LKR
 const formatCurrency = (value: number) => {
@@ -909,89 +910,105 @@ function InvestmentReturnCalculator() {
   );
 }
 
-export default function FinancialCalculators() {
-  const [activeCalculator, setActiveCalculator] = useState("simple-interest");
+const calculators = [
+  {
+    id: "simple-interest",
+    title: "Simple Interest",
+    icon: Calculator,
+    component: <SimpleInterestCalculator />,
+    description: "Calculate simple interest on your principal amount",
+  },
+  {
+    id: "compound-interest",
+    title: "Compound Interest",
+    icon: TrendingUp,
+    component: <CompoundInterestCalculator />,
+    description: "See how your money grows with compound interest",
+  },
+  {
+    id: "loan-payment",
+    title: "Loan Payment (EMI)",
+    icon: CreditCard,
+    component: <LoanPaymentCalculator />,
+    description: "Calculate your monthly loan payments",
+  },
+  {
+    id: "savings-goal",
+    title: "Savings Goal",
+    icon: Target,
+    component: <SavingsGoalCalculator />,
+    description: "Plan how long it takes to reach your savings goal",
+  },
+  {
+    id: "retirement-savings",
+    title: "Retirement Savings",
+    icon: PiggyBank,
+    component: <RetirementSavingsCalculator />,
+    description: "Estimate your retirement corpus",
+  },
+  {
+    id: "mortgage",
+    title: "Mortgage",
+    icon: Home,
+    component: <MortgageCalculator />,
+    description: "Calculate your home mortgage payments",
+  },
+  {
+    id: "debt-payoff",
+    title: "Debt Payoff",
+    icon: CreditCard,
+    component: <DebtPayoffCalculator />,
+    description: "Plan your debt repayment strategy",
+  },
+  {
+    id: "inflation",
+    title: "Inflation",
+    icon: TrendingUp,
+    component: <InflationCalculator />,
+    description: "Understand inflation's impact on your money",
+  },
+  {
+    id: "currency-converter",
+    title: "Currency Converter",
+    icon: ArrowLeftRight,
+    component: <CurrencyConverter />,
+    description: "Convert between different currencies",
+  },
+  {
+    id: "investment-return",
+    title: "Investment Return",
+    icon: BarChart3,
+    component: <InvestmentReturnCalculator />,
+    description: "Calculate your investment returns (CAGR)",
+  },
+];
 
-  const calculators = [
-    {
-      id: "simple-interest",
-      title: "Simple Interest",
-      icon: Calculator,
-      component: <SimpleInterestCalculator />,
-      description: "Calculate simple interest on your principal amount",
-    },
-    {
-      id: "compound-interest",
-      title: "Compound Interest",
-      icon: TrendingUp,
-      component: <CompoundInterestCalculator />,
-      description: "See how your money grows with compound interest",
-    },
-    {
-      id: "loan-payment",
-      title: "Loan Payment (EMI)",
-      icon: CreditCard,
-      component: <LoanPaymentCalculator />,
-      description: "Calculate your monthly loan payments",
-    },
-    {
-      id: "savings-goal",
-      title: "Savings Goal",
-      icon: Target,
-      component: <SavingsGoalCalculator />,
-      description: "Plan how long it takes to reach your savings goal",
-    },
-    {
-      id: "retirement-savings",
-      title: "Retirement Savings",
-      icon: PiggyBank,
-      component: <RetirementSavingsCalculator />,
-      description: "Estimate your retirement corpus",
-    },
-    {
-      id: "mortgage",
-      title: "Mortgage",
-      icon: Home,
-      component: <MortgageCalculator />,
-      description: "Calculate your home mortgage payments",
-    },
-    {
-      id: "debt-payoff",
-      title: "Debt Payoff",
-      icon: CreditCard,
-      component: <DebtPayoffCalculator />,
-      description: "Plan your debt repayment strategy",
-    },
-    {
-      id: "inflation",
-      title: "Inflation",
-      icon: TrendingUp,
-      component: <InflationCalculator />,
-      description: "Understand inflation's impact on your money",
-    },
-    {
-      id: "currency-converter",
-      title: "Currency Converter",
-      icon: ArrowLeftRight,
-      component: <CurrencyConverter />,
-      description: "Convert between different currencies",
-    },
-    {
-      id: "investment-return",
-      title: "Investment Return",
-      icon: BarChart3,
-      component: <InvestmentReturnCalculator />,
-      description: "Calculate your investment returns (CAGR)",
-    },
-  ];
+// Extract calculator IDs as a union type
+export type CalculatorType = (typeof calculators)[number]["id"];
+
+
+export default function FinancialCalculators({
+  type,
+}: {
+  type?: CalculatorType;
+}) {
+  const [activeCalculator, setActiveCalculator] = useState<CalculatorType>(
+    type || "simple-interest"
+  );
+
+  useEffect(() => {
+    if (type) {
+      setActiveCalculator(type);
+    }
+  }, [type]);
 
   const activeCalc = calculators.find((calc) => calc.id === activeCalculator);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className=" bg-white mt-20">
       {/* Header */}
       <div className="bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Financial Calculators
           </h1>
@@ -1002,49 +1019,51 @@ export default function FinancialCalculators() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Left Sidebar - Calculator Chooser */}
-          <div className="lg:col-span-4">
-            <div className="sticky top-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">
-                Choose Calculator
-              </h2>
-              <div className="space-y-3">
-                {calculators.map((calc) => (
-                  <button
-                    key={calc.id}
-                    onClick={() => setActiveCalculator(calc.id)}
-                    className={`w-full text-left p-4 rounded-2xl transition-all duration-200 ${
-                      activeCalculator === calc.id
-                        ? "bg-orange-500 text-white"
-                        : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 mt-1">
-                        <calc.icon size={20} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-base mb-1">
-                          {calc.title}
+          <ScrollArea className="lg:col-span-4">
+            <div className="w-full">
+              <div className="sticky top-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-6">
+                  Choose Calculator
+                </h2>
+                <div className="space-y-3 grid sm:grid-cols-2 gap-4">
+                  {calculators.map((calc) => (
+                    <button
+                      key={calc.id}
+                      onClick={() => setActiveCalculator(calc.id)}
+                      className={`w-full text-left p-4 rounded-2xl transition-all duration-200 ${
+                        activeCalculator === calc.id
+                          ? "bg-orange-500 text-white"
+                          : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                      }`}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 mt-1">
+                          <calc.icon size={20} />
                         </div>
-                        <p
-                          className={`text-sm leading-relaxed ${
-                            activeCalculator === calc.id
-                              ? "text-orange-100"
-                              : "text-gray-500"
-                          }`}
-                        >
-                          {calc.description}
-                        </p>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold sm:text-base mb-1">
+                            {calc.title}
+                          </div>
+                          <p
+                            className={`text-sm leading-relaxed ${
+                              activeCalculator === calc.id
+                                ? "text-orange-100"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            {calc.description}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          </ScrollArea>
 
           {/* Right Side - Calculator Content */}
           {activeCalc && (
@@ -1056,7 +1075,7 @@ export default function FinancialCalculators() {
                       <activeCalc.icon size={28} />
                     </div>
                     <div>
-                      <h2 className="text-3xl font-bold text-gray-900">
+                      <h2 className=" text-lg sm:text-3xl font-bold text-gray-900">
                         {activeCalc.title}
                       </h2>
                       <p className="text-lg text-gray-600 mt-1">

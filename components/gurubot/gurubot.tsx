@@ -13,7 +13,6 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import {
-  MessageCircle,
   Send,
   X,
   Maximize2,
@@ -310,7 +309,7 @@ export function GuruBot({
         )}
         aria-label="Open GuruBot Chat"
       >
-        <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
+        <Bot className="h-5 w-5 sm:h-6 sm:w-6" />
       </Button>
     );
   }
@@ -321,7 +320,7 @@ export function GuruBot({
       className={cn(
         getChatPositionClasses(),
         getChatWindowClasses(),
-        "flex flex-col shadow-2xl border-2 transition-all duration-300 backdrop-blur-sm p-0",
+        "flex flex-col shadow-2xl border-2 overflow-hidden transition-all duration-300 backdrop-blur-sm p-0",
         isMinimized && "h-14",
         isMaximized && "rounded-lg",
         !isMaximized && "rounded-xl",

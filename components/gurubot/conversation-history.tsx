@@ -98,9 +98,9 @@ export function ConversationHistory({
   return (
     <div className="h-full flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between p-4">
-          <div className="">
+          <div className="h-16">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Conversations
@@ -159,9 +159,9 @@ export function ConversationHistory({
                 <div
                   key={conversation.id}
                   className={cn(
-                    "group relative p-4 rounded-xl cursor-pointer transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 hover:shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-700",
+                    "group relative p-4 rounded-xl cursor-pointer transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-700",
                     selectedConversationId === conversation.id &&
-                      "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700 shadow-sm"
+                      "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700"
                   )}
                   onClick={() => onSelectConversation(conversation.id)}
                 >

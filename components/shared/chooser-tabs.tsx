@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import {
   TrendingUp,
@@ -18,6 +17,7 @@ import {
   Star,
 } from "lucide-react";
 import Image from "next/image";
+import { GuruBotTriggerButton } from "../gurubot/gurubot-triggers";
 
 const PostCard: FC<{
   title: string;
@@ -48,6 +48,17 @@ const PostCard: FC<{
       <Badge className="absolute top-3 right-3 bg-black/70 text-white">
         {category}
       </Badge>
+      {/* GuruBot trigger for article questions */}
+      <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+        <GuruBotTriggerButton
+          query={`Tell me more about ${title.toLowerCase()}. ${description}`}
+          variant="ask"
+          size="sm"
+          className="h-8 w-8 p-0 rounded-full shadow-lg bg-orange-500 hover:bg-orange-600"
+        >
+          <span className="sr-only">Ask about {title}</span>
+        </GuruBotTriggerButton>
+      </div>
     </div>
     <CardHeader>
       <CardTitle className="line-clamp-2 group-hover:text-orange-500 transition-colors">
@@ -64,7 +75,8 @@ const GuideCard: FC<{
   icon: React.ReactNode;
   steps: number;
   difficulty: string;
-}> = ({ title, description, icon, steps, difficulty }) => (
+  guruBotQuery: string;
+}> = ({ title, description, icon, steps, difficulty, guruBotQuery }) => (
   <Card className="group hover:shadow-lg transition-all duration-300">
     <CardHeader>
       <div className="flex items-center gap-3">
@@ -88,9 +100,13 @@ const GuideCard: FC<{
       <CardDescription className="mt-2">{description}</CardDescription>
     </CardHeader>
     <CardContent className="pt-0">
-      <Button className="w-full bg-orange-500 hover:bg-orange-600">
+      <GuruBotTriggerButton
+        query={guruBotQuery}
+        className="w-full bg-orange-500 hover:bg-orange-600"
+        variant="ask"
+      >
         Start Guide
-      </Button>
+      </GuruBotTriggerButton>
     </CardContent>
   </Card>
 );
@@ -169,6 +185,7 @@ export const ChooserTabs: FC = () => {
                   icon={<Home className="size-5" />}
                   steps={5}
                   difficulty="Easy"
+                  guruBotQuery="Guide me through the mortgage pre-approval process step by step. What documents do I need and how long does it take?"
                 />
                 <GuideCard
                   title="Calculate Your Affordability"
@@ -176,6 +193,7 @@ export const ChooserTabs: FC = () => {
                   icon={<Calculator className="size-5" />}
                   steps={3}
                   difficulty="Easy"
+                  guruBotQuery="Help me calculate how much house I can afford. What factors should I consider for my home loan affordability?"
                 />
               </div>
             </div>
@@ -203,6 +221,15 @@ export const ChooserTabs: FC = () => {
                     Min Down Payment
                   </div>
                 </div>
+              </div>
+              <div className="mt-6 text-center">
+                <GuruBotTriggerButton
+                  query="Explain these mortgage statistics to me. What do these rates and terms mean for a first-time home buyer in Sri Lanka?"
+                  variant="ask"
+                  className="bg-orange-500 hover:bg-orange-600"
+                >
+                  Ask About These Stats
+                </GuruBotTriggerButton>
               </div>
             </div>
           </div>
@@ -257,6 +284,7 @@ export const ChooserTabs: FC = () => {
                   icon={<TrendingUp className="size-5" />}
                   steps={7}
                   difficulty="Medium"
+                  guruBotQuery="Help me build and improve my credit score in Sri Lanka. What are the proven strategies for better credit card approvals?"
                 />
                 <GuideCard
                   title="Rewards Optimization"
@@ -264,6 +292,7 @@ export const ChooserTabs: FC = () => {
                   icon={<Star className="size-5" />}
                   steps={4}
                   difficulty="Easy"
+                  guruBotQuery="Show me how to maximize my credit card rewards and cashback earnings. What are the best strategies for reward optimization?"
                 />
               </div>
             </div>
@@ -279,9 +308,13 @@ export const ChooserTabs: FC = () => {
                   Use our advanced comparison tool to find cards that match your
                   spending patterns and financial goals.
                 </p>
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <GuruBotTriggerButton
+                  query="Help me compare credit cards and find the best one for my spending patterns and financial goals. What should I consider when choosing a credit card?"
+                  className="bg-blue-600 hover:bg-blue-700"
+                  variant="ask"
+                >
                   Start Comparison
-                </Button>
+                </GuruBotTriggerButton>
               </div>
             </div>
           </div>
@@ -338,6 +371,7 @@ export const ChooserTabs: FC = () => {
                   icon={<Calculator className="size-5" />}
                   steps={3}
                   difficulty="Easy"
+                  guruBotQuery="Help me calculate my personal loan EMI. Guide me through the process of calculating monthly payments for different loan amounts and interest rates."
                 />
                 <GuideCard
                   title="Loan Eligibility Checker"
@@ -345,6 +379,7 @@ export const ChooserTabs: FC = () => {
                   icon={<Shield className="size-5" />}
                   steps={4}
                   difficulty="Easy"
+                  guruBotQuery="Help me check my personal loan eligibility. How much can I borrow based on my income and what factors affect my loan approval?"
                 />
               </div>
             </div>
@@ -380,6 +415,15 @@ export const ChooserTabs: FC = () => {
                     Fastest Approval
                   </div>
                 </div>
+              </div>
+              <div className="mt-6 text-center">
+                <GuruBotTriggerButton
+                  query="Explain these personal loan market insights. What do these rates, terms, and approval times mean for someone looking for a personal loan in Sri Lanka?"
+                  variant="ask"
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Learn About Loan Market
+                </GuruBotTriggerButton>
               </div>
             </div>
           </div>

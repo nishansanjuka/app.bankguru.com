@@ -1,8 +1,10 @@
-"use client";
-
 import FinancialCalculators from "@/components/shared/calculators";
 
-
-export default function CalculatorsPage() {
-  return <FinancialCalculators />;
+export default async function CalculatorsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ type: string | undefined }>;
+}) {
+  const { type } = await searchParams;
+  return <FinancialCalculators type={type} />;
 }
