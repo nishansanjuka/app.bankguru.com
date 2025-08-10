@@ -11,39 +11,50 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy to Vercel
+    name: Deploy to Vercel and Update GitHub Deployment
     runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: ${{ steps.vercel_deploy.outputs.deploy_url }}
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Install jq (JSON parser)
+        run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
-          
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
-          
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        
+
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
-        
+
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          
+
+      - name: Create GitHub Deployment
+        id: create_deployment
+        run: |
+          deployment_id=$(curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/deployments \
+            -d '{"ref":"'"${{ github.sha }}"'","environment":"production","auto_merge":false}') | jq -r '.id'
+
+          echo "deployment_id=$deployment_id" >> $GITHUB_OUTPUT
+
       - name: Deploy to Vercel (with build)
         id: vercel_deploy
         run: |
@@ -72,26 +83,15 @@ jobs:
           DEFAULT_INSTITUTION_TYPE_ID: ${{ secrets.DEFAULT_INSTITUTION_TYPE_ID }}
           GURUBOT_API_URL: ${{ secrets.GURUBOT_API_URL }}
 
-      - name: Get Deployment ID
-        id: get_deployment_id
-        run: |
-          DEPLOYMENT_ID=$(curl -s \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/deployments?environment=production&ref=${{ github.sha }}" \
-            | jq -r '.[0].id')
-          echo "deployment_id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
-        shell: bash
-
       - name: Update GitHub Deployment Status with Production URL
         run: |
           curl -s -X POST \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/${{ github.repository }}/deployments/${{ steps.get_deployment_id.outputs.deployment_id }}/statuses \
-            -d "{
-              \"state\": \"success\",
-              \"environment\": \"production\",
-              \"environment_url\": \"${{ steps.vercel_deploy.outputs.deploy_url }}\",
-              \"log_url\": \"${{ steps.vercel_deploy.outputs.deploy_url }}/logs\"
-            }"
+            https://api.github.com/repos/${{ github.repository }}/deployments/${{ steps.create_deployment.outputs.deployment_id }}/statuses \
+            -d '{
+              "state": "success",
+              "environment": "production",
+              "environment_url": "'"${{ steps.vercel_deploy.outputs.deploy_url }}"'",
+              "log_url": "'"${{ steps.vercel_deploy.outputs.deploy_url }}/logs"'"
+            }'
