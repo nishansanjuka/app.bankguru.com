@@ -46,6 +46,10 @@ export async function getUserOrganization(
     userId,
   });
 
+  if (!organizations.data.length) {
+    return ApiResponse.failure("User is not a member of any organization");
+  }
+
   const organization = await clerk.organizations.getOrganization({
     organizationId: organizations.data[0].organization.id,
   });

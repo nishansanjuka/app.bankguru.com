@@ -6,8 +6,8 @@ import { DynamicFormField } from "@/components/shared/dynamic-form-fields";
 export type ProductDetails = {
   description: string;
   terms: string;
-  fees: string;
-  eligibility: string;
+  fees: string | number;
+  eligibility: string | number;
   additionalInfo: DynamicFormField[];
 };
 

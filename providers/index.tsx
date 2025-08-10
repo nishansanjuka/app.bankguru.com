@@ -2,6 +2,7 @@
 
 import { FC, PropsWithChildren } from "react";
 import { ThemeProvider } from "./theme-provider";
+import { GuruBotProvider } from "./gurubot-provider";
 import { getQueryClient } from "@/lib/utils";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useSetDefaultOrg } from "@/hooks/use-set-default-org";
@@ -19,7 +20,9 @@ export const Providers: FC<PropsWithChildren> = ({ children }) => {
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <GuruBotProvider>
+            {children}
+          </GuruBotProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </>

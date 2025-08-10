@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { NavBar } from "@/components/shared/nav-bar";
+import { Footer } from "@/components/shared/footer";
 import { Fragment } from "react";
+import { getQueryClient } from "@/lib/utils";
+import { getProductCategoryHierarchy } from "@/lib/actions/products/hierarchy";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { GuruBot } from "@/components/gurubot";
 
 export const metadata: Metadata = {
   title: "BankGuru",
@@ -28,15 +33,32 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const queryClient = getQueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["hierarchy"],
+    queryFn: async () => {
+      const res = await getProductCategoryHierarchy();
+      if (!res.success) {
+        throw new Error("Failed to fetch product categories");
+      }
+      return res.data;
+    },
+  });
+
   return (
     <Fragment>
-      <NavBar />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <NavBar />
+      </HydrationBoundary>
       {children}
+      <GuruBot />
+      <Footer />
     </Fragment>
   );
 }

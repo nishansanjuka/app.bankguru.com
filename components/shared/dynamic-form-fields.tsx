@@ -65,9 +65,19 @@ function FieldForm({ field, onSave, onCancel }: FieldFormProps) {
   const handleSave = () => {
     if (!formData.label.trim()) return;
 
+    // Generate ID from label if not already set
+    const generateIdFromLabel = (label: string) => {
+      return label
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s]/g, '') // Remove special characters except spaces
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+    };
+
     const fieldToSave = {
       ...formData,
-      id: formData.id || Math.random().toString(36).substr(2, 9),
+      id: formData.id || generateIdFromLabel(formData.label),
     };
     onSave(fieldToSave);
   };

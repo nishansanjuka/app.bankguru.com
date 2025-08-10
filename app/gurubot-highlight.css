@@ -1,0 +1,77 @@
+/* Syntax highlighting styles for GuruBot markdown */
+.hljs {
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-section,
+.hljs-link {
+  color: hsl(var(--primary));
+}
+
+.hljs-string,
+.hljs-title,
+.hljs-name,
+.hljs-type,
+.hljs-attribute,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition,
+.hljs-variable,
+.hljs-template-tag,
+.hljs-template-variable {
+  color: #22c55e; /* green-500 */
+}
+
+.hljs-comment,
+.hljs-quote,
+.hljs-deletion,
+.hljs-meta {
+  color: hsl(var(--muted-foreground));
+}
+
+.hljs-number,
+.hljs-regexp,
+.hljs-emphasis {
+  color: #f59e0b; /* amber-500 */
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+/* Dark mode adjustments */
+.dark .hljs-keyword,
+.dark .hljs-selector-tag,
+.dark .hljs-literal,
+.dark .hljs-section,
+.dark .hljs-link {
+  color: #60a5fa; /* blue-400 */
+}
+
+.dark .hljs-string,
+.dark .hljs-title,
+.dark .hljs-name,
+.dark .hljs-type,
+.dark .hljs-attribute,
+.dark .hljs-symbol,
+.dark .hljs-bullet,
+.dark .hljs-addition,
+.dark .hljs-variable,
+.dark .hljs-template-tag,
+.dark .hljs-template-variable {
+  color: #4ade80; /* green-400 */
+}
+
+.dark .hljs-number,
+.dark .hljs-regexp,
+.dark .hljs-emphasis {
+  color: #fbbf24; /* amber-400 */
+}

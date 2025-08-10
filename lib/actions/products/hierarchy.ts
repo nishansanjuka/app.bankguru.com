@@ -1,7 +1,6 @@
 "use server";
 
 import { ApiResponse, ApiResponseData } from "@/types/api-response";
-import { auth } from "@clerk/nextjs/server";
 
 // Types matching the nested combobox structure
 export interface ProductType {
@@ -32,11 +31,11 @@ const API_URL = process.env.MAIN_API_URL;
 export async function getProductCategoryHierarchy(): Promise<
   ApiResponseData<Category[]>
 > {
-  const { userId } = await auth();
+  // const { userId } = await auth();
 
-  if (!userId) {
-    return ApiResponse.failure("Unauthorized: User must be logged in.");
-  }
+  // if (!userId) {
+  //   return ApiResponse.failure("Unauthorized: User must be logged in.");
+  // }
 
   const res = await fetch(`${API_URL}/product-categories/hierarchy`, {
     method: "GET",

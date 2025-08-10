@@ -7,6 +7,9 @@ import { AccountProduct } from "./account-product";
 import { InvestmentProduct } from "./investment-product";
 import { InsuranceProduct } from "./insurance-product";
 import { DigitalServiceProduct } from "./digital-service-product";
+import { ProductComparisonDialog } from "./product-comparison-dialog";
+import { ProductComparisonView } from "./product-comparison-view";
+import { useProductComparison } from "@/hooks/use-product-comparison";
 import { cn } from "@/lib/utils/index";
 import { Product } from "@/types/product";
 
@@ -23,6 +26,31 @@ export function ProductGrid({
   className,
   onProductAction,
 }: ProductGridProps) {
+  const {
+    isComparisonDialogOpen,
+    openComparisonDialog,
+    closeComparisonDialog,
+    isComparisonViewOpen,
+    closeComparisonView,
+    currentProduct,
+    availableProducts,
+    selectedProducts,
+    isLoading,
+    removeProductFromComparison,
+    handleCompareSelected,
+  } = useProductComparison();
+
+  const handleProductActionInternal = (action: string, productId: string) => {
+    if (action === "compare") {
+      const product = products.find(p => p.id === productId);
+      if (product) {
+        openComparisonDialog(product);
+      }
+    } else {
+      onProductAction?.(action, productId);
+    }
+  };
+
   const renderProduct = (product: Product) => {
     const productType = product.productType?.code.toLowerCase();
 
@@ -37,8 +65,9 @@ export function ProductGrid({
           key={product.id}
           product={product}
           variant={variant as "compact" | "default" | "premium"}
-          onApply={(id) => onProductAction?.("apply", id)}
-          onCompare={(id) => onProductAction?.("compare", id)}
+          onApply={(id) => handleProductActionInternal("apply", id)}
+          onCompare={(id) => handleProductActionInternal("compare", id)}
+          className="max-w-full"
         />
       );
     }
@@ -56,8 +85,9 @@ export function ProductGrid({
           key={product.id}
           product={product}
           variant={variant}
-          onApply={(id) => onProductAction?.("apply", id)}
-          onCalculate={(id) => onProductAction?.("calculate", id)}
+          onApply={(id) => handleProductActionInternal("apply", id)}
+          onCompare={(id) => handleProductActionInternal("compare", id)}
+          className="max-w-full"
         />
       );
     }
@@ -74,8 +104,10 @@ export function ProductGrid({
           key={product.id}
           product={product}
           variant={variant as "default" | "compact" | "premium"}
-          onOpenAccount={(id) => onProductAction?.("open", id)}
-          onLearnMore={(id) => onProductAction?.("learn_more", id)}
+          onOpenAccount={(id) => handleProductActionInternal("open", id)}
+          onLearnMore={(id) => handleProductActionInternal("learn_more", id)}
+          onCompare={(id) => handleProductActionInternal("compare", id)}
+          className="max-w-full"
         />
       );
     }
@@ -94,8 +126,10 @@ export function ProductGrid({
           key={product.id}
           product={product}
           variant={variant as "default" | "compact" | "premium"}
-          onInvest={(id) => onProductAction?.("invest", id)}
-          onViewPortfolio={(id) => onProductAction?.("view_portfolio", id)}
+          onInvest={(id) => handleProductActionInternal("invest", id)}
+          onViewPortfolio={(id) => handleProductActionInternal("view_portfolio", id)}
+          onCompare={(id) => handleProductActionInternal("compare", id)}
+          className="max-w-full"
         />
       );
     }
@@ -114,8 +148,9 @@ export function ProductGrid({
           key={product.id}
           product={product}
           variant={variant as "default" | "compact" | "family"}
-          onGetQuote={(id) => onProductAction?.("quote", id)}
-          onCompare={(id) => onProductAction?.("compare", id)}
+          onGetQuote={(id) => handleProductActionInternal("quote", id)}
+          onCompare={(id) => handleProductActionInternal("compare", id)}
+          className="max-w-full"
         />
       );
     }
@@ -134,8 +169,10 @@ export function ProductGrid({
           key={product.id}
           product={product}
           variant={variant as "default" | "compact" | "modern"}
-          onGetStarted={(id) => onProductAction?.("get_started", id)}
-          onDownload={(id) => onProductAction?.("download", id)}
+          onGetStarted={(id) => handleProductActionInternal("get_started", id)}
+          onDownload={(id) => handleProductActionInternal("download", id)}
+          onCompare={(id) => handleProductActionInternal("compare", id)}
+          className="max-w-full"
         />
       );
     }
@@ -146,21 +183,47 @@ export function ProductGrid({
         key={product.id}
         product={product}
         variant={variant}
-        onViewDetails={(id) => onProductAction?.("view_details", id)}
-        onCompare={(id) => onProductAction?.("compare", id)}
+        onViewDetails={(id) => handleProductActionInternal("view_details", id)}
+        onCompare={(id) => handleProductActionInternal("compare", id)}
+        className="max-w-full"
       />
     );
   };
 
   return (
-    <div
-      className={cn(
-        "grid gap-4",
-        variant === "compact" ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1",
-        className
+    <>
+      <div
+        className={cn(
+          "grid gap-3",
+          variant === "compact" 
+            ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+            : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+          className
+        )}
+      >
+        {products.map(renderProduct)}
+      </div>
+
+      {/* Comparison Dialog */}
+      {currentProduct && (
+        <ProductComparisonDialog
+          open={isComparisonDialogOpen}
+          onOpenChange={closeComparisonDialog}
+          currentProduct={currentProduct}
+          availableProducts={availableProducts}
+          onCompareSelected={handleCompareSelected}
+          isLoading={isLoading}
+        />
       )}
-    >
-      {products.map(renderProduct)}
-    </div>
+
+      {/* Comparison View */}
+      <ProductComparisonView
+        open={isComparisonViewOpen}
+        onOpenChange={closeComparisonView}
+        products={selectedProducts}
+        onRemoveProduct={removeProductFromComparison}
+        onProductAction={onProductAction}
+      />
+    </>
   );
 }

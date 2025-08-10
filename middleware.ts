@@ -1,6 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isProtectedRoute = createRouteMatcher(["/auth(.*)"]);
+const isProtectedRoute = createRouteMatcher(["/auth(.*)","/gurubot(.*)"]);
 const isCommonAdminRoute = createRouteMatcher(["/dashboard(.*)"]);
 const isAdminRoute = createRouteMatcher([]);
 const isSuperAdminRoute = createRouteMatcher(["/dashboard/institutions(.*)"]);
