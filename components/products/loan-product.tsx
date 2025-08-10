@@ -11,23 +11,26 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
-  Banknote,
   Star,
   Percent,
   Calculator,
-  CheckCircle,
   Clock,
   ArrowRight,
   MessageCircle,
   Building2,
   BarChart,
   Info,
+  Shield,
+  TrendingUp,
+  Zap,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
 import { useGuruBot } from "@/providers/gurubot-provider";
+import { ShareProduct } from "@/components/shared/share-product";
 
 interface LoanProductProps {
   product: Product;
@@ -86,166 +89,214 @@ export function LoanProduct({
   return (
     <Card
       className={cn(
-        "group hover:shadow-md transition-all duration-300 border border-gray-200 overflow-hidden",
-        "w-full max-w-sm",
+        "group hover:shadow-lg transition-all duration-300 border border-gray-200 overflow-hidden bg-white",
+        "w-full max-w-sm mx-auto p-0",
         className
       )}
     >
-      <div className="p-3 space-y-3">
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-              <Banknote className="w-4 h-4 text-white" />
-            </div>
+      {/* Compact Header */}
+      <div className="relative bg-gradient-to-r from-green-50 to-emerald-50 p-4 border-b">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3 flex-1 min-w-0">
+            {product.institution?.logoUrl ? (
+              <div className="w-8 h-8 bg-white rounded-lg shadow-sm flex items-center justify-center overflow-hidden flex-shrink-0">
+                <Image
+                  src={product.institution.logoUrl || "/placeholder.svg"}
+                  alt={product.institution.name}
+                  width={24}
+                  height={24}
+                  className="rounded object-contain"
+                />
+              </div>
+            ) : (
+              <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Building2 className="w-4 h-4 text-white" />
+              </div>
+            )}
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2">
+              <p className="text-xs font-medium text-gray-700 truncate">{product.institution?.name}</p>
+              <h3 className="font-semibold text-sm text-gray-900 leading-tight truncate">
                 {product.name}
               </h3>
-              <div className="flex items-center space-x-1 mt-1">
-                {product.institution?.logoUrl ? (
-                  <Image
-                    src={product.institution.logoUrl || "/placeholder.svg"}
-                    alt={product.institution.name}
-                    width={16}
-                    height={16}
-                    className="rounded"
-                  />
-                ) : (
-                  <Building2 className="w-3 h-3 text-gray-500" />
-                )}
-                <span className="text-xs text-gray-600">{product.institution?.name}</span>
-              </div>
             </div>
           </div>
-          {product.isFeatured && (
-            <Badge className="bg-green-100 text-green-700 hover:bg-green-200 text-xs h-5">
-              <Star className="w-3 h-3 mr-1" />
-              Best Rate
+          <div className="flex items-center space-x-2 flex-shrink-0">
+            {product.isFeatured && (
+              <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 text-xs px-1.5 py-0.5">
+                <Star className="w-2.5 h-2.5 mr-1 fill-current" />
+                Hot
+              </Badge>
+            )}
+            <Badge variant="outline" className="text-xs text-green-700 border-green-200 bg-green-50 px-1.5 py-0.5">
+              {product.productType?.name || "Loan"}
             </Badge>
-          )}
+          </div>
         </div>
 
-        {/* Product Type Badge */}
-        <div className="flex items-center space-x-1">
-          <Badge variant="outline" className="text-xs text-gray-600 border-gray-200 h-5">
-            {product.productType?.name || "Product Type"}
-          </Badge>
-        </div>
-
-        {/* Quick Stats Grid */}
-        <div className="grid grid-cols-2 gap-2">
+        {/* Quick Metrics */}
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-green-100">
           {interestRate && (
-            <div className="p-2 bg-green-50 rounded-lg text-center">
-              <Percent className="w-3 h-3 text-green-600 mx-auto mb-1" />
-              <div className="text-xs font-bold text-gray-900">{interestRate.value}%</div>
-              <div className="text-xs text-gray-600">Interest Rate</div>
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-white rounded-md shadow-sm flex items-center justify-center">
+                <Percent className="w-3 h-3 text-green-600" />
+              </div>
+              <div>
+                <div className="text-lg font-bold text-gray-900">{interestRate.value}%</div>
+                <div className="text-xs text-gray-600">Rate</div>
+              </div>
             </div>
           )}
 
           {maxAmount && (
-            <div className="p-2 bg-blue-50 rounded-lg text-center">
-              <Calculator className="w-3 h-3 text-blue-600 mx-auto mb-1" />
-              <div className="text-xs font-bold text-gray-900">${maxAmount.value}</div>
-              <div className="text-xs text-gray-600">Max Amount</div>
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-white rounded-md shadow-sm flex items-center justify-center">
+                <Calculator className="w-3 h-3 text-blue-600" />
+              </div>
+              <div>
+                <div className="text-lg font-bold text-gray-900">${maxAmount.value}</div>
+                <div className="text-xs text-gray-600">Max</div>
+              </div>
             </div>
           )}
         </div>
+      </div>
 
-        {/* Accordion for Additional Details */}
+      {/* Content Section */}
+      <div className="p-4 space-y-4">
+        {/* Quick Features Preview */}
+        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <div className="flex items-center space-x-2">
+            <Zap className="w-4 h-4 text-blue-500" />
+            <span className="text-sm text-gray-700">Quick approval</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Clock className="w-4 h-4 text-orange-500" />
+            <span className="text-sm text-gray-700">Flexible terms</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Shield className="w-4 h-4 text-green-500" />
+            <span className="text-sm text-gray-700">Competitive</span>
+          </div>
+        </div>
+
+        {/* Essential Info */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="text-center p-3 bg-gray-50 rounded-lg">
+            <p className="text-xs text-gray-600">Processing Fee</p>
+            <p className="font-semibold text-gray-900 mt-1">{formatFees(product.details.fees)}</p>
+          </div>
+          <div className="text-center p-3 bg-gray-50 rounded-lg">
+            <p className="text-xs text-gray-600">Min. Age</p>
+            <p className="font-semibold text-gray-900 mt-1">{formatEligibility(product.details.eligibility)}</p>
+          </div>
+        </div>
+
+        {/* Expandable Details Accordion */}
         <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="details" className="border-none">
-            <AccordionTrigger className="py-2 text-xs font-medium text-gray-700 hover:no-underline">
+          <AccordionItem value="details" className="border border-gray-200 rounded-lg">
+            <AccordionTrigger className="px-4 py-3 text-sm font-medium text-gray-700 hover:no-underline hover:bg-gray-50">
               <div className="flex items-center space-x-2">
-                <Info className="w-3 h-3" />
-                <span>View Details</span>
+                <Info className="w-4 h-4" />
+                <span>View Full Details & Features</span>
               </div>
             </AccordionTrigger>
-            <AccordionContent className="pt-0 pb-2">
-              <div className="space-y-2">
-                {/* Product Image */}
+            <AccordionContent className="px-4 pb-4">
+              <div className="space-y-4">
+                {/* Product Image - Compact Size */}
                 {productImage && (
-                  <div className="relative w-full h-24 rounded-lg overflow-hidden bg-gray-50">
-                    <Image
-                      src={productImage.value.toString()}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                    />
+                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                      <Image
+                        src={productImage.value.toString()}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-gray-900 text-sm">{product.name}</h4>
+                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">{product.details.description}</p>
+                    </div>
                   </div>
                 )}
 
-                {/* Loan Features */}
-                <div className="space-y-1">
-                  <h4 className="font-medium text-xs text-gray-900">Loan Features</h4>
-                  <div className="space-y-1 text-xs text-gray-600">
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle className="w-3 h-3 text-green-500" />
-                      <span>Quick approval process</span>
+                {/* Detailed Features */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-gray-900 text-sm">All Features</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <Zap className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                      <span className="text-sm text-blue-900">Quick approval process within 24 hours</span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Clock className="w-3 h-3 text-blue-500" />
-                      <span>Flexible repayment terms</span>
+                    <div className="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                      <Clock className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                      <span className="text-sm text-orange-900">Flexible repayment terms up to 30 years</span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Banknote className="w-3 h-3 text-orange-500" />
-                      <span>Competitive interest rates</span>
+                    <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                      <Shield className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-green-900">Competitive interest rates starting from {interestRate?.value}%</span>
                     </div>
-                  </div>
-                </div>
-
-                {/* Loan Details */}
-                <div className="grid grid-cols-2 gap-2 p-2 bg-gray-50 rounded-lg text-xs">
-                  <div>
-                    <span className="font-medium text-gray-700">Processing Fee</span>
-                    <p className="font-semibold text-gray-900">{formatFees(product.details.fees)}</p>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Eligibility</span>
-                    <p className="font-semibold text-gray-900">{formatEligibility(product.details.eligibility)}</p>
                   </div>
                 </div>
 
                 {/* Description */}
-                <div className="p-2 bg-orange-50 rounded-lg">
-                  <p className="text-xs text-orange-800 leading-relaxed">
+                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <h4 className="font-medium text-blue-900 text-sm mb-2">About This Loan</h4>
+                  <p className="text-sm text-blue-800 leading-relaxed">
                     {product.details.description}
                   </p>
+                </div>
+
+                {/* Performance Indicator */}
+                <div className="flex items-center justify-center p-3 bg-green-50 rounded-lg border border-green-200">
+                  <TrendingUp className="w-4 h-4 text-green-600 mr-2" />
+                  <span className="text-sm font-medium text-green-800">
+                    Highly rated loan product with excellent customer satisfaction
+                  </span>
                 </div>
               </div>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
 
+        <Separator />
+
         {/* Action Buttons */}
-        <div className="flex space-x-2">
+        <div className="flex items-center space-x-2">
           <Button
             onClick={() => window.open(productUrl?.value.toString(), "_blank")}
-            className="flex-1 h-8 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium rounded-lg transition-all duration-300 text-xs"
+            className="flex-1 h-10 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md text-sm"
           >
-            Apply
-            <ArrowRight className="w-3 h-3 ml-1" />
+            Apply Now
+            <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
-          <Button
-            onClick={handleAskGuru}
-            variant="outline"
-            size="sm"
-            className="h-8 px-2 rounded-lg border-gray-200 hover:bg-gray-50"
-            title="Ask GuruBot"
-          >
-            <MessageCircle className="w-3 h-3" />
-          </Button>
-          {onCompare && (
+          <div className="flex space-x-1">
             <Button
-              onClick={() => onCompare(product.id)}
+              onClick={handleAskGuru}
               variant="outline"
               size="sm"
-              className="h-8 px-2 rounded-lg border-gray-200 hover:bg-gray-50"
-              title="Compare"
+              className="h-10 w-10 p-0 rounded-lg border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+              title="Ask GuruBot"
             >
-              <BarChart className="w-3 h-3" />
+              <MessageCircle className="w-4 h-4" />
             </Button>
-          )}
+            {onCompare && (
+              <Button
+                onClick={() => onCompare(product.id)}
+                variant="outline"
+                size="sm"
+                className="h-10 w-10 p-0 rounded-lg border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+                title="Compare Products"
+              >
+                <BarChart className="w-4 h-4" />
+              </Button>
+            )}
+            <ShareProduct
+              product={product}
+              triggerText=""
+              className="h-10 w-10 p-0 rounded-lg border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+            />
+          </div>
         </div>
       </div>
     </Card>

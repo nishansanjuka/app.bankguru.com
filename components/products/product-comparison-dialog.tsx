@@ -67,7 +67,7 @@ export function ProductComparisonDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh]">
+      <DialogContent className="max-w-4xl lg:max-h-[80vh]">
         <DialogHeader>
           <DialogTitle>Compare Products</DialogTitle>
           <DialogDescription>
