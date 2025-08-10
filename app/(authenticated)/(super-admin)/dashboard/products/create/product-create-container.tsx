@@ -28,6 +28,7 @@ import ImageUpload from "@/components/shared/image-uploader";
 import {
   createProduct,
   deleteProduct,
+  getProducts,
   updateProduct,
 } from "@/lib/actions/products";
 import { toast } from "sonner";
@@ -159,6 +160,11 @@ const NewProductForm = ({
       }
       return res.data;
     },
+  });
+
+  const { data: products } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => getProducts({}),
   });
 
   const form = useForm<ProductFormValues>({
@@ -479,7 +485,8 @@ const NewProductForm = ({
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                      Product Explore URL <span className="text-red-500">*</span>
+                      Product Explore URL{" "}
+                      <span className="text-red-500">*</span>
                     </label>
                     <Input
                       type="url"
@@ -622,7 +629,11 @@ const NewProductForm = ({
                   or other configurations.
                 </FormDescription>
 
-                <DynamicFormFields fields={fields} setFields={setFields} />
+                <DynamicFormFields 
+                  fields={fields} 
+                  setFields={setFields} 
+                  products={products?.success ? products.data : []}
+                />
 
                 <div className="flex items-center justify-end gap-2">
                   <Button disabled={isDeleting} type="submit" className="w-fit">

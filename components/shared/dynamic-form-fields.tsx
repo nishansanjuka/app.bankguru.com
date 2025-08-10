@@ -24,6 +24,8 @@ import {
   Save,
   Trash2,
 } from "lucide-react";
+import { Product } from "@/types/product";
+import { getLabelSuggestionsForType } from "@/lib/utils/extract-product-labels";
 
 // Array of field IDs that should be hidden from the table display
 const HIDDEN_FIELD_IDS: string[] = ["product-image", "product-url"];
@@ -41,9 +43,10 @@ interface FieldFormProps {
   field?: DynamicFormField | null;
   onSave: (field: DynamicFormField) => void;
   onCancel: () => void;
+  products?: Product[];
 }
 
-function FieldForm({ field, onSave, onCancel }: FieldFormProps) {
+function FieldForm({ field, onSave, onCancel, products = [] }: FieldFormProps) {
   const [formData, setFormData] = useState<DynamicFormField>(
     field || {
       id: "",
@@ -70,9 +73,9 @@ function FieldForm({ field, onSave, onCancel }: FieldFormProps) {
       return label
         .toLowerCase()
         .trim()
-        .replace(/[^a-z0-9\s]/g, '') // Remove special characters except spaces
-        .replace(/\s+/g, '-') // Replace spaces with hyphens
-        .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+        .replace(/[^a-z0-9\s]/g, "") // Remove special characters except spaces
+        .replace(/\s+/g, "-") // Replace spaces with hyphens
+        .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
     };
 
     const fieldToSave = {
@@ -166,12 +169,25 @@ function FieldForm({ field, onSave, onCancel }: FieldFormProps) {
             <Label className="text-sm font-medium">
               Label <span className="text-red-500">*</span>
             </Label>
-            <Input
-              placeholder="Field label"
+            <Combobox
               value={formData.label}
-              onChange={(e) =>
-                setFormData({ ...formData, label: e.target.value })
+              onChange={(value: string) =>
+                setFormData({ ...formData, label: value })
               }
+              options={getLabelSuggestionsForType(formData.type, products).map(
+                (label) => ({
+                  value: label,
+                  label: label,
+                })
+              )}
+              placeholder="Enter or select field label..."
+              searchPlaceholder="Search existing labels..."
+              emptyMessage="No existing labels found for this type."
+              enhanced={true}
+              allowCustom={true}
+              customOptionTitle="Add Custom Label"
+              customOptionDescription="This will create a new field label."
+              className="w-full"
             />
           </div>
         </div>
@@ -225,6 +241,7 @@ interface FieldSectionProps {
   onAddField: (field: DynamicFormField) => void;
   onUpdateField: (field: DynamicFormField) => void;
   onRemoveField: (id: string) => void;
+  products?: Product[];
 }
 
 function FieldSection({
@@ -234,6 +251,7 @@ function FieldSection({
   onAddField,
   onUpdateField,
   onRemoveField,
+  products = [],
 }: FieldSectionProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingField, setEditingField] = useState<DynamicFormField | null>(
@@ -434,6 +452,7 @@ function FieldSection({
           field={editingField}
           onSave={handleSaveField}
           onCancel={handleCancel}
+          products={products}
         />
       )}
     </div>
@@ -443,9 +462,11 @@ function FieldSection({
 export default function DynamicFormFields({
   fields,
   setFields,
+  products = [],
 }: {
   fields: DynamicFormField[];
   setFields: Dispatch<SetStateAction<DynamicFormField[]>>;
+  products?: Product[];
 }) {
   const addField = (field: DynamicFormField) => {
     setFields((prev) => [...prev, field]);
@@ -468,6 +489,7 @@ export default function DynamicFormFields({
         onAddField={addField}
         onUpdateField={updateField}
         onRemoveField={removeField}
+        products={products}
       />
     </div>
   );
