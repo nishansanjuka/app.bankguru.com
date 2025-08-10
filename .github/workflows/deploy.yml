@@ -55,6 +55,13 @@ jobs:
           echo "🌐 Production URL: $url"
           echo "📝 Commit: ${{ github.sha }}"
           echo "⏱️ Deployed at: $(date)"
+          echo ""
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Successful" >> $GITHUB_STEP_SUMMARY
+          echo "- **Production URL**: $url" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployed at**: $(date)" >> $GITHUB_STEP_SUMMARY
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -71,3 +78,22 @@ jobs:
           CLERK_WEBHOOK_SECRET: ${{ secrets.CLERK_WEBHOOK_SECRET }}
           DEFAULT_INSTITUTION_TYPE_ID: ${{ secrets.DEFAULT_INSTITUTION_TYPE_ID }}
           GURUBOT_API_URL: ${{ secrets.GURUBOT_API_URL }}
+
+      - name: Update Deployment Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deploymentUrl = '${{ steps.vercel_deploy.outputs.deploy_url }}';
+            
+            // Update the deployment status to success with the URL
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: context.payload.deployment?.id || '${{ github.run_id }}',
+              state: 'success',
+              environment_url: deploymentUrl,
+              description: `Deployed to ${deploymentUrl}`,
+              log_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            });
+            
+            console.log(`✅ Deployment status updated with URL: ${deploymentUrl}`);
