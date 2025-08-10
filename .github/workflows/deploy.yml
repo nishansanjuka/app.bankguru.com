@@ -13,27 +13,13 @@ jobs:
   deploy:
     name: Deploy to Vercel
     runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.vercel_deploy.outputs.deploy_url }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Create GitHub Deployment
-        id: create_deployment
-        run: |
-          DEPLOYMENT_ID=$(curl -s \
-            -X POST \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/${{ github.repository }}/deployments \
-            -d '{
-              "ref": "${{ github.sha }}",
-              "environment": "Production",
-              "description": "Deploying to Vercel Production",
-              "auto_merge": false
-            }' | jq -r '.id')
-
-          echo "deployment_id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -85,18 +71,3 @@ jobs:
           CLERK_WEBHOOK_SECRET: ${{ secrets.CLERK_WEBHOOK_SECRET }}
           DEFAULT_INSTITUTION_TYPE_ID: ${{ secrets.DEFAULT_INSTITUTION_TYPE_ID }}
           GURUBOT_API_URL: ${{ secrets.GURUBOT_API_URL }}
-
-      - name: Update GitHub Deployment Status
-        if: ${{ success() }}
-        run: |
-          curl -s \
-            -X POST \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/${{ github.repository }}/deployments/${{ steps.create_deployment.outputs.deployment_id }}/statuses \
-            -d "{
-              \"state\": \"success\",
-              \"environment\": \"Production\",
-              \"environment_url\": \"${{ steps.vercel_deploy.outputs.deploy_url }}\",
-              \"log_url\": \"${{ steps.vercel_deploy.outputs.deploy_url }}/logs\"
-            }"
