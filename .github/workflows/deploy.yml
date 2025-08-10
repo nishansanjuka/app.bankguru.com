@@ -51,13 +51,16 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/${{ github.repository }}/deployments \
-            -d '{"ref":"'"${{ github.sha }}"'","environment":"production","auto_merge":false}')
+            -d '{"ref":"'"${{ github.sha }}"'","environment":"production","auto_merge":false,"required_contexts":[]}')
+
           echo "$response"
           http_status=$(echo "$response" | tr -d '\r' | sed -n 's/.*HTTP_STATUS:\([0-9]*\)$/\1/p')
+
           if [ "$http_status" != "201" ]; then
             echo "Deployment creation failed with status $http_status"
             exit 1
           fi
+
           deployment_id=$(echo "$response" | sed '$d' | jq -r '.id')
           echo "deployment_id=$deployment_id" >> $GITHUB_OUTPUT
 
