@@ -56,6 +56,12 @@ export function DataTable<TData>({
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
+  // Internal pagination state for client-side pagination
+  const [paginationState, setPaginationState] = React.useState({
+    pageIndex: pageIndex ?? 0,
+    pageSize: pageSize ?? 10,
+  });
+
   const table = useReactTable({
     data,
     columns,
@@ -64,10 +70,9 @@ export function DataTable<TData>({
       columnVisibility,
       rowSelection,
       columnFilters: customColumnFilters ?? columnFilters,
-      pagination: {
-        pageIndex: pageIndex ?? 0,
-        pageSize: pageSize ?? 10,
-      },
+      pagination: manualPagination
+        ? { pageIndex: pageIndex ?? 0, pageSize: pageSize ?? 10 }
+        : paginationState,
     },
     enableRowSelection: true,
     enableSorting: true,
@@ -76,6 +81,18 @@ export function DataTable<TData>({
     onSortingChange: setSorting,
     onColumnFiltersChange: onCustomColumnFiltersChange ?? setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: manualPagination
+      ? (updater) => {
+          if (typeof updater === "function") {
+            const newState = updater({
+              pageIndex: pageIndex ?? 0,
+              pageSize: pageSize ?? 10,
+            });
+            onPageChange?.(newState.pageIndex + 1);
+            onPageSizeChange?.(newState.pageSize);
+          }
+        }
+      : setPaginationState,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -84,13 +101,6 @@ export function DataTable<TData>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
     manualPagination,
     pageCount: pageCount,
-    onPaginationChange: (updater) => {
-      if (typeof updater === "function") {
-        const newState = updater(table.getState().pagination);
-        onPageChange?.(newState.pageIndex + 1);
-        onPageSizeChange?.(newState.pageSize);
-      }
-    },
   });
 
   return (
@@ -165,7 +175,11 @@ export function DataTable<TData>({
         emptyState
       )}
       {(!emptyState || data.length > 0) && pagination && (
-        <DataTablePagination table={table} />
+        <DataTablePagination
+          table={table}
+          onPageChange={manualPagination ? onPageChange : undefined}
+          onPageSizeChange={manualPagination ? onPageSizeChange : undefined}
+        />
       )}
       {children}
     </div>

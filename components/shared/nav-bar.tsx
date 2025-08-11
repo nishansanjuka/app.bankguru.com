@@ -13,6 +13,7 @@ import DynamicNavigation from "./dynamic-navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getProductCategoryHierarchy } from "@/lib/actions/products/hierarchy";
 import { Bot, LayoutDashboard, Menu, X } from "lucide-react";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 export const NavBar: FC<{ className?: string }> = ({ className }) => {
   const { isSignedIn } = useUser();
@@ -106,8 +107,7 @@ export const NavBar: FC<{ className?: string }> = ({ className }) => {
                 ))}
               </div>
               {/* Separator */}
-              <div className="h-6 w-px bg-gray-200 mx-2 xl:mx-3" />
-              {categories && <DynamicNavigation data={categories} />}
+              {/* <div className="h-6 w-px bg-gray-200 mx-2 xl:mx-3" /> */}
             </div>
 
             {/* Right Section */}
@@ -171,6 +171,12 @@ export const NavBar: FC<{ className?: string }> = ({ className }) => {
                 )}
               </Button>
             </div>
+          </div>
+          <div className=" items-center justify-center hidden sm:flex">
+            <ScrollArea className="w-[40vw]">
+              {categories && <DynamicNavigation data={categories} />}
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
           </div>
         </div>
 

@@ -38,12 +38,12 @@ export default function DynamicNavigation({ data }: DynamicNavigationProps) {
     <nav className="flex items-center justify-start w-full lg:w-fit overflow-x-auto py-2">
       {topLevelCategories.map((category) => (
         <DropdownMenu key={category.id}>
-          <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-foreground transition-colors hover:text-orange-600 px-2 sm:px-3 lg:px-4 py-2 rounded-md hover:bg-orange-50 outline-none w-full justify-start">
+          <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-foreground transition-colors hover:text-orange-600 px-2 sm:px-3 lg:px-4 py-2 rounded-md hover:bg-orange-50 outline-none w-fit justify-start">
             {category.name}
             <ChevronDown className="h-4 w-4 ml-1 text-muted-foreground hidden lg:block" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-screen sm:w-auto sm:min-w-[600px] lg:w-screen p-0 shadow-xl border-0 bg-background rounded-none translate-y-5"
+            className="w-screen sm:w-auto sm:min-w-[600px] lg:w-screen p-0 shadow-xl border-0 bg-background rounded-none translate-y-2"
             align="end"
             sideOffset={0}
           >
