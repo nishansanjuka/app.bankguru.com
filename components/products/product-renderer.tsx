@@ -3,15 +3,21 @@
 import { Product } from "@/types/product";
 import { ProductCard } from "./product-card";
 import { CreditCardProduct } from "./credit-card-product";
-import { LoanProduct } from "./loan-product";
 import { AccountProduct } from "./account-product";
 import { InvestmentProduct } from "./investment-product";
 import { InsuranceProduct } from "./insurance-product";
 import { DigitalServiceProduct } from "./digital-service-product";
+import { ProductPage } from "@/components/product-pages/loans";
 
 interface ProductRendererProps {
   product: Product;
-  variant?: "default" | "compact" | "detailed" | "premium" | "family" | "modern";
+  variant?:
+    | "default"
+    | "compact"
+    | "detailed"
+    | "premium"
+    | "family"
+    | "modern";
   className?: string;
   onProductAction?: (action: string, productId: string) => void;
 }
@@ -51,15 +57,16 @@ export function ProductRenderer({
     productType?.includes("mortgage") ||
     productType?.includes("leasing") ||
     productType?.includes("financing") ||
-    productType?.includes("car_leasing")
+    productType?.includes("car_leasing") ||
+    productType?.includes("uththamachara") ||
+    productType?.includes("upahara")
   ) {
     return (
-      <LoanProduct
+      <ProductPage
         product={product}
-        variant={variant as "default" | "compact" | "detailed"}
         onApply={(id) => handleProductAction("apply", id)}
         onCompare={(id) => handleProductAction("compare", id)}
-        className={className}
+        onAskGuru={(query, id) => handleProductAction("ask_guru", id)}
       />
     );
   }

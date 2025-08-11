@@ -17,7 +17,7 @@ interface ProductGridProps {
   products: Product[];
   variant?: "default" | "compact" | "detailed";
   className?: string;
-  onProductAction?: (action: string, productId: string) => void;
+  onProductAction?: (action: string, productId: string) => void | Promise<void>;
 }
 
 export function ProductGrid({
@@ -40,14 +40,17 @@ export function ProductGrid({
     handleCompareSelected,
   } = useProductComparison();
 
-  const handleProductActionInternal = (action: string, productId: string) => {
+  const handleProductActionInternal = async (
+    action: string,
+    productId: string
+  ) => {
     if (action === "compare") {
-      const product = products.find(p => p.id === productId);
+      const product = products.find((p) => p.id === productId);
       if (product) {
         openComparisonDialog(product);
       }
     } else {
-      onProductAction?.(action, productId);
+      await onProductAction?.(action, productId);
     }
   };
 
@@ -78,7 +81,9 @@ export function ProductGrid({
       productType?.includes("mortgage") ||
       productType?.includes("leasing") ||
       productType?.includes("financing") ||
-      productType?.includes("car_leasing")
+      productType?.includes("car_leasing") ||
+      productType?.includes("uththamachara") ||
+      productType?.includes("upahara")
     ) {
       return (
         <LoanProduct
@@ -87,6 +92,9 @@ export function ProductGrid({
           variant={variant}
           onApply={(id) => handleProductActionInternal("apply", id)}
           onCompare={(id) => handleProductActionInternal("compare", id)}
+          onViewDetails={(id) =>
+            handleProductActionInternal("view_details", id)
+          }
           className="max-w-full"
         />
       );
@@ -127,7 +135,9 @@ export function ProductGrid({
           product={product}
           variant={variant as "default" | "compact" | "premium"}
           onInvest={(id) => handleProductActionInternal("invest", id)}
-          onViewPortfolio={(id) => handleProductActionInternal("view_portfolio", id)}
+          onViewPortfolio={(id) =>
+            handleProductActionInternal("view_portfolio", id)
+          }
           onCompare={(id) => handleProductActionInternal("compare", id)}
           className="max-w-full"
         />
@@ -195,8 +205,8 @@ export function ProductGrid({
       <div
         className={cn(
           "grid gap-3",
-          variant === "compact" 
-            ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+          variant === "compact"
+            ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
             : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
           className
         )}

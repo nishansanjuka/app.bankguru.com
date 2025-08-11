@@ -57,7 +57,7 @@ export default function InterceptedProductPage() {
 
   const handleOpenInNewTab = () => {
     // Open the product in a new tab for full page view
-    window.open(`/services/shares?catId=${catId}&id=${productId}`, "_blank");
+    window.open(`/services/shares/product/${productId}?viewDetails=true`, "_blank");
   };
 
   if (loading) {

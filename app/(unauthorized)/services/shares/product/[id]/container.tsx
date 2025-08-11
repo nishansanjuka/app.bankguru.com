@@ -1,47 +1,47 @@
 "use client";
 
 import { Product } from "@/types/product";
-import { FC, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { FC } from "react";
 import { ProductRenderer } from "@/components/products/product-renderer";
+import { useProductComparison } from "@/hooks/use-product-comparison";
+import { ProductComparisonDialog } from "@/components/products/product-comparison-dialog";
+import { ProductComparisonView } from "@/components/products/product-comparison-view";
 
 interface ProductDetailContainerProps {
   product: Product;
-  catId?: string;
+  catId?: string; // Keep it optional in case it's still passed from the page
 }
 
 export const ProductDetailContainer: FC<ProductDetailContainerProps> = ({ 
-  product, 
-  catId 
+  product
 }) => {
-  const router = useRouter();
+  const {
+    isComparisonDialogOpen,
+    closeComparisonDialog,
+    isComparisonViewOpen,
+    closeComparisonView,
+    currentProduct,
+    availableProducts,
+    selectedProducts,
+    isLoading,
+    removeProductFromComparison,
+    handleCompareSelected,
+  } = useProductComparison();
 
-  useEffect(() => {
-    // If we have a catId, it means this was accessed with category context
-    // Redirect to the category page with the product modal
-    if (catId) {
-      router.replace(`/services/shares?catId=${catId}&id=${product.id}`);
-      return;
-    }
-  }, [catId, product.id, router]);
-
-  // If we have catId, don't render anything as we're redirecting
-  if (catId) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">loading...</p>
-        </div>
-      </div>
-    );
-  }
+  console.log("ProductDetailContainer render - comparison state:", {
+    isComparisonDialogOpen,
+    isComparisonViewOpen,
+    currentProductId: currentProduct?.id,
+    availableProductsCount: availableProducts.length,
+    selectedProductsCount: selectedProducts.length,
+    isLoading
+  });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Product Details */}
-        <div className="max-w-md mx-auto">
+    <>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+        <div className="w-full">
+          {/* Product Details */}
           <ProductRenderer
             product={product}
             variant="detailed"
@@ -52,6 +52,29 @@ export const ProductDetailContainer: FC<ProductDetailContainerProps> = ({
           />
         </div>
       </div>
-    </div>
+
+      {/* Comparison Dialog */}
+      {currentProduct && (
+        <ProductComparisonDialog
+          open={isComparisonDialogOpen}
+          onOpenChange={closeComparisonDialog}
+          currentProduct={currentProduct}
+          availableProducts={availableProducts}
+          onCompareSelected={handleCompareSelected}
+          isLoading={isLoading}
+        />
+      )}
+
+      {/* Comparison View */}
+      <ProductComparisonView
+        open={isComparisonViewOpen}
+        onOpenChange={closeComparisonView}
+        products={selectedProducts}
+        onRemoveProduct={removeProductFromComparison}
+        onProductAction={(action, id) => {
+          console.log(`Comparison view action: ${action} for product:`, id);
+        }}
+      />
+    </>
   );
 };

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Card,
 } from "@/components/ui/card";
@@ -25,6 +26,7 @@ import {
   Shield,
   TrendingUp,
   Zap,
+  Loader2,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -38,18 +40,31 @@ interface LoanProductProps {
   className?: string;
   onApply?: (productId: string) => void;
   onCompare?: (productId: string) => void;
+  onViewDetails?: (productId: string) => void | Promise<void>;
 }
 
 export function LoanProduct({
   product,
   className,
   onCompare,
+  onViewDetails,
 }: LoanProductProps) {
   const { askAboutProduct } = useGuruBot();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const handleAskGuru = () => {
     const query = `Tell me more about the ${product.name} loan. What are the interest rates, terms, requirements, and application process?`;
     askAboutProduct(query, product.id);
+  };
+
+  const handleViewDetails = async () => {
+    setIsNavigating(true);
+    try {
+      await onViewDetails?.(product.id);
+    } catch (error) {
+      console.error("Navigation error:", error);
+      setIsNavigating(false);
+    }
   };
 
   // Extract loan-specific information
@@ -262,40 +277,60 @@ export function LoanProduct({
         <Separator />
 
         {/* Action Buttons */}
-        <div className="flex items-center space-x-2">
+        <div className="space-y-2">
           <Button
-            onClick={() => window.open(productUrl?.value.toString(), "_blank")}
-            className="flex-1 h-10 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md text-sm"
+            onClick={handleViewDetails}
+            disabled={isNavigating}
+            className="w-full h-10 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md text-sm disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Apply Now
-            <ArrowRight className="w-4 h-4 ml-2" />
+            {isNavigating ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              <>
+                View Full Details
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </>
+            )}
           </Button>
-          <div className="flex space-x-1">
+          
+          <div className="flex items-center space-x-2">
             <Button
-              onClick={handleAskGuru}
-              variant="outline"
-              size="sm"
-              className="h-10 w-10 p-0 rounded-lg border-gray-200 hover:bg-gray-50 hover:border-gray-300"
-              title="Ask GuruBot"
+              onClick={() => window.open(productUrl?.value.toString(), "_blank")}
+              className="flex-1 h-10 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md text-sm"
             >
-              <MessageCircle className="w-4 h-4" />
+              Apply Now
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
-            {onCompare && (
+            <div className="flex space-x-1">
               <Button
-                onClick={() => onCompare(product.id)}
+                onClick={handleAskGuru}
                 variant="outline"
                 size="sm"
                 className="h-10 w-10 p-0 rounded-lg border-gray-200 hover:bg-gray-50 hover:border-gray-300"
-                title="Compare Products"
+                title="Ask GuruBot"
               >
-                <BarChart className="w-4 h-4" />
+                <MessageCircle className="w-4 h-4" />
               </Button>
-            )}
-            <ShareProduct
-              product={product}
-              triggerText=""
-              className="h-10 w-10 p-0 rounded-lg border-gray-200 hover:bg-gray-50 hover:border-gray-300"
-            />
+              {onCompare && (
+                <Button
+                  onClick={() => onCompare(product.id)}
+                  variant="outline"
+                  size="sm"
+                  className="h-10 w-10 p-0 rounded-lg border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+                  title="Compare Products"
+                >
+                  <BarChart className="w-4 h-4" />
+                </Button>
+              )}
+              <ShareProduct
+                product={product}
+                triggerText=""
+                className="h-10 w-10 p-0 rounded-lg border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+              />
+            </div>
           </div>
         </div>
       </div>

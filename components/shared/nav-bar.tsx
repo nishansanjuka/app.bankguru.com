@@ -7,15 +7,16 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { navData } from "@/data/nav-data";
 import Image from "next/image";
-import { UserButton, useUser } from "@clerk/nextjs";
+import { useAuth, UserButton, useUser } from "@clerk/nextjs";
 import { Button } from "../ui/button";
 import DynamicNavigation from "./dynamic-navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getProductCategoryHierarchy } from "@/lib/actions/products/hierarchy";
-import { Bot, Menu, X } from "lucide-react";
+import { Bot, LayoutDashboard, Menu, X } from "lucide-react";
 
 export const NavBar: FC<{ className?: string }> = ({ className }) => {
   const { isSignedIn } = useUser();
+  const { orgId } = useAuth();
   const pathname = usePathname();
   const [showColors, setShowColors] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -131,7 +132,19 @@ export const NavBar: FC<{ className?: string }> = ({ className }) => {
                         userButtonPopoverActions: "text-gray-600",
                       },
                     }}
-                  />
+                  >
+                    {orgId && (
+                      <UserButton.MenuItems>
+                        <UserButton.Action
+                          onClick={() => {
+                            window.location.href = "/dashboard";
+                          }}
+                          labelIcon={<LayoutDashboard className="size-4" />}
+                          label="Dashboard"
+                        />
+                      </UserButton.MenuItems>
+                    )}
+                  </UserButton>
                 </div>
               ) : (
                 <Button
