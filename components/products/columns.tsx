@@ -22,18 +22,18 @@ export const columns: ColumnDef<Product>[] = [
       </div>
     ),
   },
-  {
-    accessorKey: "fees",
-    header: "Fees",
-    cell: ({ row }) => <div>{row.original.details.fees}</div>,
-  },
-  {
-    accessorKey: "terms",
-    header: "Terms",
-    cell: ({ row }) => (
-      <div className="max-w-[40ch] truncate">{row.original.details.terms}</div>
-    ),
-  },
+  // {
+  //   accessorKey: "fees",
+  //   header: "Fees",
+  //   cell: ({ row }) => <div>{row.original.details.fees}</div>,
+  // },
+  // {
+  //   accessorKey: "terms",
+  //   header: "Terms",
+  //   cell: ({ row }) => (
+  //     <div className="max-w-[40ch] truncate">{row.original.details.terms}</div>
+  //   ),
+  // },
   {
     accessorKey: "eligibility",
     header: "Eligibility",

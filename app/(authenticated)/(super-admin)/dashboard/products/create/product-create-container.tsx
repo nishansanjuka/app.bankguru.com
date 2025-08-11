@@ -629,9 +629,9 @@ const NewProductForm = ({
                   or other configurations.
                 </FormDescription>
 
-                <DynamicFormFields 
-                  fields={fields} 
-                  setFields={setFields} 
+                <DynamicFormFields
+                  fields={fields}
+                  setFields={setFields}
                   products={products?.success ? products.data : []}
                 />
 
