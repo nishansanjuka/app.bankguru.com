@@ -1,12 +1,34 @@
 import * as z from "zod";
 
+// Define the ListItem interface for list type fields
+export interface ListItem {
+  id: string;
+  value: string;
+  sublist?: string[];
+}
+
+// Define the schema for list items
+const listItemSchema = z.object({
+  id: z.string(),
+  value: z.string(),
+  sublist: z.array(z.string()).optional(),
+});
+
 const additionalInfoSchema = z
   .array(
     z.object({
       id: z.string(),
-      type: z.enum(["text", "number", "percentage", "textarea", "image"]),
+      type: z.enum([
+        "text",
+        "number",
+        "percentage",
+        "textarea",
+        "image",
+        "list",
+      ]),
       label: z.string(),
       value: z.union([z.string(), z.number()]),
+      listItems: z.array(listItemSchema).optional(), // For list type fields
       title: z.string().optional(),
       description: z.string().optional(),
     })

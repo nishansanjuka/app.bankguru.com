@@ -1,25 +1,25 @@
 "use client";
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Star,
   Percent,
   Calculator,
-  Clock,
   ArrowRight,
   Building2,
   Shield,
-  TrendingUp,
-  Zap,
   CheckCircle,
-  DollarSign,
-  Users,
   Bot,
+  List,
+  FileText,
+  Hash,
+  Type,
 } from "lucide-react";
 import Image from "next/image";
-import { Product } from "@/types/product";
+import type { Product } from "@/types/product";
 import { useGuruBot } from "@/providers/gurubot-provider";
+import { DynamicFormField, type ListItem } from "../shared/dynamic-form-fields";
 
 interface ProductPageProps {
   product: Product;
@@ -33,17 +33,94 @@ export function ProductPage({ product, onApply, onAskGuru }: ProductPageProps) {
 
   const handleAskGuru = () => {
     const query = `Tell me more about the ${product.name} loan. What are the interest rates, terms, requirements, and application process?`;
-    // Use the GuruBot provider directly
     askAboutProduct(query, product.id);
-    // Also call the callback if provided for consistency
     onAskGuru?.(query, product.id);
   };
 
-  // Extract key information
-  const interestRate = product.details.additionalInfo.find(
-    (info) => info.type === "percentage"
+  // Helper function to get field icon
+  const getFieldIcon = (type: DynamicFormField["type"]) => {
+    switch (type) {
+      case "text":
+        return <Type className="w-5 h-5" />;
+      case "number":
+        return <Hash className="w-5 h-5" />;
+      case "percentage":
+        return <Percent className="w-5 h-5" />;
+      case "textarea":
+        return <FileText className="w-5 h-5" />;
+      case "list":
+        return <List className="w-5 h-5" />;
+      default:
+        return <Type className="w-5 h-5" />;
+    }
+  };
+
+  // Helper function to get field color scheme
+  const getFieldColorScheme = (type: DynamicFormField["type"]) => {
+    switch (type) {
+      case "text":
+        return {
+          bg: "bg-blue-100",
+          text: "text-blue-600",
+          border: "border-blue-200",
+        };
+      case "number":
+        return {
+          bg: "bg-green-100",
+          text: "text-green-600",
+          border: "border-green-200",
+        };
+      case "percentage":
+        return {
+          bg: "bg-orange-100",
+          text: "text-orange-600",
+          border: "border-orange-200",
+        };
+      case "textarea":
+        return {
+          bg: "bg-purple-100",
+          text: "text-purple-600",
+          border: "border-purple-200",
+        };
+      case "list":
+        return {
+          bg: "bg-indigo-100",
+          text: "text-indigo-600",
+          border: "border-indigo-200",
+        };
+      default:
+        return {
+          bg: "bg-gray-100",
+          text: "text-gray-600",
+          border: "border-gray-200",
+        };
+    }
+  };
+
+  // Extract special fields
+  const productImage = product.details.additionalInfo.find(
+    (info) => info.id === "product-image"
+  );
+  const productUrl = product.details.additionalInfo.find(
+    (info) => info.id === "product-url"
   );
 
+  // Group fields by type for organized display
+  const fieldsByType = product.details.additionalInfo
+    .filter((info) => info.id !== "product-url" && info.id !== "product-image")
+    .reduce((acc, field) => {
+      if (!acc[field.type]) {
+        acc[field.type] = [];
+      }
+      acc[field.type].push(field);
+      return acc;
+    }, {} as Record<string, DynamicFormField[]>);
+
+  // Extract key metrics for the metrics bar
+  const interestRate = product.details.additionalInfo.find(
+    (info) =>
+      info.type === "percentage" && info.label.toLowerCase().includes("rate")
+  );
   const maxAmount = product.details.additionalInfo.find(
     (info) =>
       info.type === "number" &&
@@ -51,54 +128,98 @@ export function ProductPage({ product, onApply, onAskGuru }: ProductPageProps) {
         info.label.toLowerCase().includes("limit"))
   );
 
-  const productImage = product.details.additionalInfo.find(
-    (info) => info.id === "product-image"
-  );
+  // const formatFees = (fees: string | number) => {
+  //   if (typeof fees === "number") {
+  //     return `${fees}%`;
+  //   }
+  //   return fees || "N/A";
+  // };
 
-  const productUrl = product.details.additionalInfo.find(
-    (info) => info.id === "product-url"
-  );
+  // const formatEligibility = (eligibility: string | number) => {
+  //   if (typeof eligibility === "number") {
+  //     return `${eligibility}+ years`;
+  //   }
+  //   return eligibility || "N/A";
+  // };
 
-  const formatFees = (fees: string | number) => {
-    if (typeof fees === "number") {
-      return `${fees}%`;
-    }
-    return fees || "N/A";
+  // Render list items with optional sublists
+  const renderListItems = (items: ListItem[]) => {
+    return (
+      <div className="space-y-3">
+        {items.map((item, index) => (
+          <div key={item.id || index} className="space-y-2">
+            {/* Main item */}
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0" />
+              <span className="text-gray-700 font-medium">{item.value}</span>
+            </div>
+
+            {/* Subitems */}
+            {item.sublist && item.sublist.length > 0 && (
+              <div className="ml-5 space-y-2">
+                {item.sublist.map((subItem, subIndex) => (
+                  <div key={subIndex} className="flex items-center space-x-3">
+                    <div className="w-1.5 h-1.5 bg-indigo-300 rounded-full flex-shrink-0" />
+                    <span className="text-gray-600 text-sm">{subItem}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
   };
 
-  const formatEligibility = (eligibility: string | number) => {
-    if (typeof eligibility === "number") {
-      return `${eligibility}+ years`;
+  // Render field value based on type
+  const renderFieldValue = (field: DynamicFormField) => {
+    switch (field.type) {
+      case "percentage":
+        return (
+          <span className="text-2xl font-bold text-gray-900">
+            {field.value}%
+          </span>
+        );
+      case "number":
+        return (
+          <span className="text-2xl font-bold text-gray-900">
+            {typeof field.value === "number"
+              ? field.value.toLocaleString()
+              : field.value}
+          </span>
+        );
+      case "list":
+        return field.listItems && field.listItems.length > 0 ? (
+          <div className="w-full">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-medium text-gray-600">
+                {field.listItems.length} items
+                {field.listItems.some(
+                  (item) => item.sublist && item.sublist.length > 0
+                ) && (
+                  <span className="text-xs text-gray-500 ml-2">
+                    (with subitems)
+                  </span>
+                )}
+              </span>
+            </div>
+            {renderListItems(field.listItems)}
+          </div>
+        ) : (
+          <span className="text-gray-500 italic">No items</span>
+        );
+      case "textarea":
+        return (
+          <div className="prose prose-sm max-w-none">
+            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+              {field.value}
+            </p>
+          </div>
+        );
+      default:
+        return <span className="text-gray-900">{field.value}</span>;
     }
-    return eligibility || "N/A";
   };
-
-  // Group additional info by type for better organization
-  // Exclude product-url and product-image as they're used elsewhere
-  const textFields = product.details.additionalInfo.filter(
-    (info) =>
-      info.type === "text" &&
-      info.id !== "product-url" &&
-      info.id !== "product-image"
-  );
-  const numberFields = product.details.additionalInfo.filter(
-    (info) =>
-      info.type === "number" &&
-      info.id !== "product-url" &&
-      info.id !== "product-image"
-  );
-  const percentageFields = product.details.additionalInfo.filter(
-    (info) =>
-      info.type === "percentage" &&
-      info.id !== "product-url" &&
-      info.id !== "product-image"
-  );
-  const textareaFields = product.details.additionalInfo.filter(
-    (info) =>
-      info.type === "textarea" &&
-      info.id !== "product-url" &&
-      info.id !== "product-image"
-  );
 
   return (
     <div className="min-h-screen bg-white">
@@ -159,11 +280,9 @@ export function ProductPage({ product, onApply, onAskGuru }: ProductPageProps) {
                   </div>
                 </div>
               </div>
-
               <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
                 {product.name}
               </h1>
-
               <p className="text-xl text-white/90 max-w-3xl leading-relaxed">
                 {product.details.description}
               </p>
@@ -184,23 +303,26 @@ export function ProductPage({ product, onApply, onAskGuru }: ProductPageProps) {
                 <div className="text-3xl font-bold text-gray-900 mb-1">
                   {interestRate.value}%
                 </div>
-                <div className="text-sm text-gray-600">Interest Rate</div>
+                <div className="text-sm text-gray-600">
+                  {interestRate.label}
+                </div>
               </div>
             )}
-
             {maxAmount && (
               <div className="text-center">
                 <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mx-auto mb-3">
                   <Calculator className="w-6 h-6 text-blue-600" />
                 </div>
                 <div className="text-3xl font-bold text-gray-900 mb-1">
-                  ${maxAmount.value.toLocaleString()}
+                  $
+                  {typeof maxAmount.value === "number"
+                    ? maxAmount.value.toLocaleString()
+                    : maxAmount.value}
                 </div>
-                <div className="text-sm text-gray-600">Maximum Amount</div>
+                <div className="text-sm text-gray-600">{maxAmount.label}</div>
               </div>
             )}
-
-            <div className="text-center">
+            {/* <div className="text-center">
               <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-full mx-auto mb-3">
                 <DollarSign className="w-6 h-6 text-orange-600" />
               </div>
@@ -209,7 +331,6 @@ export function ProductPage({ product, onApply, onAskGuru }: ProductPageProps) {
               </div>
               <div className="text-sm text-gray-600">Processing Fee</div>
             </div>
-
             <div className="text-center">
               <div className="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mx-auto mb-3">
                 <Users className="w-6 h-6 text-purple-600" />
@@ -218,7 +339,7 @@ export function ProductPage({ product, onApply, onAskGuru }: ProductPageProps) {
                 {formatEligibility(product.details.eligibility)}
               </div>
               <div className="text-sm text-gray-600">Minimum Age</div>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
@@ -229,70 +350,131 @@ export function ProductPage({ product, onApply, onAskGuru }: ProductPageProps) {
           <div className="grid lg:grid-cols-3 gap-12">
             {/* Left Column - Main Details */}
             <div className="lg:col-span-2 space-y-12">
-              {/* Key Features */}
-              <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-8">
-                  Key Features
-                </h2>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="flex items-start space-x-4 p-6 bg-white rounded-2xl">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Zap className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">
-                        Quick Approval
-                      </h3>
-                      <p className="text-gray-600 text-sm">
-                        Get approved within 24 hours with our streamlined
-                        process
-                      </p>
-                    </div>
-                  </div>
+              {/* Dynamic Fields by Type */}
+              {Object.entries(fieldsByType).map(([type, fields]) => {
+                const colorScheme = getFieldColorScheme(
+                  type as DynamicFormField["type"]
+                );
+                const icon = getFieldIcon(type as DynamicFormField["type"]);
 
-                  <div className="flex items-start space-x-4 p-6 bg-white rounded-2xl">
-                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Clock className="w-5 h-5 text-orange-600" />
+                return (
+                  <div key={type}>
+                    <div className="flex items-center space-x-3 mb-8">
+                      <div
+                        className={`w-10 h-10 ${colorScheme.bg} rounded-full flex items-center justify-center`}
+                      >
+                        <div className={colorScheme.text}>{icon}</div>
+                      </div>
+                      <h2 className="text-3xl font-bold text-gray-900 capitalize">
+                        {type === "textarea"
+                          ? "Detailed Information"
+                          : `${type} Fields`}
+                      </h2>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">
-                        Flexible Terms
-                      </h3>
-                      <p className="text-gray-600 text-sm">
-                        Choose repayment terms that work for your budget
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="flex items-start space-x-4 p-6 bg-white rounded-2xl">
-                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Shield className="w-5 h-5 text-green-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">
-                        Competitive Rates
-                      </h3>
-                      <p className="text-gray-600 text-sm">
-                        Industry-leading interest rates for qualified borrowers
-                      </p>
-                    </div>
+                    {type === "list" ? (
+                      // Special layout for list fields
+                      <div className="space-y-6">
+                        {fields.map((field) => (
+                          <Card key={field.id} className="overflow-hidden p-0">
+                            <CardHeader
+                              className={`${colorScheme.bg} ${colorScheme.border} border-b`}
+                            >
+                              <CardTitle className="flex items-center space-x-3 pt-2">
+                                <div className={colorScheme.text}>{icon}</div>
+                                <div>
+                                  <h3 className="text-xl font-semibold text-gray-900">
+                                    {field.label}
+                                  </h3>
+                                  {field.title && (
+                                    <p className="text-sm text-gray-600 mt-1">
+                                      {field.title}
+                                    </p>
+                                  )}
+                                </div>
+                              </CardTitle>
+                              {field.description && (
+                                <p className="text-sm text-gray-600 mt-2">
+                                  {field.description}
+                                </p>
+                              )}
+                            </CardHeader>
+                            <CardContent className="p-6">
+                              {renderFieldValue(field)}
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : type === "textarea" ? (
+                      // Special layout for textarea fields
+                      <div className="space-y-6">
+                        {fields.map((field) => (
+                          <Card key={field.id} className="p-0">
+                            <CardHeader>
+                              <CardTitle className="flex items-center space-x-3">
+                                <div
+                                  className={`w-8 h-8 ${colorScheme.bg} rounded-full flex items-center justify-center`}
+                                >
+                                  <div className={colorScheme.text}>{icon}</div>
+                                </div>
+                                <div>
+                                  <h3 className="text-xl font-semibold text-gray-900">
+                                    {field.label}
+                                  </h3>
+                                  {field.title && (
+                                    <p className="text-sm text-gray-600 mt-1">
+                                      {field.title}
+                                    </p>
+                                  )}
+                                </div>
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              {renderFieldValue(field)}
+                              {field.description && (
+                                <p className="text-sm text-gray-500 mt-4 p-3 bg-gray-50 rounded-lg">
+                                  {field.description}
+                                </p>
+                              )}
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : (
+                      // Grid layout for other field types
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {fields.map((field) => (
+                          <Card key={field.id} className="text-center p-0">
+                            <CardContent className="p-6">
+                              <div
+                                className={`w-12 h-12 ${colorScheme.bg} rounded-full flex items-center justify-center mx-auto mb-4`}
+                              >
+                                <div className={colorScheme.text}>{icon}</div>
+                              </div>
+                              <h3 className="font-semibold text-gray-900 mb-2">
+                                {field.label}
+                              </h3>
+                              {field.title && (
+                                <p className="text-sm text-gray-600 mb-3">
+                                  {field.title}
+                                </p>
+                              )}
+                              <div className="mb-3">
+                                {renderFieldValue(field)}
+                              </div>
+                              {field.description && (
+                                <p className="text-xs text-gray-500 mt-2">
+                                  {field.description}
+                                </p>
+                              )}
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
                   </div>
-
-                  <div className="flex items-start space-x-4 p-6 bg-white rounded-2xl">
-                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <TrendingUp className="w-5 h-5 text-purple-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">
-                        Trusted Choice
-                      </h3>
-                      <p className="text-gray-600 text-sm">
-                        Highly rated with excellent customer satisfaction
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                );
+              })}
 
               {/* Terms & Conditions */}
               {product.details.terms && (
@@ -300,107 +482,15 @@ export function ProductPage({ product, onApply, onAskGuru }: ProductPageProps) {
                   <h2 className="text-3xl font-bold text-gray-900 mb-8">
                     Terms & Conditions
                   </h2>
-                  <div className="bg-white p-8 rounded-2xl">
-                    <div className="prose prose-gray max-w-none">
-                      <p className="text-gray-700 leading-relaxed">
-                        {product.details.terms}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Additional Information */}
-              {product.details.additionalInfo.length > 0 && (
-                <div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-8">
-                    Additional Information
-                  </h2>
-                  <div className="space-y-6">
-                    {/* Text Fields */}
-                    {textFields.length > 0 && (
-                      <div className="bg-white p-8 rounded-2xl">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                          Product Details
-                        </h3>
-                        <div className="grid md:grid-cols-2 gap-6">
-                          {textFields.map((field) => (
-                            <div key={field.id}>
-                              <dt className="text-sm font-medium text-gray-600 mb-2">
-                                {field.label}
-                              </dt>
-                              <dd className="text-gray-900">{field.value}</dd>
-                              {field.description && (
-                                <p className="text-sm text-gray-500 mt-1">
-                                  {field.description}
-                                </p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
+                  <Card className="p-0">
+                    <CardContent className="p-8">
+                      <div className="prose prose-gray max-w-none">
+                        <p className="text-gray-700 leading-relaxed">
+                          {product.details.terms}
+                        </p>
                       </div>
-                    )}
-
-                    {/* Number and Percentage Fields */}
-                    {(numberFields.length > 0 ||
-                      percentageFields.length > 0) && (
-                      <div className="bg-white p-8 rounded-2xl">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                          Financial Details
-                        </h3>
-                        <div className="grid md:grid-cols-3 gap-6">
-                          {[...numberFields, ...percentageFields].map(
-                            (field) => (
-                              <div
-                                key={field.id}
-                                className="text-center p-4 bg-gray-50 rounded-xl"
-                              >
-                                <dt className="text-sm font-medium text-gray-600 mb-2">
-                                  {field.label}
-                                </dt>
-                                <dd className="text-2xl font-bold text-gray-900">
-                                  {field.type === "percentage"
-                                    ? `${field.value}%`
-                                    : field.value}
-                                </dd>
-                                {field.description && (
-                                  <p className="text-xs text-gray-500 mt-2">
-                                    {field.description}
-                                  </p>
-                                )}
-                              </div>
-                            )
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Textarea Fields */}
-                    {textareaFields.length > 0 && (
-                      <div className="bg-white p-8 rounded-2xl">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                          Detailed Information
-                        </h3>
-                        <div className="space-y-6">
-                          {textareaFields.map((field) => (
-                            <div key={field.id}>
-                              <dt className="text-lg font-medium text-gray-900 mb-3">
-                                {field.label}
-                              </dt>
-                              <dd className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                                {field.value}
-                              </dd>
-                              {field.description && (
-                                <p className="text-sm text-gray-500 mt-2">
-                                  {field.description}
-                                </p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                    </CardContent>
+                  </Card>
                 </div>
               )}
             </div>
@@ -408,86 +498,89 @@ export function ProductPage({ product, onApply, onAskGuru }: ProductPageProps) {
             {/* Right Column - Sidebar */}
             <div className="space-y-8">
               {/* Apply Section */}
-              <div className="bg-white p-8 rounded-2xl sticky top-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                  Ready to Apply?
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
-                    <Button
-                      onClick={handleAskGuru}
-                      variant="outline"
-                      size={"icon"}
-                      className=" size-12 rounded-xl hover:bg-gray-50 bg-transparent"
-                    >
-                      <Bot className="w-4 h-4 text-orange-500" />
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        if (productUrl) {
-                          window.open(productUrl.value.toString(), "_blank");
-                        } else {
-                          onApply?.(product.id);
-                        }
-                      }}
-                      className="w-full h-12 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-xl"
-                    >
-                      Apply Now
-                      <ArrowRight className="w-5 h-5" />
-                    </Button>
+              <Card className="sticky top-8 p-0">
+                <CardContent className="p-8">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                    Ready to Apply?
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        onClick={handleAskGuru}
+                        variant="outline"
+                        size="icon"
+                        className="size-12 rounded-xl hover:bg-gray-50 bg-transparent"
+                      >
+                        <Bot className="w-4 h-4 text-orange-500" />
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          if (productUrl) {
+                            window.open(productUrl.value.toString(), "_blank");
+                          } else {
+                            onApply?.(product.id);
+                          }
+                        }}
+                        className="flex-1 h-12 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-xl"
+                      >
+                        Apply Now
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>No hidden fees</span>
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>No hidden fees</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-600 mt-2">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>Secure application process</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-600 mt-2">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>Quick approval decision</span>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-600 mt-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Secure application process</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-600 mt-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span>Quick approval decision</span>
-                  </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Institution Info */}
               {product.institution && (
-                <div className="bg-white p-8 rounded-2xl">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                    About the Lender
-                  </h3>
-                  <div className="flex items-center space-x-4 mb-4">
-                    {product.institution.logoUrl && (
-                      <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden">
-                        <Image
-                          src={
-                            product.institution.logoUrl || "/placeholder.svg"
-                          }
-                          alt={product.institution.name}
-                          width={48}
-                          height={48}
-                          className="rounded object-contain"
-                        />
+                <Card className="p-0">
+                  <CardContent className="p-8">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                      About the Lender
+                    </h3>
+                    <div className="flex items-center space-x-4 mb-4">
+                      {product.institution.logoUrl && (
+                        <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden">
+                          <Image
+                            src={
+                              product.institution.logoUrl || "/placeholder.svg"
+                            }
+                            alt={product.institution.name}
+                            width={48}
+                            height={48}
+                            className="rounded object-contain"
+                          />
+                        </div>
+                      )}
+                      <div>
+                        <h4 className="font-semibold text-gray-900">
+                          {product.institution.name}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          Trusted financial partner
+                        </p>
                       </div>
-                    )}
-                    <div>
-                      <h4 className="font-semibold text-gray-900">
-                        {product.institution.name}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        Trusted financial partner
-                      </p>
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
-                    <Shield className="w-4 h-4 text-green-500" />
-                    <span>Licensed and regulated institution</span>
-                  </div>
-                </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <Shield className="w-4 h-4 text-green-500" />
+                      <span>Licensed and regulated institution</span>
+                    </div>
+                  </CardContent>
+                </Card>
               )}
             </div>
           </div>
