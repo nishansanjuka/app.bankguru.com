@@ -16,7 +16,11 @@ export const columns: ColumnDef<Product>[] = [
   {
     accessorKey: "description",
     header: "Description",
-    cell: ({ row }) => <div>{row.original.details.description}</div>,
+    cell: ({ row }) => (
+      <div className="max-w-[40ch] truncate">
+        {row.original.details.description}
+      </div>
+    ),
   },
   {
     accessorKey: "fees",
@@ -26,7 +30,9 @@ export const columns: ColumnDef<Product>[] = [
   {
     accessorKey: "terms",
     header: "Terms",
-    cell: ({ row }) => <div>{row.original.details.terms}</div>,
+    cell: ({ row }) => (
+      <div className="max-w-[40ch] truncate">{row.original.details.terms}</div>
+    ),
   },
   {
     accessorKey: "eligibility",

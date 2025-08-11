@@ -9,6 +9,7 @@ import { ApiResponse, ApiResponseData } from "@/types/api-response";
 import { PaginatedResponse } from "@/types";
 import { UserData } from "@/types/clerk";
 import { getUserRole } from "../clerk/permissions";
+import { updateInstitution } from "./institutions/institutions";
 
 export async function getUserOrganizationWithAuth(): Promise<
   ApiResponseData<{ id: string; userId: string }>
@@ -339,9 +340,17 @@ export async function changeOrganizationLogo(
     ) {
       const clerk = await clerkClient();
 
-      clerk.organizations.updateOrganizationLogo(instituteId, {
-        file,
+      const res = await clerk.organizations.updateOrganizationLogo(
+        instituteId,
+        {
+          file,
+        }
+      );
+
+      await updateInstitution(res.id, {
+        logoUrl: res.imageUrl,
       });
+
       return ApiResponse.success("Organization logo changed successfully");
     } else {
       return ApiResponse.failure(

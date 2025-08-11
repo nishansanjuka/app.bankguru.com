@@ -10,12 +10,39 @@ import { Badge } from "@/components/ui/badge";
 import { SlidersHorizontal, Grid3X3, List, Filter } from "lucide-react";
 import { SheetContainer } from "@/components/shared/sheet-container";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useRouter } from "next/navigation";
 
 export const Container: FC<{ catId: string }> = ({ catId }) => {
   const [filteredData, setFilteredData] = useState<Product[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [showFiltersSheet, setShowFiltersSheet] = useState(false);
   const isMobile = useIsMobile();
+  const router = useRouter();
+
+  const handleProductAction = async (action: string, productId: string) => {
+    switch (action) {
+      case "view_details":
+        // "View Full Details" button - go to full product page
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        window.location.href = `/services/shares/product/${productId}?viewDetails=true`;
+        break;
+      case "apply":
+        // Handle apply action
+        console.log("Apply for product:", productId);
+        break;
+      case "compare":
+        // Handle compare action
+        console.log("Compare product:", productId);
+        break;
+      case "ask_guru":
+        // Handle ask guru action
+        console.log("Ask guru about product:", productId);
+        break;
+      default:
+        // Default product interaction - show modal via query params
+        router.push(`/services/shares?catId=${catId}&id=${productId}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
@@ -161,6 +188,7 @@ export const Container: FC<{ catId: string }> = ({ catId }) => {
                       ? "grid-cols-1 xl:grid-cols-2"
                       : "grid-cols-1"
                   }
+                  onProductAction={handleProductAction}
                 />
               )}
             </div>
