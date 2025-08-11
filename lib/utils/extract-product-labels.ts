@@ -15,16 +15,22 @@ export function extractProductLabels(products: Product[]): {
   allLabels: ExtractedLabel[];
   labelsByType: Record<DynamicFormField["type"], ExtractedLabel[]>;
 } {
-  const labelMap = new Map<string, { type: DynamicFormField["type"]; count: number }>();
+  const labelMap = new Map<
+    string,
+    { type: DynamicFormField["type"]; count: number }
+  >();
 
   // Extract labels from all products
   products.forEach((product) => {
-    if (product.details?.additionalInfo && Array.isArray(product.details.additionalInfo)) {
+    if (
+      product.details?.additionalInfo &&
+      Array.isArray(product.details.additionalInfo)
+    ) {
       product.details.additionalInfo.forEach((field: DynamicFormField) => {
         if (field.label && field.label.trim()) {
           const key = `${field.label.toLowerCase()}-${field.type}`;
           const existing = labelMap.get(key);
-          
+
           if (existing) {
             existing.count++;
           } else {
@@ -41,7 +47,11 @@ export function extractProductLabels(products: Product[]): {
   // Convert to array and sort by frequency (most used first)
   const allLabels: ExtractedLabel[] = Array.from(labelMap.entries())
     .map(([key, data]) => ({
-      label: key.split('-').slice(0, -1).join('-').replace(/(^|\s)\S/g, l => l.toUpperCase()),
+      label: key
+        .split("-")
+        .slice(0, -1)
+        .join("-")
+        .replace(/(^|\s)\S/g, (l) => l.toUpperCase()),
       type: data.type,
       count: data.count,
     }))
@@ -54,6 +64,7 @@ export function extractProductLabels(products: Product[]): {
     percentage: [],
     textarea: [],
     image: [],
+    list: [],
   };
 
   allLabels.forEach((label) => {
