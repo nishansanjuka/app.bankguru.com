@@ -173,7 +173,7 @@ export const NavBar: FC<{ className?: string }> = ({ className }) => {
             </div>
           </div>
           <div className=" items-center justify-center hidden sm:flex">
-            <ScrollArea className="w-[40vw]">
+            <ScrollArea className=" w-[80vw] lg:w-[40vw]">
               {categories && <DynamicNavigation data={categories} />}
               <ScrollBar orientation="horizontal" />
             </ScrollArea>
