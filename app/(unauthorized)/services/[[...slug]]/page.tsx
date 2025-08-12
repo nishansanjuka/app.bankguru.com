@@ -30,7 +30,7 @@ export default async function ProductPage({
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <NavBar />
-      <div className="mt-20">{catId && <Container catId={catId} />}</div>
+      <div className="mt-28">{catId && <Container catId={catId} />}</div>
     </HydrationBoundary>
   );
 }

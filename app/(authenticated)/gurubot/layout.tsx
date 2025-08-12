@@ -5,7 +5,9 @@ export default function Layout({ children }: PropsWithChildren) {
   return (
     <div>
       <NavBar />
-      <div className="translate-y-20 sticky top-16 ">{children}</div>
+      <div className=" translate-y-16 sm:translate-y-28 sticky sm:top-32 ">
+        {children}
+      </div>
     </div>
   );
 }

@@ -1005,7 +1005,7 @@ export default function FinancialCalculators({
   const activeCalc = calculators.find((calc) => calc.id === activeCalculator);
 
   return (
-    <div className=" bg-white mt-20">
+    <div className=" bg-white mt-20 pt-10">
       {/* Header */}
       <div className="bg-gray-50 py-12">
         <div className="max-w-[90vw] mx-auto px-4 sm:px-6 lg:px-8 text-center">

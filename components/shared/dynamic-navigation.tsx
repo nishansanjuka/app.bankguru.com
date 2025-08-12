@@ -35,10 +35,10 @@ export default function DynamicNavigation({ data }: DynamicNavigationProps) {
   const topLevelCategories = data.filter((cat) => cat.level === 0);
 
   return (
-    <nav className="flex items-center justify-start w-full lg:w-fit overflow-x-auto py-2">
+    <nav className="flex flex-wrap sm:flex-nowrap sm:items-center gap-2 sm:justify-center lg:justify-start w-full lg:w-fit overflow-x-auto py-2">
       {topLevelCategories.map((category) => (
         <DropdownMenu key={category.id}>
-          <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-foreground transition-colors hover:text-orange-600 px-2 sm:px-3 lg:px-4 py-2 rounded-md hover:bg-orange-50 outline-none w-fit justify-start">
+          <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-foreground transition-colors hover:text-orange-600 px-2 sm:px-3 lg:px-4 py-2 rounded-md hover:bg-orange-50 bg-muted sm:bg-transparent  outline-none min-w-fit justify-start">
             {category.name}
             <ChevronDown className="h-4 w-4 ml-1 text-muted-foreground hidden lg:block" />
           </DropdownMenuTrigger>

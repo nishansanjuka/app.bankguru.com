@@ -61,11 +61,11 @@ export default async function HomePage() {
 
   return (
     <>
-      <div className="space-y-20 flex flex-col">
+      <div className="space-y-20 flex flex-col pt-28 2xl:pt-14">
         <div className=" relative max-w-screen h-screen sm:h-[90vh] bg-[#4B4B4B]">
           {/* heading and description       */}
           <div className=" max-w-[85vw] sm:max-w-[80vw] lg:max-w-[60vw] mx-auto text-center pt-[15vh] space-y-6">
-            <h1 className=" text-2xl sm:text-5xl lg:text-6xl text-white font-extrabold text-center">
+            <h1 className=" text-2xl xl:text-4xl 2xl:text-6xl text-white font-extrabold text-center">
               Find the Best Credit Cards, Loans, and Accounts Instantly
             </h1>
             <p className=" text-sm sm:text-base lg:text-lg text-white font-raleway max-w-xl text-wrap mx-auto">

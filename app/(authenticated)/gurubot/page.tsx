@@ -47,7 +47,7 @@ export default function GuruBotPage() {
     <div className=" bg-gray-50 dark:bg-gray-900 flex flex-col">
       {/* Mobile Header */}
       {isMobile && (
-        <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shrink-0">
+        <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shrink-0 sticky top-0 z-50">
           <div className="flex items-center gap-3">
             <Sheet open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
               <SheetTrigger asChild>
