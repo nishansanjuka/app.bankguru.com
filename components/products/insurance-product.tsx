@@ -31,6 +31,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
 import { useGuruBot } from "@/providers/gurubot-provider";
+import { SaveProduct } from "@/components/shared/save-product";
 
 interface InsuranceProductProps {
   product: Product;
@@ -38,6 +39,8 @@ interface InsuranceProductProps {
   className?: string;
   onGetQuote?: (productId: string) => void;
   onCompare?: (productId: string) => void;
+  onSave?: (productId: string) => void | Promise<void>;
+  onUnsave?: (productId: string) => void | Promise<void>;
 }
 
 const getInsuranceIcon = (productType: string) => {
@@ -56,6 +59,8 @@ export function InsuranceProduct({
   className,
   onGetQuote,
   onCompare,
+  onSave,
+  onUnsave,
 }: InsuranceProductProps) {
   const { askAboutProduct } = useGuruBot();
 
@@ -267,6 +272,12 @@ export function InsuranceProduct({
               <BarChart className="w-3 h-3" />
             </Button>
           )}
+          <SaveProduct
+            product={product}
+            onSave={onSave}
+            onUnsave={onUnsave}
+            className="h-8 px-2 rounded-lg border-gray-200 hover:bg-gray-50"
+          />
         </div>
       </div>
     </Card>

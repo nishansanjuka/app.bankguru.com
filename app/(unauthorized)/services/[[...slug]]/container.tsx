@@ -7,10 +7,18 @@ import { ProductGrid } from "@/components/products/product-grid";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { SlidersHorizontal, Grid3X3, List, Filter } from "lucide-react";
+import {
+  SlidersHorizontal,
+  Grid3X3,
+  List,
+  Filter,
+  Bookmark,
+} from "lucide-react";
 import { SheetContainer } from "@/components/shared/sheet-container";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useRouter } from "next/navigation";
+import { saveProduct, unsaveProduct } from "@/lib/actions/products/save";
+import Link from "next/link";
 
 export const Container: FC<{ catId: string }> = ({ catId }) => {
   const [filteredData, setFilteredData] = useState<Product[]>([]);
@@ -38,6 +46,33 @@ export const Container: FC<{ catId: string }> = ({ catId }) => {
         // Handle ask guru action
         console.log("Ask guru about product:", productId);
         break;
+      case "save":
+        // Handle save product action
+        try {
+          console.log("Saving product:", productId);
+          const result = await saveProduct(productId);
+          if (!result.success) {
+            throw new Error(result.message || "Failed to save product");
+          }
+        } catch (error) {
+          console.error("Error saving product:", error);
+          throw error; // Let SaveProduct component handle the error
+        }
+        break;
+      case "unsave":
+        // Handle unsave product action
+        try {
+          console.log("Unsaving product:", productId);
+          const result = await unsaveProduct(productId);
+          if (!result.success) {
+            throw new Error(result.message || "Failed to unsave product");
+          }
+        } catch (error) {
+          console.error("Error unsaving product:", error);
+          throw error; // Let SaveProduct component handle the error
+        }
+        break;
+
       default:
         // Default product interaction - show modal via query params
         router.push(`/services/shares?catId=${catId}&id=${productId}`);
@@ -146,11 +181,9 @@ export const Container: FC<{ catId: string }> = ({ catId }) => {
 
               {/* Quick Actions */}
               <div className="hidden sm:flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="text-gray-600">
-                  Compare Selected
-                </Button>
-                <Button variant="ghost" size="sm" className="text-gray-600">
-                  Save Search
+                <Button variant="outline">
+                  <Bookmark className="size-4" />
+                  <Link href="/saved-products">Saved Products</Link>
                 </Button>
               </div>
             </div>

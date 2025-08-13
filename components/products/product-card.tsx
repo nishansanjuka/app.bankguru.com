@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
 import { useGuruBot } from "@/providers/gurubot-provider";
 import { DynamicFormField } from "@/components/shared/dynamic-form-fields";
+import { SaveProduct } from "@/components/shared/save-product";
 
 interface ProductCardProps {
   product: Product;
@@ -33,6 +34,8 @@ interface ProductCardProps {
   className?: string;
   onCompare?: (productId: string) => void;
   onViewDetails?: (productId: string) => void;
+  onSave?: (productId: string) => void | Promise<void>;
+  onUnsave?: (productId: string) => void | Promise<void>;
 }
 
 export function ProductCard({
@@ -40,6 +43,8 @@ export function ProductCard({
   className,
   onCompare,
   onViewDetails,
+  onSave,
+  onUnsave,
 }: ProductCardProps) {
   const { askAboutProduct } = useGuruBot();
 
@@ -247,6 +252,12 @@ export function ProductCard({
               <BarChart className="w-3 h-3" />
             </Button>
           )}
+          <SaveProduct
+            product={product}
+            onSave={onSave}
+            onUnsave={onUnsave}
+            className="h-8 px-2 rounded-lg border-gray-200 hover:bg-gray-50"
+          />
         </div>
       </div>
     </Card>

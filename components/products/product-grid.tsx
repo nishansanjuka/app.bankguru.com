@@ -49,6 +49,8 @@ export function ProductGrid({
       if (product) {
         openComparisonDialog(product);
       }
+    } else if (action === "save" || action === "unsave") {
+      await onProductAction?.(action, productId);
     } else {
       await onProductAction?.(action, productId);
     }
@@ -70,6 +72,8 @@ export function ProductGrid({
           variant={variant as "compact" | "default" | "premium"}
           onApply={(id) => handleProductActionInternal("apply", id)}
           onCompare={(id) => handleProductActionInternal("compare", id)}
+          onSave={(id) => handleProductActionInternal("save", id)}
+          onUnsave={(id) => handleProductActionInternal("unsave", id)}
           className="max-w-full"
         />
       );
@@ -95,6 +99,8 @@ export function ProductGrid({
           onViewDetails={(id) =>
             handleProductActionInternal("view_details", id)
           }
+          onSave={(id) => handleProductActionInternal("save", id)}
+          onUnsave={(id) => handleProductActionInternal("unsave", id)}
           className="max-w-full"
         />
       );
@@ -115,6 +121,8 @@ export function ProductGrid({
           onOpenAccount={(id) => handleProductActionInternal("open", id)}
           onLearnMore={(id) => handleProductActionInternal("learn_more", id)}
           onCompare={(id) => handleProductActionInternal("compare", id)}
+          onSave={(id) => handleProductActionInternal("save", id)}
+          onUnsave={(id) => handleProductActionInternal("unsave", id)}
           className="max-w-full"
         />
       );
@@ -139,6 +147,8 @@ export function ProductGrid({
             handleProductActionInternal("view_portfolio", id)
           }
           onCompare={(id) => handleProductActionInternal("compare", id)}
+          onSave={(id) => handleProductActionInternal("save", id)}
+          onUnsave={(id) => handleProductActionInternal("unsave", id)}
           className="max-w-full"
         />
       );
@@ -160,6 +170,8 @@ export function ProductGrid({
           variant={variant as "default" | "compact" | "family"}
           onGetQuote={(id) => handleProductActionInternal("quote", id)}
           onCompare={(id) => handleProductActionInternal("compare", id)}
+          onSave={(id) => handleProductActionInternal("save", id)}
+          onUnsave={(id) => handleProductActionInternal("unsave", id)}
           className="max-w-full"
         />
       );
@@ -182,6 +194,8 @@ export function ProductGrid({
           onGetStarted={(id) => handleProductActionInternal("get_started", id)}
           onDownload={(id) => handleProductActionInternal("download", id)}
           onCompare={(id) => handleProductActionInternal("compare", id)}
+          onSave={(id) => handleProductActionInternal("save", id)}
+          onUnsave={(id) => handleProductActionInternal("unsave", id)}
           className="max-w-full"
         />
       );
@@ -195,6 +209,8 @@ export function ProductGrid({
         variant={variant}
         onViewDetails={(id) => handleProductActionInternal("view_details", id)}
         onCompare={(id) => handleProductActionInternal("compare", id)}
+        onSave={(id) => handleProductActionInternal("save", id)}
+        onUnsave={(id) => handleProductActionInternal("unsave", id)}
         className="max-w-full"
       />
     );

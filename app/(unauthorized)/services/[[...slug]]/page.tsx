@@ -4,6 +4,7 @@ import { getQueryClient } from "@/lib/utils";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import React from "react";
 import { Container } from "./container";
+import { auth } from "@clerk/nextjs/server";
 
 export default async function ProductPage({
   searchParams,
@@ -12,6 +13,10 @@ export default async function ProductPage({
 }) {
   const params = await searchParams;
   const catId = params.catId;
+
+  const { getToken } = await auth();
+
+  console.log(await getToken());
 
   const queryClient = getQueryClient();
   await queryClient.prefetchQuery({
