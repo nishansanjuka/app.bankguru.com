@@ -29,6 +29,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
 import { useGuruBot } from "@/providers/gurubot-provider";
+import { SaveProduct } from "@/components/shared/save-product";
 
 interface AccountProductProps {
   product: Product;
@@ -37,6 +38,8 @@ interface AccountProductProps {
   onOpenAccount?: (productId: string) => void;
   onLearnMore?: (productId: string) => void;
   onCompare?: (productId: string) => void;
+  onSave?: (productId: string) => void | Promise<void>;
+  onUnsave?: (productId: string) => void | Promise<void>;
 }
 
 export function AccountProduct({
@@ -44,6 +47,8 @@ export function AccountProduct({
   className,
   onOpenAccount,
   onCompare,
+  onSave,
+  onUnsave,
 }: AccountProductProps) {
   const { askAboutProduct } = useGuruBot();
 
@@ -251,6 +256,12 @@ export function AccountProduct({
               <BarChart className="w-3 h-3" />
             </Button>
           )}
+          <SaveProduct
+            product={product}
+            onSave={onSave}
+            onUnsave={onUnsave}
+            className="h-8 px-2 rounded-lg border-gray-200 hover:bg-gray-50"
+          />
         </div>
       </div>
     </Card>

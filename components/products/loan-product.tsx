@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
 import { useGuruBot } from "@/providers/gurubot-provider";
 import { ShareProduct } from "@/components/shared/share-product";
+import { SaveProduct } from "@/components/shared/save-product";
 
 interface LoanProductProps {
   product: Product;
@@ -41,6 +42,8 @@ interface LoanProductProps {
   onApply?: (productId: string) => void;
   onCompare?: (productId: string) => void;
   onViewDetails?: (productId: string) => void | Promise<void>;
+  onSave?: (productId: string) => void | Promise<void>;
+  onUnsave?: (productId: string) => void | Promise<void>;
 }
 
 export function LoanProduct({
@@ -48,6 +51,8 @@ export function LoanProduct({
   className,
   onCompare,
   onViewDetails,
+  onSave,
+  onUnsave,
 }: LoanProductProps) {
   const { askAboutProduct } = useGuruBot();
   const [isNavigating, setIsNavigating] = useState(false);
@@ -328,6 +333,12 @@ export function LoanProduct({
               <ShareProduct
                 product={product}
                 triggerText=""
+                className="h-10 w-10 p-0 rounded-lg border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+              />
+              <SaveProduct
+                product={product}
+                onSave={onSave}
+                onUnsave={onUnsave}
                 className="h-10 w-10 p-0 rounded-lg border-gray-200 hover:bg-gray-50 hover:border-gray-300"
               />
             </div>

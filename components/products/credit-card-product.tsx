@@ -29,6 +29,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
 import { useGuruBot } from "@/providers/gurubot-provider";
+import { SaveProduct } from "@/components/shared/save-product";
 
 interface CreditCardProductProps {
   product: Product;
@@ -36,6 +37,8 @@ interface CreditCardProductProps {
   className?: string;
   onApply?: (productId: string) => void;
   onCompare?: (productId: string) => void;
+  onSave?: (productId: string) => void | Promise<void>;
+  onUnsave?: (productId: string) => void | Promise<void>;
 }
 
 export function CreditCardProduct({
@@ -43,6 +46,8 @@ export function CreditCardProduct({
   className,
   onApply,
   onCompare,
+  onSave,
+  onUnsave,
 }: CreditCardProductProps) {
   const { askAboutProduct } = useGuruBot();
 
@@ -239,6 +244,12 @@ export function CreditCardProduct({
               <BarChart className="w-3 h-3" />
             </Button>
           )}
+          <SaveProduct
+            product={product}
+            onSave={onSave}
+            onUnsave={onUnsave}
+            className="h-8 px-2 rounded-lg border-gray-200 hover:bg-gray-50"
+          />
         </div>
       </CardContent>
     </Card>
