@@ -1,6 +1,7 @@
 import { GuruBotHelpText } from "@/components/gurubot";
 import { ChooserTabs } from "@/components/shared/chooser-tabs";
 import { HeroSlider } from "@/components/shared/hero-slider-container";
+import { FeaturedProductsSection } from "@/components/shared/featured-products-section";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { auth } from "@clerk/nextjs/server";
 import {
   CreditCard,
@@ -20,7 +20,6 @@ import {
   Users,
   Star,
   CheckCircle,
-  Clock,
   Calculator,
   Award,
   BarChart3,
@@ -29,6 +28,9 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import React from "react";
+import { getProducts } from "@/lib/actions/products";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { getQueryClient } from "@/lib/utils/get-query-client";
 
 export const metadata = {
   title: "BankGuru - Home",
@@ -59,8 +61,18 @@ export const metadata = {
 export default async function HomePage() {
   const { userId, orgId } = await auth();
 
+  // Fetch featured products for insights section
+  const queryClient = getQueryClient();
+  
+  await queryClient.prefetchQuery({
+    queryKey: ["featured-products", { limit: 3, isFeatured: true }],
+    queryFn: () => getProducts({ limit: 3, isFeatured: true }),
+  });
+
+  const dehydratedState = dehydrate(queryClient);
+
   return (
-    <>
+    <HydrationBoundary state={dehydratedState}>
       <div className="space-y-20 flex flex-col pt-28 2xl:pt-14">
         <div className=" relative max-w-screen h-screen sm:h-[90vh] bg-[#4B4B4B]">
           {/* heading and description       */}
@@ -495,136 +507,8 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* Latest Financial News & Insights */}
-        <div className="bg-gray-50 py-16">
-          <div className="max-w-[85vw] sm:max-w-[80vw] lg:max-w-[60vw] mx-auto">
-            <div className="text-center space-y-4 mb-12">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
-                Latest Financial Insights
-              </h2>
-              <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-                Stay updated with the latest trends, policy changes, and market
-                insights
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <Card className="group hover:shadow-lg transition-all duration-300 p-0">
-                <div className="relative overflow-hidden rounded-t-lg">
-                  <Image
-                    src="/insights/1.jpg"
-                    alt="Central Bank Policy Update"
-                    width={400}
-                    height={200}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <Badge className="absolute top-3 left-3 bg-red-500 text-white">
-                    Breaking
-                  </Badge>
-                </div>
-                <CardHeader>
-                  <CardTitle className="line-clamp-2 group-hover:text-orange-500 transition-colors">
-                    Central Bank Cuts Rates by 50 Basis Points
-                  </CardTitle>
-                  <CardDescription>
-                    Analysis of the latest monetary policy decision and its
-                    impact on loans and deposits.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Clock className="size-4" />2 hours ago
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-orange-500"
-                    >
-                      Read More
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="group hover:shadow-lg transition-all duration-300 p-0">
-                <div className="relative overflow-hidden rounded-t-lg">
-                  <Image
-                    src="/insights/2.jpg"
-                    alt="Digital Banking Trends"
-                    width={400}
-                    height={200}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <Badge className="absolute top-3 left-3 bg-blue-500 text-white">
-                    Trending
-                  </Badge>
-                </div>
-                <CardHeader>
-                  <CardTitle className="line-clamp-2 group-hover:text-orange-500 transition-colors">
-                    Digital Banking Revolution in Sri Lanka
-                  </CardTitle>
-                  <CardDescription>
-                    How mobile banking and fintech are changing the way Sri
-                    Lankans manage money.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Clock className="size-4" />1 day ago
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-orange-500"
-                    >
-                      Read More
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="group hover:shadow-lg transition-all p-0 duration-300">
-                <div className="relative overflow-hidden rounded-t-lg">
-                  <Image
-                    src="/insights/3.jpg"
-                    alt="Investment Guide"
-                    width={400}
-                    height={200}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <Badge className="absolute top-3 left-3 bg-green-500 text-white">
-                    Guide
-                  </Badge>
-                </div>
-                <CardHeader>
-                  <CardTitle className="line-clamp-2 group-hover:text-orange-500 transition-colors">
-                    Beginner&apos;s Guide to Stock Market Investing
-                  </CardTitle>
-                  <CardDescription>
-                    Everything you need to know to start investing in the
-                    Colombo Stock Exchange.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Clock className="size-4" />3 days ago
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-orange-500"
-                    >
-                      Read More
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
+        {/* Featured Financial Products */}
+        <FeaturedProductsSection />
 
         {/* Partner Banks Section */}
         <div className="py-16">
@@ -730,6 +614,6 @@ export default async function HomePage() {
           </div>
         </div>
       </div>
-    </>
+    </HydrationBoundary>
   );
 }

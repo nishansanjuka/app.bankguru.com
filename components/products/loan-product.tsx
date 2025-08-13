@@ -24,7 +24,7 @@ import {
   BarChart,
   Info,
   Shield,
-  TrendingUp,
+  // TrendingUp,
   Zap,
   Loader2,
 } from "lucide-react";
@@ -255,20 +255,20 @@ export function LoanProduct({
                 </div>
 
                 {/* Description */}
-                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                {/* <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <h4 className="font-medium text-blue-900 text-sm mb-2">About This Loan</h4>
                   <p className="text-sm text-blue-800 leading-relaxed">
                     {product.details.description}
                   </p>
-                </div>
+                </div> */}
 
                 {/* Performance Indicator */}
-                <div className="flex items-center justify-center p-3 bg-green-50 rounded-lg border border-green-200">
+                {/* <div className="flex items-center justify-center p-3 bg-green-50 rounded-lg border border-green-200">
                   <TrendingUp className="w-4 h-4 text-green-600 mr-2" />
                   <span className="text-sm font-medium text-green-800">
                     Highly rated loan product with excellent customer satisfaction
                   </span>
-                </div>
+                </div> */}
               </div>
             </AccordionContent>
           </AccordionItem>
