@@ -1,5 +1,8 @@
 import { Product } from "@/types/product";
-import { DynamicFormField } from "@/components/shared/dynamic-form-fields";
+import {
+  DynamicFormField,
+  HIDDEN_FIELD_IDS,
+} from "@/components/shared/dynamic-form-fields";
 
 export interface ExtractedLabel {
   label: string;
@@ -26,21 +29,23 @@ export function extractProductLabels(products: Product[]): {
       product.details?.additionalInfo &&
       Array.isArray(product.details.additionalInfo)
     ) {
-      product.details.additionalInfo.forEach((field: DynamicFormField) => {
-        if (field.label && field.label.trim()) {
-          const key = `${field.label.toLowerCase()}-${field.type}`;
-          const existing = labelMap.get(key);
+      product.details.additionalInfo
+        .filter((field) => !HIDDEN_FIELD_IDS.includes(field.id))
+        .forEach((field: DynamicFormField) => {
+          if (field.label && field.label.trim()) {
+            const key = `${field.label.toLowerCase()}-${field.type}`;
+            const existing = labelMap.get(key);
 
-          if (existing) {
-            existing.count++;
-          } else {
-            labelMap.set(key, {
-              type: field.type,
-              count: 1,
-            });
+            if (existing) {
+              existing.count++;
+            } else {
+              labelMap.set(key, {
+                type: field.type,
+                count: 1,
+              });
+            }
           }
-        }
-      });
+        });
     }
   });
 

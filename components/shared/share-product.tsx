@@ -116,7 +116,7 @@ export function ShareProduct({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           className={`h-8 px-2 gap-1.5 ${className}`}
         >

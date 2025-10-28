@@ -90,7 +90,7 @@ export function SaveProduct({
   if (isCheckingStatus) {
     return (
       <Button
-        variant="outline"
+        variant="ghost"
         size="sm"
         disabled
         className={className}
@@ -115,7 +115,7 @@ export function SaveProduct({
   return (
     <Button
       onClick={handleSaveToggle}
-      variant="outline"
+      variant="ghost"
       size="sm"
       disabled={isLoading || isCheckingStatus}
       className={className}

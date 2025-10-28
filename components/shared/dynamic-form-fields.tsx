@@ -29,7 +29,7 @@ import type { Product } from "@/types/product";
 import { getLabelSuggestionsForType } from "@/lib/utils/extract-product-labels";
 
 // Array of field IDs that should be hidden from the table display
-const HIDDEN_FIELD_IDS: string[] = ["product-image", "product-url"];
+export const HIDDEN_FIELD_IDS: string[] = ["product-image", "product-url"];
 
 export interface ListItem {
   id: string;
@@ -448,7 +448,7 @@ function FieldForm({ field, onSave, onCancel, products = [] }: FieldFormProps) {
             />
           </div>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 sr-only">
           <Label className="text-sm font-medium">Title</Label>
           <Input
             placeholder="Optional field title"
@@ -458,7 +458,7 @@ function FieldForm({ field, onSave, onCancel, products = [] }: FieldFormProps) {
             }
           />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 sr-only">
           <Label className="text-sm font-medium">Description</Label>
           <Textarea
             placeholder="Optional field description"
@@ -471,7 +471,7 @@ function FieldForm({ field, onSave, onCancel, products = [] }: FieldFormProps) {
         </div>
         <div className="space-y-2">
           <Label className="text-sm font-medium">
-            {formData.type === "list" ? "List Items" : "Default Value"}
+            {formData.type === "list" ? "List Items" : "Value"}
           </Label>
           {renderValueInput()}
         </div>
@@ -646,7 +646,7 @@ function FieldSection({
                 <TableHead>Label</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Description</TableHead>
-                <TableHead>Default Value</TableHead>
+                <TableHead>Value</TableHead>
                 <TableHead className="w-24">Actions</TableHead>
               </TableRow>
             </TableHeader>

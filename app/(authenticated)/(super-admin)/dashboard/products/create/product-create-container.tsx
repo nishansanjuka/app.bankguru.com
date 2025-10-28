@@ -505,7 +505,7 @@ const NewProductForm = ({
                     control={form.control}
                     name="details.terms"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="sr-only">
                         <FormLabel>Terms</FormLabel>
                         <FormControl>
                           <Textarea
@@ -526,7 +526,7 @@ const NewProductForm = ({
                     control={form.control}
                     name="details.fees"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="sr-only">
                         <FormLabel>Fees (%)</FormLabel>
                         <FormControl>
                           <Input
@@ -551,7 +551,7 @@ const NewProductForm = ({
                     control={form.control}
                     name="details.eligibility"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="sr-only">
                         <FormLabel>Minimum Age (years)</FormLabel>
                         <FormControl>
                           <Input

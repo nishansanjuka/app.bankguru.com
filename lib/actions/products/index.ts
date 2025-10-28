@@ -37,13 +37,18 @@ export async function createProduct(
   }
 
   const tokenRes = await getToken();
+
+  console.log(product);
   const res = await fetch(`${API_URL}/products`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${tokenRes}`,
     },
-    body: JSON.stringify({ ...product } as Product),
+    body: JSON.stringify({
+      ...product,
+      customAttributes: product.details,
+    }),
   });
   if (!res.ok) {
     return ApiResponse.failure("Failed to create product");
@@ -124,7 +129,7 @@ export async function updateProduct(
       "Content-Type": "application/json",
       Authorization: `Bearer ${tokenRes}`,
     },
-    body: JSON.stringify(product),
+    body: JSON.stringify({ ...product, customAttributes: product.details }),
   });
   if (!res.ok) {
     return ApiResponse.failure("Failed to update product");
