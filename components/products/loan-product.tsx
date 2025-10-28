@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import {
-  Card,
-} from "@/components/ui/card";
+import { useMemo, useState } from "react";
+import { Card } from "@/components/ui/card";
 import {
   Accordion,
   AccordionContent,
@@ -17,15 +15,11 @@ import {
   Star,
   Percent,
   Calculator,
-  Clock,
   ArrowRight,
   MessageCircle,
   Building2,
   BarChart,
   Info,
-  Shield,
-  // TrendingUp,
-  Zap,
   Loader2,
 } from "lucide-react";
 import Image from "next/image";
@@ -84,20 +78,6 @@ export function LoanProduct({
         info.label.toLowerCase().includes("limit"))
   );
 
-  const formatFees = (fees: string | number) => {
-    if (typeof fees === "number") {
-      return `${fees}%`;
-    }
-    return fees || "N/A";
-  };
-
-  const formatEligibility = (eligibility: string | number) => {
-    if (typeof eligibility === "number") {
-      return `${eligibility}+ years`;
-    }
-    return eligibility || "N/A";
-  };
-
   const productImage = product.details.additionalInfo.find(
     (info) => info.id === "product-image"
   );
@@ -105,6 +85,34 @@ export function LoanProduct({
   const productUrl = product.details.additionalInfo.find(
     (info) => info.id === "product-url"
   );
+
+  // Derived details to show (minimal, from additionalInfo)
+  const keyDetails = useMemo(() => {
+    const excludeIds = new Set(["product-image", "product-url"]);
+    const excludeLabels = ["amount", "limit", "rate", "interest"]; // shown above already
+
+    return product.details.additionalInfo
+      .filter((i) => !excludeIds.has(i.id))
+      .filter(
+        (i) => !excludeLabels.some((k) => i.label?.toLowerCase().includes(k))
+      )
+      .filter(
+        (i) => i.value !== undefined && i.value !== null && i.value !== ""
+      )
+      .slice(0, 6);
+  }, [product.details.additionalInfo]);
+
+  const formatCurrency = (n: unknown) => {
+    const num = typeof n === "string" ? Number(n) : (n as number);
+    if (Number.isFinite(num)) {
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+      }).format(num as number);
+    }
+    return String(n);
+  };
 
   return (
     <Card
@@ -134,7 +142,9 @@ export function LoanProduct({
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-gray-700 truncate">{product.institution?.name}</p>
+              <p className="text-xs font-medium text-gray-700 truncate">
+                {product.institution?.name}
+              </p>
               <h3 className="font-semibold text-sm text-gray-900 leading-tight truncate">
                 {product.name}
               </h3>
@@ -147,7 +157,10 @@ export function LoanProduct({
                 Hot
               </Badge>
             )}
-            <Badge variant="outline" className="text-xs text-green-700 border-green-200 bg-green-50 px-1.5 py-0.5">
+            <Badge
+              variant="outline"
+              className="text-xs text-green-700 border-green-200 bg-green-50 px-1.5 py-0.5"
+            >
               {product.productType?.name || "Loan"}
             </Badge>
           </div>
@@ -161,7 +174,9 @@ export function LoanProduct({
                 <Percent className="w-3 h-3 text-green-600" />
               </div>
               <div>
-                <div className="text-lg font-bold text-gray-900">{interestRate.value}%</div>
+                <div className="text-lg font-bold text-gray-900">
+                  {interestRate.value}%
+                </div>
                 <div className="text-xs text-gray-600">Rate</div>
               </div>
             </div>
@@ -173,7 +188,9 @@ export function LoanProduct({
                 <Calculator className="w-3 h-3 text-blue-600" />
               </div>
               <div>
-                <div className="text-lg font-bold text-gray-900">${maxAmount.value}</div>
+                <div className="text-lg font-bold text-gray-900">
+                  ${maxAmount.value}
+                </div>
                 <div className="text-xs text-gray-600">Max</div>
               </div>
             </div>
@@ -183,46 +200,20 @@ export function LoanProduct({
 
       {/* Content Section */}
       <div className="p-4 space-y-4">
-        {/* Quick Features Preview */}
-        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-          <div className="flex items-center space-x-2">
-            <Zap className="w-4 h-4 text-blue-500" />
-            <span className="text-sm text-gray-700">Quick approval</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-orange-500" />
-            <span className="text-sm text-gray-700">Flexible terms</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Shield className="w-4 h-4 text-green-500" />
-            <span className="text-sm text-gray-700">Competitive</span>
-          </div>
-        </div>
-
-        {/* Essential Info */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-600">Processing Fee</p>
-            <p className="font-semibold text-gray-900 mt-1">{formatFees(product.details.fees)}</p>
-          </div>
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
-            <p className="text-xs text-gray-600">Min. Age</p>
-            <p className="font-semibold text-gray-900 mt-1">{formatEligibility(product.details.eligibility)}</p>
-          </div>
-        </div>
-
-        {/* Expandable Details Accordion */}
+        {/* Expandable Details Accordion (minimal, data-driven) */}
         <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="details" className="border border-gray-200 rounded-lg">
+          <AccordionItem
+            value="details"
+            className="border border-gray-200 rounded-lg"
+          >
             <AccordionTrigger className="px-4 py-3 text-sm font-medium text-gray-700 hover:no-underline hover:bg-gray-50">
               <div className="flex items-center space-x-2">
                 <Info className="w-4 h-4" />
-                <span>View Full Details & Features</span>
+                <span>Key details</span>
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4">
-              <div className="space-y-4">
-                {/* Product Image - Compact Size */}
+              <div className="space-y-3">
                 {productImage && (
                   <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                     <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
@@ -234,46 +225,39 @@ export function LoanProduct({
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-gray-900 text-sm">{product.name}</h4>
-                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">{product.details.description}</p>
+                      <h4 className="font-medium text-gray-900 text-sm">
+                        {product.name}
+                      </h4>
+                      {product.details.description && (
+                        <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                          {product.details.description}
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
 
-                {/* Detailed Features */}
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-gray-900 text-sm">All Features</h4>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                      <Zap className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                      <span className="text-sm text-blue-900">Quick approval process within 24 hours</span>
-                    </div>
-                    <div className="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                      <Clock className="w-4 h-4 text-orange-500 flex-shrink-0" />
-                      <span className="text-sm text-orange-900">Flexible repayment terms up to 30 years</span>
-                    </div>
-                    <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                      <Shield className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-green-900">Competitive interest rates starting from {interestRate?.value}%</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Description */}
-                {/* <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <h4 className="font-medium text-blue-900 text-sm mb-2">About This Loan</h4>
-                  <p className="text-sm text-blue-800 leading-relaxed">
-                    {product.details.description}
-                  </p>
-                </div> */}
-
-                {/* Performance Indicator */}
-                {/* <div className="flex items-center justify-center p-3 bg-green-50 rounded-lg border border-green-200">
-                  <TrendingUp className="w-4 h-4 text-green-600 mr-2" />
-                  <span className="text-sm font-medium text-green-800">
-                    Highly rated loan product with excellent customer satisfaction
-                  </span>
-                </div> */}
+                <ul className="divide-y divide-gray-100 rounded-md border border-gray-100 overflow-hidden">
+                  {keyDetails.map((d) => (
+                    <li
+                      key={d.id}
+                      className="flex items-center justify-between px-3 py-2 bg-white"
+                    >
+                      <span className="text-xs text-gray-500">{d.label}</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        {d.type === "number" &&
+                        /amount|limit|price|balance/i.test(d.label)
+                          ? formatCurrency(d.value)
+                          : String(d.value)}
+                      </span>
+                    </li>
+                  ))}
+                  {keyDetails.length === 0 && (
+                    <li className="px-3 py-2 text-xs text-gray-500">
+                      No additional details provided.
+                    </li>
+                  )}
+                </ul>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -300,15 +284,21 @@ export function LoanProduct({
               </>
             )}
           </Button>
-          
+
           <div className="flex items-center space-x-2">
-            <Button
-              onClick={() => window.open(productUrl?.value.toString(), "_blank")}
-              className="flex-1 h-10 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md text-sm"
-            >
-              Apply Now
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            {productUrl?.value ? (
+              <Button
+                onClick={() =>
+                  window.open(productUrl?.value.toString(), "_blank")
+                }
+                className="flex-1 h-10 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium rounded-lg transition-all duration-300 shadow-sm hover:shadow-md text-sm"
+              >
+                Apply Now
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            ) : (
+              <div className="flex-1" />
+            )}
             <div className="flex space-x-1">
               <Button
                 onClick={handleAskGuru}
