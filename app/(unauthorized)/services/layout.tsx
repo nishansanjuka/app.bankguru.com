@@ -5,7 +5,7 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
   return (
     <>
       <GuruBot />
-      {children}
+      <div className="pt-14">{children}</div>
     </>
   );
 };

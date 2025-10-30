@@ -122,7 +122,7 @@ export function ConversationHistory({
       </div>
 
       {/* Conversations List with Proper ScrollArea */}
-      <ScrollArea className="h-[80vh]">
+      <ScrollArea className=" h-[80vh] sm:h-[calc(80vh-3.5rem)]">
         <div className="p-4 space-y-2">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">

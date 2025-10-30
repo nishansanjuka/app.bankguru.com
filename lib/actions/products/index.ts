@@ -66,26 +66,30 @@ export async function getProducts(
     searchParams.append("institutionId", query.institutionId);
   if (query.productTypeId)
     searchParams.append("productTypeId", query.productTypeId);
-  if (query.isActive !== undefined)
-    searchParams.append("isActive", query.isActive.toString());
+  // if (query.isActive !== undefined)
+  //   searchParams.append("isActive", query.isActive.toString());
   if (query.isFeatured !== undefined)
     searchParams.append("isFeatured", query.isFeatured.toString());
   if (query.minRate !== undefined)
     searchParams.append("minRate", query.minRate.toString());
   if (query.maxRate !== undefined)
     searchParams.append("maxRate", query.maxRate.toString());
-  if (query.limit !== undefined)
-    searchParams.append("limit", query.limit.toString());
+  // if (query.limit !== undefined)
+  //   searchParams.append("limit", query.limit.toString());
 
   const url = `${API_URL}/products${
     searchParams.toString() ? `?${searchParams.toString()}` : ""
   }`;
+
+  console.log(url);
 
   const res = await fetch(url, { method: "GET" });
   if (!res.ok) {
     return ApiResponse.failure("Failed to retrieve products");
   }
   const data = await res.json();
+
+  console.log("data", data);
 
   return ApiResponse.success(data.data);
 }

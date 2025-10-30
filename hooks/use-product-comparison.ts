@@ -10,20 +10,20 @@ interface UseProductComparisonReturn {
   isComparisonDialogOpen: boolean;
   openComparisonDialog: (product: Product) => void;
   closeComparisonDialog: () => void;
-  
+
   // View state
   isComparisonViewOpen: boolean;
   openComparisonView: (products: Product[]) => void;
   closeComparisonView: () => void;
-  
+
   // Products
   currentProduct: Product | null;
   availableProducts: Product[];
   selectedProducts: Product[];
-  
+
   // Loading
   isLoading: boolean;
-  
+
   // Actions
   removeProductFromComparison: (productId: string) => void;
   handleCompareSelected: (products: Product[]) => void;
@@ -40,13 +40,14 @@ export function useProductComparison(): UseProductComparisonReturn {
     queryKey: ["products-for-comparison", currentProduct?.productType?.id],
     queryFn: async () => {
       if (!currentProduct?.productType?.id) return [];
-      
+
+      console.log("current product", currentProduct);
       const response = await getProducts({
         productTypeId: currentProduct.productType.id,
         isActive: true,
         limit: 50, // Get more products for comparison
       });
-      
+
       if (response.success) {
         return response.data;
       }
@@ -76,13 +77,16 @@ export function useProductComparison(): UseProductComparisonReturn {
   }, []);
 
   const removeProductFromComparison = useCallback((productId: string) => {
-    setSelectedProducts(prev => prev.filter(p => p.id !== productId));
+    setSelectedProducts((prev) => prev.filter((p) => p.id !== productId));
   }, []);
 
-  const handleCompareSelected = useCallback((products: Product[]) => {
-    closeComparisonDialog();
-    openComparisonView(products);
-  }, [closeComparisonDialog, openComparisonView]);
+  const handleCompareSelected = useCallback(
+    (products: Product[]) => {
+      closeComparisonDialog();
+      openComparisonView(products);
+    },
+    [closeComparisonDialog, openComparisonView]
+  );
 
   return {
     isComparisonDialogOpen,

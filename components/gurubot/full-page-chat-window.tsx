@@ -6,7 +6,10 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Bot, User, Loader2 } from "lucide-react";
 import { useGuruBot } from "@/providers/gurubot-provider";
-import { ConversationHistoryResponse, ConversationMessage } from "@/types/gurubot";
+import {
+  ConversationHistoryResponse,
+  ConversationMessage,
+} from "@/types/gurubot";
 import { Markdown } from "./markdown";
 
 interface FullPageChatWindowProps {
@@ -30,7 +33,7 @@ export function FullPageChatWindow({
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await fetch(`/api/conversations/${id}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch conversation: ${response.status}`);
@@ -39,7 +42,9 @@ export function FullPageChatWindow({
       const data: ConversationHistoryResponse = await response.json();
       setMessages(data.messages || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load conversation");
+      setError(
+        err instanceof Error ? err.message : "Failed to load conversation"
+      );
       setMessages([]);
     } finally {
       setIsLoading(false);
@@ -52,7 +57,7 @@ export function FullPageChatWindow({
 
     const messageText = inputValue;
     setInputValue("");
-    
+
     try {
       // Add user message to local state immediately
       const userMessage: ConversationMessage = {
@@ -60,18 +65,17 @@ export function FullPageChatWindow({
         role: "user",
         timestamp: new Date().toISOString(),
       };
-      
-      setMessages(prev => [...prev, userMessage]);
+
+      setMessages((prev) => [...prev, userMessage]);
       setIsLoading(true);
 
       // Send message using GuruBot provider
       await sendMessage(messageText);
-      
+
       // If this is a new conversation and we get a conversation ID, notify parent
       if (!conversationId && state.conversationId) {
         onConversationStart(state.conversationId);
       }
-
     } catch (err) {
       console.error("Failed to send message:", err);
       setError("Failed to send message. Please try again.");
@@ -104,12 +108,17 @@ export function FullPageChatWindow({
 
   // Update messages from GuruBot state
   useEffect(() => {
-    if (state.messages.length > 0 && (!conversationId || conversationId === state.conversationId)) {
-      const formattedMessages: ConversationMessage[] = state.messages.map(msg => ({
-        text: msg.text,
-        role: msg.role,
-        timestamp: msg.timestamp,
-      }));
+    if (
+      state.messages.length > 0 &&
+      (!conversationId || conversationId === state.conversationId)
+    ) {
+      const formattedMessages: ConversationMessage[] = state.messages.map(
+        (msg) => ({
+          text: msg.text,
+          role: msg.role,
+          timestamp: msg.timestamp,
+        })
+      );
       setMessages(formattedMessages);
     }
   }, [state.messages, conversationId, state.conversationId]);
@@ -122,8 +131,8 @@ export function FullPageChatWindow({
   // Format timestamp
   const formatTimestamp = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -147,7 +156,7 @@ export function FullPageChatWindow({
       </div>
 
       {/* Messages Area */}
-      <ScrollArea className="h-[70vh] p-6">
+      <ScrollArea className=" h-[75vh] sm:h-[calc(70vh-4rem)] p-6">
         <div className="space-y-6 max-w-[90%] mx-auto">
           {/* Welcome Message */}
           {messages.length === 0 && !isLoading && (
@@ -159,7 +168,8 @@ export function FullPageChatWindow({
                 Welcome to GuruBot!
               </h3>
               <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-                I&apos;m here to help you with financial advice, product comparisons, and answer any banking questions you might have.
+                I&apos;m here to help you with financial advice, product
+                comparisons, and answer any banking questions you might have.
               </p>
             </div>
           )}
@@ -184,7 +194,7 @@ export function FullPageChatWindow({
                   <Bot className="w-4 h-4 text-white" />
                 </div>
               )}
-              
+
               <div
                 className={`max-w-5xl ${
                   message.role === "user"
@@ -199,7 +209,7 @@ export function FullPageChatWindow({
                 ) : (
                   <p className="text-sm">{message.text}</p>
                 )}
-                
+
                 <div
                   className={`text-xs mt-2 ${
                     message.role === "user"
@@ -260,7 +270,7 @@ export function FullPageChatWindow({
               <Send className="w-4 h-4" />
             </Button>
           </div>
-          
+
           {/* Quick Actions */}
           {/* <div className="flex flex-wrap gap-2 mt-4">
             <Button
