@@ -80,7 +80,7 @@ export const Container: FC<{ catId: string }> = ({ catId }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 pt-10">
       {/* Page Header */}
       <div className="border-b border-gray-200 sticky top-[65px] z-40 backdrop-blur-sm bg-white/95">
         <div className="max-w-[85vw] mx-auto px-4 sm:px-6 lg:px-8 py-6">

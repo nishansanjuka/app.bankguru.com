@@ -45,9 +45,7 @@ export function ProductComparisonDialog({
         setSelectedProducts([...selectedProducts, product]);
       }
     } else {
-      setSelectedProducts(
-        selectedProducts.filter((p) => p.id !== product.id)
-      );
+      setSelectedProducts(selectedProducts.filter((p) => p.id !== product.id));
     }
   };
 
@@ -60,10 +58,12 @@ export function ProductComparisonDialog({
     selectedProducts.some((p) => p.id === productId);
 
   const filteredProducts = availableProducts.filter(
-    (product) => 
-      product.id !== currentProduct.id && 
+    (product) =>
+      product.id !== currentProduct.id &&
       product.productType?.code === currentProduct.productType?.code
   );
+
+  console.log(availableProducts);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -71,8 +71,9 @@ export function ProductComparisonDialog({
         <DialogHeader>
           <DialogTitle>Compare Products</DialogTitle>
           <DialogDescription>
-            Select up to 3 additional {currentProduct.productType?.name} products to compare with {currentProduct.name}.
-            You can compare products from different institutions.
+            Select up to 3 additional {currentProduct.productType?.name}{" "}
+            products to compare with {currentProduct.name}. You can compare
+            products from different institutions.
           </DialogDescription>
         </DialogHeader>
 
@@ -107,7 +108,8 @@ export function ProductComparisonDialog({
                 </div>
               ) : filteredProducts.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
-                  No other {currentProduct.productType?.name} products available for comparison.
+                  No other {currentProduct.productType?.name} products available
+                  for comparison.
                 </div>
               ) : (
                 filteredProducts.map((product) => (
@@ -166,13 +168,18 @@ interface ProductComparisonItemProps {
   disabled?: boolean;
 }
 
-function ProductComparisonItem({ product, disabled }: ProductComparisonItemProps) {
+function ProductComparisonItem({
+  product,
+  disabled,
+}: ProductComparisonItemProps) {
   const institutionLogo = product.details.additionalInfo.find(
-    (info) => info.type === "image" && info.label.toLowerCase().includes("logo")
+    (info) => info.id === "product-image"
   );
 
   return (
-    <div className={cn("flex items-center space-x-4", disabled && "opacity-75")}>
+    <div
+      className={cn("flex items-center space-x-4", disabled && "opacity-75")}
+    >
       {/* Institution Logo */}
       <div className="flex-shrink-0 w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
         {institutionLogo ? (

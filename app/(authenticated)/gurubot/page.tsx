@@ -46,7 +46,7 @@ export default function GuruBotPage() {
   return (
     <div className=" bg-gray-50 dark:bg-gray-900 flex flex-col">
       {/* Mobile Header */}
-      {isMobile && (
+      {/* {isMobile && (
         <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shrink-0 sticky top-0 z-50">
           <div className="flex items-center gap-3">
             <Sheet open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
@@ -87,11 +87,11 @@ export default function GuruBotPage() {
             </Button>
           )}
         </div>
-      )}
+      )} */}
 
       {/* Desktop Layout */}
       {!isMobile ? (
-        <div className="flex-1 grid grid-cols-12 gap-0">
+        <div className="flex-1 grid grid-cols-12 gap-0 2xl:pt-8">
           {/* History Panel - Desktop */}
           <div className="col-span-4 xl:col-span-3 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <ConversationHistory
